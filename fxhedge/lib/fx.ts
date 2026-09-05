@@ -165,8 +165,9 @@ export async function fetchBoCFallback(
     };
     const obs = json.observations?.at(-1);
     const value = obs?.[series]?.v;
-    if (typeof value !== "number") return null;
-    return { rate: value, source: "Bank of Canada Valet", date: obs ? Object.keys(obs)[0] ?? "" : "" };
+    const rate = typeof value === "number" ? value : Number(value);
+    if (!Number.isFinite(rate)) return null;
+    return { rate, source: "Bank of Canada Valet", date: obs ? Object.keys(obs)[0] ?? "" : "" };
   } catch {
     return null;
   }
