@@ -1,0 +1,58 @@
+/**
+ * lib/breakeven.ts — THE dashboard number: at what rate do we lose money,
+ * and how much room do we have left today?
+ * Pure: no React/Next imports (architecture.md invariant 5).
+ * Verdicts cite historical magnitudes only — never a direction prediction.
+ */
+export interface BreakEvenInput {
+  invoiceAmount: number;
+  revenue: number;
+  todayRate: number;
+  worst5pctMove: number;
+  worstOnRecord: number;
+}
+
+export interface BreakEvenResult {
+  break_even_rate: number;
+  cushion_pct: number;
+  cushion_abs: number;
+  verdict: "comfortable" | "watch" | "danger";
+  verdict_reason: string;
+  history_5pct: number;
+  history_worst: number;
+}
+
+export function computeBreakEven(input: BreakEvenInput): BreakEvenResult {
+  const { invoiceAmount, revenue, todayRate, worst5pctMove, worstOnRecord } = input;
+  if (!(invoiceAmount > 0)) throw new Error("invoice amount must be > 0");
+  if (!(revenue > 0)) throw new Error("revenue must be > 0");
+
+  const break_even_rate = revenue / invoiceAmount;
+  // How much the rate can move against the owner before profit hits zero,
+  // as a % of today's rate.
+  const cushion_pct = ((todayRate - break_even_rate) / todayRate) * 100;
+  const cushion_abs = todayRate - break_even_rate;
+
+  let verdict: BreakEvenResult["verdict"];
+  let verdict_reason: string;
+  if (cushion_pct > 2 * worst5pctMove) {
+    verdict = "comfortable";
+    verdict_reason = `Your rate can move ${cushion_pct.toFixed(1)}% against you before you lose money. History says only 5% of similar windows move more than ${worst5pctMove.toFixed(1)}% — your cushion covers that twice over.`;
+  } else if (cushion_pct > worst5pctMove) {
+    verdict = "watch";
+    verdict_reason = `Your cushion is ${cushion_pct.toFixed(1)}% — history says 5% of similar windows move ${worst5pctMove.toFixed(1)}%+, so a bad week eats most of it. Worth checking weekly.`;
+  } else {
+    verdict = "danger";
+    verdict_reason = `Only ${cushion_pct.toFixed(1)}% of cushion remains and history shows windows moving ${worst5pctMove.toFixed(1)}%+ (worst on record ${worstOnRecord.toFixed(1)}%). You are inside the danger zone — consider acting now.`;
+  }
+
+  return {
+    break_even_rate: Math.round(break_even_rate * 10000) / 10000,
+    cushion_pct: Math.round(cushion_pct * 10) / 10,
+    cushion_abs: Math.round(cushion_abs * 10000) / 10000,
+    verdict,
+    verdict_reason,
+    history_5pct: worst5pctMove,
+    history_worst: worstOnRecord,
+  };
+}

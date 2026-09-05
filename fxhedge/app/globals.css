@@ -44,36 +44,26 @@
   --color-warning-muted: #3C2B17;
 }
 
+@media print {
+  aside,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .zakat-summary {
+    border: 1px solid #333 !important;
+  }
+}
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-}
-
-body {
-  background-color: var(--color-surface);
-  color: var(--color-fg);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Tabular numbers for money values */
-.font-money {
-  font-family: var(--font-sans);
-  font-feature-settings: "tnum" 1, "lnum" 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
 }
