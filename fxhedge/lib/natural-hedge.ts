@@ -70,18 +70,24 @@ export function detectNaturalHedges(flows: CurrencyFlow[]): NaturalHedgeResult {
   }
 
   const unmatched = usable.filter((f) => !used.has(f.id));
-  const remaining = unmatched
-    .filter((f) => f.direction === "outgoing")
-    .reduce((s, f) => s + f.amount, 0);
+  const remainingByCurrency = new Map<string, number>();
+  for (const f of unmatched) {
+    if (f.direction !== "outgoing") continue;
+    remainingByCurrency.set(f.currency, (remainingByCurrency.get(f.currency) ?? 0) + f.amount);
+  }
+  const remainingTotal = [...remainingByCurrency.values()].reduce((s, n) => s + n, 0);
+  const remainingDetail = [...remainingByCurrency]
+    .map(([cur, amt]) => `${amt.toLocaleString()} ${cur}`)
+    .join(" + ");
 
   const summary =
     matches.length === 0
-      ? remaining > 0
-        ? `No natural hedge found — ${remaining.toLocaleString()} of foreign-currency payments still need a conversion decision.`
+      ? remainingTotal > 0
+        ? `No natural hedge found — ${remainingDetail || `${remainingTotal.toLocaleString()}`} of foreign-currency payments still need a conversion decision.`
         : "No foreign-currency exposure to hedge right now."
       : unmatched.length === 0
-        ? `Good news: your ${currencyList(matches)} flows net against each other — you may not need to convert anything.`
-        : `You can naturally hedge ${matchesSummary(matches)} — but ${remaining.toLocaleString()} of other foreign payments still need attention.`;
+        ? `Good news: your ${currencyList(matches)} flows net fully against each other — you may not need to convert anything.`
+        : `You can naturally hedge ${matchesSummary(matches)} — but ${remainingDetail} (${remainingTotal.toLocaleString()} total) still needs attention.`;
 
   return { matches, unmatched, summary, disclaimer: NATURAL_HEDGE_DISCLAIMER };
 }
