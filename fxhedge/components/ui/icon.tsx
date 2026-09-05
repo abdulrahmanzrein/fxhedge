@@ -1,4 +1,4 @@
-import { clsx } from "clsx";
+import { cn } from "@/lib/cn";
 import type { LucideIcon } from "lucide-react";
 
 /** Icon — 16px, muted, stroke 1.75. Icons whisper; numbers talk. */
@@ -15,7 +15,7 @@ export function Icon({
     <Glyph
       size={size}
       strokeWidth={1.75}
-      className={clsx("text-muted", className)}
+      className={cn("text-muted", className)}
       aria-hidden
     />
   );

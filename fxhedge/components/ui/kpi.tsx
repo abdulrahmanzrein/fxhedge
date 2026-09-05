@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import type { ReactNode } from "react";
 
 const TONE_CLASS = {
   neutral: "text-primary",
@@ -10,6 +11,8 @@ const TONE_CLASS = {
 /**
  * Kpi — the signature element: huge tabular numeral, small muted label.
  * Repeated everywhere; this repetition IS the visual identity.
+ * `value` accepts a ReactNode so animated numerals (AnimatedNumber)
+ * can live inside a Kpi.
  */
 export function Kpi({
   label,
@@ -18,8 +21,8 @@ export function Kpi({
   tone = "neutral",
 }: {
   label: string;
-  value: string;
-  sub?: string;
+  value: ReactNode;
+  sub?: ReactNode;
   tone?: "neutral" | "positive" | "negative" | "accent";
 }) {
   return (

@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { ZakatHoldingList } from "@/components/zakat-holding-list";
 import { ZakatResultCard } from "@/components/zakat-result-card";
+import { PillTabs } from "@/components/ui/pill-tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { computeZakat, NISAB_GOLD_GRAMS } from "@/lib/zakat";
 import type { MadhhabMethod, ZakatHolding, ZakatResult } from "@/types/zakat";
 
@@ -46,8 +49,8 @@ export default function ZakatPage() {
   return (
     <div className="flex flex-col gap-6">
       <header>
-        <h1 className="font-display text-2xl">Zakat calculator</h1>
-        <p className="text-sm text-text-muted">
+        <h1 className="text-2xl font-semibold tracking-tight">Zakat calculator</h1>
+        <p className="text-sm text-muted">
           Your zakat is 2.5% of what your business truly holds — and for
           importers, that value moves with the exchange rate every day. Foreign
           holdings are valued at today&apos;s live reference rate.
@@ -58,10 +61,10 @@ export default function ZakatPage() {
         <ZakatHoldingList holdings={holdings} onChange={setHoldings} homeCurrency={home} />
 
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-          <label className="flex flex-col gap-1 text-xs text-text-muted">
+          <label className="flex flex-col gap-1 text-xs text-muted">
             Home currency
             <select
-              className="rounded-sm border border-border bg-surface px-2 py-1.5 text-sm"
+              className="rounded-[10px] border border-line bg-canvas px-2 py-1.5 text-sm text-primary"
               value={home}
               onChange={(e) => setHome(e.target.value)}
             >
@@ -70,63 +73,53 @@ export default function ZakatPage() {
               ))}
             </select>
           </label>
-          <label className="flex flex-col gap-1 text-xs text-text-muted">
-            Gold price per gram ({home}) <span className="text-[10px] uppercase text-text-faint">user-entered</span>
-            <input
+          <label className="flex flex-col gap-1 text-xs text-muted">
+            Gold price per gram ({home}) <span className="text-[10px] text-faint">user-entered</span>
+            <Input
               type="number"
               min={1}
               step="0.01"
-              className="rounded-sm border border-border bg-surface px-2 py-1.5 text-sm [font-feature-settings:'tnum'_1,'lnum'_1]"
               value={goldPrice}
               onChange={(e) => setGoldPrice(Number(e.target.value) || 0)}
             />
             <span className="text-[10px]">nisab = {NISAB_GOLD_GRAMS}g of gold</span>
           </label>
-          <div className="flex flex-col gap-1 text-xs text-text-muted">
+          <div className="flex flex-col gap-1 text-xs text-muted">
             Method
-            <div className="flex rounded-sm border border-border" role="tablist" aria-label="Scholarly method">
-              {(["aaoifi", "hanafi"] as const).map((m) => (
-                <button
-                  key={m}
-                  role="tab"
-                  aria-selected={method === m}
-                  type="button"
-                  onClick={() => {
-                    setMethod(m);
-                    setResult(null);
-                  }}
-                  className={`flex-1 px-3 py-1.5 text-sm ${
-                    method === m ? "bg-primary-highlight font-medium text-primary" : "bg-surface"
-                  }`}
-                >
-                  {m === "aaoifi" ? "AAOIFI view" : "Hanafi view"}
-                </button>
-              ))}
-            </div>
+            <PillTabs
+              tabs={[
+                { id: "aaoifi", label: "AAOIFI view" },
+                { id: "hanafi", label: "Hanafi view" },
+              ]}
+              active={method}
+              onChange={(id) => {
+                setMethod(id as MadhhabMethod);
+                setResult(null);
+              }}
+            />
           </div>
         </div>
 
         <div className="no-print flex items-center gap-3">
-          <button
+          <Button
             type="button"
             onClick={compute}
             disabled={loading || holdings.length === 0}
-            className="rounded-sm bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
           >
             {loading ? "Fetching live rates…" : "Compute my zakat"}
-          </button>
+          </Button>
           {result && (
-            <button
+            <Button
               type="button"
+              variant="secondary"
               onClick={() => window.print()}
-              className="rounded-sm border border-border bg-surface px-4 py-2 text-sm font-medium hover:bg-surface-2"
             >
               Print scholar summary
-            </button>
+            </Button>
           )}
         </div>
         {error && (
-          <p role="alert" className="rounded-sm bg-surface-2 p-3 text-sm text-error">
+          <p role="alert" className="rounded-[10px] bg-negative-soft p-3 text-sm text-negative">
             {error}
           </p>
         )}

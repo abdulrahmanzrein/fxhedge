@@ -1,6 +1,6 @@
 "use client";
 
-import { clsx } from "clsx";
+import { cn } from "@/lib/cn";
 import type { ButtonHTMLAttributes } from "react";
 
 const VARIANT = {
@@ -20,7 +20,7 @@ export function Button({
 }) {
   return (
     <button
-      className={clsx(
+      className={cn(
         "inline-flex items-center justify-center gap-2 rounded-[10px] px-4 py-2 text-sm transition-[background-color,transform] duration-150",
         VARIANT[variant],
         className,
