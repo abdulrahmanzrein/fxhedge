@@ -1,29 +1,42 @@
+"use client";
 import { SAMPLE, MOCK_PROFILE, currencySymbol } from "@/lib/fixtures";
-import { Badge } from "@/components/ui/badge";
+import { useCountUp } from "@/hooks/use-count-up";
 
-interface WaterfallRow {
+interface Row {
   label: string;
   value: number;
   source: string;
+  isRate?: boolean;
   highlight?: boolean;
+}
+
+function AnimatedCell({ value, sym, isRate, delay }: { value: number; sym: string; isRate?: boolean; delay: number }) {
+  const animated = useCountUp(isRate ? 0 : value, 1300, isRate ? 4 : 0, delay);
+  if (isRate) return <span>{value.toFixed(4)}</span>;
+  return (
+    <span>
+      {value < 100 ? value.toFixed(4) : `${sym}${animated.toLocaleString()}`}
+    </span>
+  );
 }
 
 export default function CostPage() {
   const sym = currencySymbol(MOCK_PROFILE.home_currency);
 
-  const rows: WaterfallRow[] = [
+  const rows: Row[] = [
     {
       label: "Invoice amount (EUR)",
       value: SAMPLE.invoiceAmount,
       source: "Your input",
     },
     {
-      label: "ECB mid-market rate",
+      label: "ECB mid market rate",
       value: SAMPLE.ecbRateToday,
       source: "ECB / Frankfurter API",
+      isRate: true,
     },
     {
-      label: "True cost at mid-market",
+      label: "True cost at mid market",
       value: SAMPLE.trueCostToday,
       source: "Invoice × ECB rate",
       highlight: true,
@@ -39,14 +52,14 @@ export default function CostPage() {
       source: "Wise Comparison API",
     },
     {
-      label: "Markup (worst vs mid-market)",
+      label: "Provider markup",
       value: SAMPLE.trueCostToday - SAMPLE.worstProvider.received,
-      source: "True cost − worst provider",
+      source: "True cost vs worst provider",
     },
     {
-      label: "Saving (best vs worst)",
+      label: "Saving by switching",
       value: SAMPLE.savingVsWorst,
-      source: "Best − worst provider",
+      source: "Best vs worst provider",
       highlight: true,
     },
   ];
@@ -54,46 +67,44 @@ export default function CostPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-serif text-3xl font-semibold text-[var(--color-fg)]">Cost breakdown</h1>
+        <h1 className="font-serif text-3xl font-normal text-[var(--color-fg)]">Cost breakdown</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-fg)]">
-          Every value labeled by source · {SAMPLE.pair} · {sym}{SAMPLE.invoiceAmount.toLocaleString()} invoice
+          Every value labeled by source · {sym}{SAMPLE.invoiceAmount.toLocaleString()} invoice · EUR to CAD
         </p>
       </div>
 
-      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden">
+      <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)]">
         <div className="overflow-x-auto">
-        <table className="w-full min-w-[540px] text-sm">
-          <thead>
-            <tr className="border-b border-[var(--color-border)] text-left">
-              <th className="px-5 py-3 text-xs uppercase tracking-widest text-[var(--color-muted-fg)] font-medium">Component</th>
-              <th className="px-5 py-3 text-xs uppercase tracking-widest text-[var(--color-muted-fg)] font-medium text-right">Value</th>
-              <th className="px-5 py-3 text-xs uppercase tracking-widest text-[var(--color-muted-fg)] font-medium">Source</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, i) => (
-              <tr
-                key={i}
-                className={`border-b border-[var(--color-border)] last:border-0 ${
-                  row.highlight ? "bg-[var(--color-muted)]/40" : ""
-                }`}
-              >
-                <td className="px-5 py-4 text-[var(--color-fg)] font-medium">{row.label}</td>
-                <td className="px-5 py-4 text-right font-money font-semibold text-[var(--color-fg)]">
-                  {row.value < 100 ? row.value.toFixed(4) : `${sym}${row.value.toLocaleString()}`}
-                </td>
-                <td className="px-5 py-4">
-                  <Badge variant="outline" className="text-xs">{row.source}</Badge>
-                </td>
+          <table className="w-full min-w-[540px] text-sm">
+            <thead>
+              <tr className="border-b border-[var(--color-border)] text-left">
+                <th className="px-5 py-3 text-xs font-medium text-[var(--color-muted-fg)]">Component</th>
+                <th className="px-5 py-3 text-right text-xs font-medium text-[var(--color-muted-fg)]">Value</th>
+                <th className="px-5 py-3 text-xs font-medium text-[var(--color-muted-fg)]">Source</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((row, i) => (
+                <tr
+                  key={i}
+                  className={`border-b border-[var(--color-border)] last:border-0 ${
+                    row.highlight ? "bg-[var(--color-muted)]/40" : ""
+                  }`}
+                >
+                  <td className="px-5 py-4 font-medium text-[var(--color-fg)]">{row.label}</td>
+                  <td className="px-5 py-4 text-right font-money font-semibold text-[var(--color-fg)]">
+                    <AnimatedCell value={row.value} sym={sym} isRate={row.isRate} delay={i * 80} />
+                  </td>
+                  <td className="px-5 py-4 text-xs text-[var(--color-muted-fg)]">{row.source}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
       <p className="text-xs text-[var(--color-muted-fg)]">
-        FX markup = difference between the mid-market rate and what you actually pay. Hedged never moves money.
+        FX markup is the difference between the mid market rate and what you actually pay. Hedged never moves money.
       </p>
     </div>
   );

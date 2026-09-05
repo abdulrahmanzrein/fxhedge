@@ -1,87 +1,204 @@
 import Link from "next/link";
-import { SAMPLE } from "@/lib/fixtures";
+import { AnimateIn } from "@/components/animate-in";
+
+const features = [
+  {
+    title: "True cost visibility",
+    desc: "See the real gap between the mid market rate and what you actually pay. That gap is your provider's margin, and it comes directly out of your bottom line.",
+  },
+  {
+    title: "Provider comparison",
+    desc: "Wise, Instarem, Deutsche Bank, Western Union ranked by what your supplier actually receives — not the headline rate. One view, real numbers.",
+  },
+  {
+    title: "Islamic finance options",
+    desc: "Explore murabaha, wa'd, and natural hedges alongside conventional solutions, grounded in cited scholarly sources so you can make an informed choice.",
+  },
+];
+
+const stats = [
+  { value: "4+",   label: "FX providers compared"    },
+  { value: "€12k", label: "Avg invoice amount saved"  },
+  { value: "CA$767",label: "Avg saving vs worst rate"  },
+  { value: "100%",  label: "Halal finance coverage"    },
+];
 
 export default function LandingPage() {
   return (
-    <div className="min-h-full bg-[var(--color-surface)]">
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 max-w-[1180px] mx-auto">
-        <span className="font-serif text-xl font-semibold text-[var(--color-fg)]">Hedged</span>
-        <div className="flex items-center gap-3">
-          <Link href="/login" className="text-sm text-[var(--color-muted-fg)] hover:text-[var(--color-fg)] transition-colors">
-            Sign in
-          </Link>
-          <Link href="/signup" className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
-            Get started
-          </Link>
-        </div>
-      </nav>
+    <div className="flex min-h-full flex-col">
 
-      <main>
-      {/* Hero */}
-      <section className="max-w-[1180px] mx-auto px-6 py-20 text-center">
-        <h1 className="font-serif text-5xl font-semibold leading-tight text-[var(--color-fg)] mb-6 max-w-2xl mx-auto">
-          Stop losing margin to hidden FX costs
-        </h1>
-        <p className="text-lg text-[var(--color-muted-fg)] mb-10 max-w-xl mx-auto">
-          See your true exchange rate cost, compare providers side-by-side, and explore Islamic finance alternatives — all in one place.
-        </p>
-        <div className="flex items-center justify-center gap-4 flex-wrap">
-          <Link href="/signup" className="rounded-md bg-[var(--color-primary)] px-6 py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
-            Start for free
+      {/* ── Sticky nav ────────────────────────────────────────── */}
+      <header
+        className="fixed inset-x-0 top-0 z-30 border-b border-white/8"
+        style={{ backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(4,6,18,0.55)" }}
+      >
+        <div className="mx-auto flex max-w-[1180px] items-center justify-between px-6 py-4">
+          <Link href="/" className="font-serif text-xl font-normal text-white transition-opacity hover:opacity-70">
+            Hedged
           </Link>
-          <Link href="/dashboard" className="rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-6 py-3 text-sm font-semibold text-[var(--color-fg)] hover:bg-[var(--color-muted)] transition-colors">
-            See live demo
-          </Link>
+          <div className="hidden items-center gap-8 sm:flex">
+            <a href="#features" className="text-sm text-white/55 transition-colors hover:text-white">Features</a>
+            <a href="#contact"  className="text-sm text-white/55 transition-colors hover:text-white">Contact</a>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/login"  className="text-sm font-medium text-white/60 transition-colors hover:text-white">Log in</Link>
+            <Link
+              href="/signup"
+              className="rounded-full px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ background: "linear-gradient(135deg, #1D4ED8 0%, #3B82F6 100%)" }}
+            >
+              Start free
+            </Link>
+          </div>
         </div>
+      </header>
 
-        {/* Live data preview card */}
-        <div className="mt-16 mx-auto max-w-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 text-left shadow-lg">
-          <p className="text-xs uppercase tracking-widest text-[var(--color-muted-fg)] mb-1">Live example · {SAMPLE.pair}</p>
-          <p className="font-serif text-2xl font-semibold text-[var(--color-fg)] mb-4">Aisha's Halal Imports</p>
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-[var(--color-muted-fg)]">Best rate (Wise)</span>
-            <span className="font-money font-bold text-[var(--color-fg)]">CA${SAMPLE.bestProvider.received.toLocaleString()}</span>
+      {/* ── Hero ──────────────────────────────────────────────── */}
+      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center">
+        {/* Full-bleed photo */}
+        <img
+          src="/hero-bg.png"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: "55% center" }}
+        />
+        {/* Cinematic overlay */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(to bottom, rgba(4,6,18,0.78) 0%, rgba(4,6,18,0.55) 45%, rgba(4,6,18,0.75) 85%, rgba(4,6,18,0.95) 100%)",
+          }}
+        />
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col items-center" style={{ paddingTop: "72px" }}>
+          {/* Badge */}
+          <div
+            className="hero-animate mb-7 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-medium text-white/70"
+            style={{ borderColor: "rgba(59,130,246,0.35)", background: "rgba(59,130,246,0.10)" }}
+          >
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#3B82F6", display: "inline-block" }} />
+            Built for Muslim-owned businesses
           </div>
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-[var(--color-muted-fg)]">Worst rate (PayPal)</span>
-            <span className="font-money font-bold text-red-500">CA${SAMPLE.worstProvider.received.toLocaleString()}</span>
+
+          <h1
+            className="hero-animate font-serif text-5xl font-normal leading-[1.08] text-white sm:text-6xl lg:text-[4.5rem]"
+            style={{ maxWidth: "18ch", animationDelay: "0.1s" }}
+          >
+            Stop losing margin to hidden FX costs.
+          </h1>
+
+          <p
+            className="hero-animate mt-6 text-lg leading-relaxed text-white/52"
+            style={{ maxWidth: "42ch", animationDelay: "0.2s" }}
+          >
+            See what your transfer really costs, compare every major provider, and explore halal compliant alternatives — all in one place.
+          </p>
+
+          <div
+            className="hero-animate mt-9 flex flex-wrap items-center justify-center gap-3"
+            style={{ animationDelay: "0.3s" }}
+          >
+            <Link
+              href="/signup"
+              className="rounded-full px-8 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              style={{
+                background: "linear-gradient(135deg, #1D4ED8 0%, #3B82F6 100%)",
+                boxShadow: "0 0 30px rgba(59,130,246,0.45)",
+              }}
+            >
+              Start for free
+            </Link>
+            <Link
+              href="/dashboard"
+              className="rounded-full border border-white/20 px-8 py-3.5 text-sm font-medium text-white/75 transition-all hover:border-white/40 hover:text-white"
+              style={{ background: "rgba(255,255,255,0.04)" }}
+            >
+              See live demo
+            </Link>
           </div>
-          <div className="mt-3 flex justify-between text-sm font-semibold border-t border-[var(--color-border)] pt-3">
-            <span className="text-[var(--color-fg)]">You could save</span>
-            <span className="text-green-600 dark:text-green-400 font-money">CA${SAMPLE.savingVsWorst.toLocaleString()}</span>
-          </div>
+
+          <p className="hero-animate mt-5 text-xs text-white/30" style={{ animationDelay: "0.4s" }}>
+            No card required · No money moved · Not financial advice
+          </p>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="max-w-[1180px] mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          {[
-            {
-              title: "True cost visibility",
-              desc: "See the ECB mid-market rate vs what you actually pay — no more hidden markups.",
-            },
-            {
-              title: "Provider comparison",
-              desc: "Wise, Instarem, Deutsche Bank, Western Union — ranked by what your supplier actually receives.",
-            },
-            {
-              title: "Islamic finance options",
-              desc: "Explore natural hedges, wa'd, and murabaha alongside conventional forwards — grounded in cited sources.",
-            },
-          ].map(f => (
-            <div key={f.title} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
-              <h2 className="font-semibold text-[var(--color-fg)] mb-2">{f.title}</h2>
-              <p className="text-sm text-[var(--color-muted-fg)]">{f.desc}</p>
+      {/* ── Stats strip ───────────────────────────────────────── */}
+      <div className="border-y border-[var(--color-border)] bg-[var(--color-card)]">
+        <div className="mx-auto grid max-w-[1180px] grid-cols-2 gap-px px-6 py-0 sm:grid-cols-4">
+          {stats.map((s) => (
+            <div key={s.label} className="flex flex-col items-center px-4 py-8">
+              <p className="font-money text-2xl font-bold text-[var(--color-fg)]">{s.value}</p>
+              <p className="mt-1 text-center text-xs text-[var(--color-muted-fg)]">{s.label}</p>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* ── Features ──────────────────────────────────────────── */}
+      <section id="features" className="bg-[var(--color-surface)]">
+        <div className="mx-auto max-w-[1180px] px-6 py-20">
+          <AnimateIn>
+            <h2 className="font-serif text-3xl font-normal text-[var(--color-fg)]">What we do</h2>
+            <p className="mt-3 max-w-lg text-base leading-relaxed text-[var(--color-muted-fg)]">
+              Hedged gives small businesses the visibility they deserve before every international payment.
+            </p>
+          </AnimateIn>
+
+          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
+            {features.map((f, i) => (
+              <AnimateIn key={f.title} delay={i * 110}>
+                <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 transition-shadow duration-300 hover:shadow-md">
+                  <div className="mb-5 h-1 w-7 rounded-full" style={{ background: "var(--color-primary)" }} />
+                  <h3 className="font-semibold text-[var(--color-fg)]">{f.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--color-muted-fg)]">{f.desc}</p>
+                </div>
+              </AnimateIn>
+            ))}
+          </div>
+        </div>
       </section>
 
-      </main>
-      <footer className="border-t border-[var(--color-border)] py-8 text-center text-xs text-[var(--color-muted-fg)]">
-        Hedged never moves money and never predicts exchange rates. General education only — not financial advice.
+      {/* ── CTA strip ─────────────────────────────────────────── */}
+      <section className="border-t border-[var(--color-border)] bg-[var(--color-card)]">
+        <AnimateIn>
+          <div className="mx-auto max-w-[1180px] px-6 py-20 text-center">
+            <h2 className="font-serif text-3xl font-normal text-[var(--color-fg)]">
+              See your real FX cost in minutes.
+            </h2>
+            <p className="mt-3 text-[var(--color-muted-fg)]">
+              Free to use. No card required. Real rates, real providers.
+            </p>
+            <Link
+              href="/signup"
+              className="mt-8 inline-block rounded-full px-8 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ background: "var(--color-primary)" }}
+            >
+              Start for free
+            </Link>
+          </div>
+        </AnimateIn>
+      </section>
+
+      {/* ── Contact + Footer ──────────────────────────────────── */}
+      <footer id="contact" className="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
+        <div className="mx-auto flex max-w-[1180px] flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
+          <div>
+            <p className="text-sm font-medium text-[var(--color-fg)]">Contact</p>
+            <a
+              href="mailto:hello@hedged.com"
+              className="text-sm transition-opacity hover:opacity-70"
+              style={{ color: "var(--color-primary)" }}
+            >
+              hello@hedged.com
+            </a>
+          </div>
+          <p className="text-center text-xs text-[var(--color-muted-fg)]">
+            Hedged never moves money and never predicts exchange rates. General education only, not financial advice.
+          </p>
+        </div>
       </footer>
     </div>
   );

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { signOutAction } from "@/app/(auth)/actions";
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -67,7 +68,9 @@ function Sidebar({
   return (
     <div className="flex h-full flex-col py-4">
       <div className="px-4 mb-6">
-        <span className="font-serif text-xl font-semibold text-[var(--color-fg)]">Hedged</span>
+        <Link href="/" className="font-serif text-xl font-semibold text-[var(--color-fg)] hover:opacity-80 transition-opacity">
+          Hedged
+        </Link>
       </div>
       <div className="flex-1 space-y-5 px-2">
         <nav aria-label="Workspace">
@@ -185,12 +188,15 @@ export function AppShell({
           </button>
           <div className="flex-1" />
           <ThemeToggle />
-          <button
-            aria-label="Sign out"
-            className="flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-card)] hover:bg-[var(--color-muted)] transition-[color,background-color,border-color,scale] duration-150 active:scale-[0.96]"
-          >
-            <LogOut size={16} />
-          </button>
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              aria-label="Sign out"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-card)] hover:bg-[var(--color-muted)] transition-[color,background-color,border-color,scale] duration-150 active:scale-[0.96]"
+            >
+              <LogOut size={16} />
+            </button>
+          </form>
           <div
             aria-hidden="true"
             className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-primary)] text-xs font-bold text-white"

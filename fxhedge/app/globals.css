@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 /* Dark mode targets [data-theme="dark"] on <html> */
@@ -21,25 +20,24 @@
   --color-warning: #A16207;
   --color-warning-muted: #FEF9C3;
 
-  --font-serif: 'Instrument Serif', Georgia, serif;
-  --font-sans: 'Satoshi', system-ui, sans-serif;
+  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: ui-monospace, 'Cascadia Code', monospace;
 }
 
-/* Dark mode token overrides — Tailwind reads var(--color-*) so these take effect */
 [data-theme="dark"] {
-  --color-surface: #1A1813;
-  --color-primary: #4ADE80;
-  --color-fg: #F5F3EE;
-  --color-card: #252219;
-  --color-border: #2D2A24;
-  --color-muted: #2D2A24;
-  --color-muted-fg: #A8A29E;
+  --color-surface: #06060A;
+  --color-primary: #3B82F6;
+  --color-fg: #F0F0FF;
+  --color-card: #0E0E14;
+  --color-border: #1E1E2A;
+  --color-muted: #141420;
+  --color-muted-fg: #7070A0;
   --color-destructive: #F87171;
   --color-destructive-muted: #40211A;
   --color-negative: #F87171;
-  --color-positive: #4ADE80;
-  --color-positive-muted: #20311F;
+  --color-positive: #3B82F6;
+  --color-positive-muted: #1A2A40;
   --color-warning: #FACC15;
   --color-warning-muted: #3C2B17;
 }
@@ -63,10 +61,37 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Tabular numbers for money values */
 .font-money {
   font-family: var(--font-sans);
   font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+/* Hero fade-up — fires on page load */
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-animate {
+  animation: hero-fade-up 0.75s ease both;
+}
+
+/* Scroll-reveal — toggled by IntersectionObserver */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px) scale(0.98);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+.scroll-reveal.in-view {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -75,5 +100,11 @@ body {
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

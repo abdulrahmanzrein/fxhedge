@@ -1,6 +1,11 @@
 "use server";
-import { signIn, signUp } from "@/lib/auth";
+import { signIn, signUp, signOut } from "@/lib/auth";
 import { redirect } from "next/navigation";
+
+export async function signOutAction() {
+  await signOut();
+  redirect("/login");
+}
 
 export async function loginAction(_: unknown, formData: FormData) {
   const email = formData.get("email") as string;
