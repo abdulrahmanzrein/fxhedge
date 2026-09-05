@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Panel } from "@/components/ui/panel";
 
 interface HedgeMatch {
   currency: string;
@@ -31,44 +32,47 @@ export function NaturalHedgeCard() {
 
   if (error)
     return (
-      <div className="rounded-lg border border-border bg-surface p-6 text-sm text-error">
+      <Panel className="p-6 text-sm text-error">
         Could not scan for natural hedges: {error}
-      </div>
+      </Panel>
     );
   if (!data) return null; // stays invisible until scenarios exist
 
   return (
-    <section
+    <Panel
+      as="section"
       aria-label="Natural hedge detector"
-      className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-6"
+      className="flex flex-col gap-3 p-6"
     >
       <div>
-        <p className="text-xs uppercase tracking-wide text-text-muted">
-          Natural hedge detector
-        </p>
+        <p className="text-sm text-muted">Natural hedge detector</p>
         <p className="text-sm font-medium">{data.summary}</p>
       </div>
       {data.matches.map((m) => (
         <div
           key={m.currency}
-          className="rounded-md border border-border bg-surface-2 p-3 text-sm"
+          className="rounded-[10px] border border-line bg-surface-offset p-3 text-sm"
         >
-          <span className="font-semibold [font-feature-settings:'tnum'_1,'lnum'_1]">
+          <span className="tnum font-semibold">
             {m.netted_amount.toLocaleString()} {m.currency}
           </span>{" "}
           nets against opposite flows — {m.suggestion}
         </div>
       ))}
       {data.unmatched.length > 0 && (
-        <ul className="list-inside list-disc text-xs text-text-muted">
+        <ul className="list-inside list-disc text-xs text-muted">
           {data.unmatched.map((u) => (
             <li key={u.label}>
-              {u.label}: {u.amount.toLocaleString()} {u.currency} — no offsetting flow
+              {u.label}:{" "}
+              <span className="tnum">
+                {u.amount.toLocaleString()} {u.currency}
+              </span>{" "}
+              — no offsetting flow
             </li>
           ))}
         </ul>
       )}
-      <p className="text-xs text-text-faint">{data.disclaimer}</p>
-    </section>
+      <p className="text-xs text-faint">{data.disclaimer}</p>
+    </Panel>
   );
 }

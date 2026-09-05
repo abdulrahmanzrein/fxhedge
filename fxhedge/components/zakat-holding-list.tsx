@@ -1,6 +1,10 @@
 "use client";
 
+import { Plus, X } from "lucide-react";
 import type { ZakatHolding } from "@/types/zakat";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 
 const KINDS: { value: ZakatHolding["kind"]; label: string }[] = [
   { value: "cash_home", label: "Cash (home currency)" },
@@ -11,6 +15,9 @@ const KINDS: { value: ZakatHolding["kind"]; label: string }[] = [
 ];
 
 const CURRENCIES = ["CAD", "USD", "EUR", "GBP", "AED", "TRY"];
+
+const FIELD_CLASS =
+  "w-full rounded-[10px] border border-line bg-canvas px-2 py-1.5 text-sm text-primary";
 
 export function ZakatHoldingList({
   holdings,
@@ -45,18 +52,17 @@ export function ZakatHoldingList({
         {holdings.map((h) => (
           <div
             key={h.id}
-            className="grid grid-cols-2 gap-2 rounded-md border border-border bg-surface-2 p-3 md:grid-cols-[1.4fr_1fr_1fr_1fr_auto] md:items-center"
+            className="grid grid-cols-2 gap-2 rounded-[10px] border border-line bg-surface-offset p-3 md:grid-cols-[1.4fr_1fr_1fr_1fr_auto] md:items-center"
           >
-            <input
+            <Input
               aria-label="Label"
-              className="w-full rounded-sm border border-border bg-surface px-2 py-1.5 text-sm"
               placeholder="e.g. EUR customer invoice"
               value={h.label}
               onChange={(e) => update(h.id, { label: e.target.value })}
             />
             <select
               aria-label="Asset type"
-              className="w-full rounded-sm border border-border bg-surface px-2 py-1.5 text-sm"
+              className={FIELD_CLASS}
               value={h.kind}
               onChange={(e) => update(h.id, { kind: e.target.value as ZakatHolding["kind"] })}
             >
@@ -69,7 +75,7 @@ export function ZakatHoldingList({
             <div className="flex items-center gap-1">
               <select
                 aria-label="Currency"
-                className="rounded-sm border border-border bg-surface px-1.5 py-1.5 text-sm"
+                className={`${FIELD_CLASS} w-auto flex-1`}
                 value={h.currency}
                 onChange={(e) => update(h.id, { currency: e.target.value })}
               >
@@ -79,24 +85,23 @@ export function ZakatHoldingList({
                   </option>
                 ))}
               </select>
-              <input
+              <Input
                 aria-label="Amount"
                 type="number"
                 min={0}
-                className="w-full rounded-sm border border-border bg-surface px-2 py-1.5 text-sm [font-feature-settings:'tnum'_1,'lnum'_1]"
                 value={h.amount || ""}
                 onChange={(e) => update(h.id, { amount: Number(e.target.value) || 0 })}
               />
             </div>
             {h.kind === "receivable" ? (
-              <div className="flex items-center gap-2 text-xs text-text-muted">
+              <div className="flex items-center gap-2 text-xs text-muted">
                 <label className="flex items-center gap-1">
                   due
-                  <input
+                  <Input
                     aria-label="Days until due"
                     type="number"
                     min={0}
-                    className="w-16 rounded-sm border border-border bg-surface px-1.5 py-1 [font-feature-settings:'tnum'_1,'lnum'_1]"
+                    className="w-16"
                     value={h.due_days ?? 0}
                     onChange={(e) => update(h.id, { due_days: Number(e.target.value) || 0 })}
                   />
@@ -113,26 +118,29 @@ export function ZakatHoldingList({
                 </label>
               </div>
             ) : (
-              <span className="hidden text-xs text-text-faint md:block" />
+              <span className="hidden text-xs text-faint md:block" />
             )}
-            <button
+            <Button
               type="button"
+              variant="ghost"
               aria-label={`Remove ${h.label || "row"}`}
-              className="no-print justify-self-end rounded-sm px-2 py-1 text-sm text-error hover:bg-surface-offset"
+              className="no-print h-8 w-8 justify-self-end p-0"
               onClick={() => onChange(holdings.filter((x) => x.id !== h.id))}
             >
-              ✕
-            </button>
+              <Icon icon={X} className="text-muted hover:text-negative" />
+            </Button>
           </div>
         ))}
       </div>
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        className="no-print w-fit"
         onClick={addRow}
-        className="no-print w-fit rounded-sm border border-border bg-surface px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary-highlight"
       >
-        + Add holding
-      </button>
+        <Icon icon={Plus} />
+        Add holding
+      </Button>
     </div>
   );
 }
