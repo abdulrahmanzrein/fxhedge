@@ -9,6 +9,7 @@ const PROTECTED_PREFIXES = [
   "/risk",
   "/sharia",
   "/reflect",
+  "/zakat",
 ];
 
 const AUTH_ROUTES = ["/login", "/signup", "/onboarding"];

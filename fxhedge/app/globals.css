@@ -5,6 +5,24 @@
   --foreground: #171717;
 }
 
+@media print {
+  aside,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .zakat-summary {
+    border: 1px solid #333 !important;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
