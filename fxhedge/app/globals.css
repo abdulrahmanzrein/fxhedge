@@ -1,8 +1,123 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Hedged design tokens — dark-only, ledger-calm.
+   Surfaces: canvas < surface < surface-offset. Elevation by lightness, no shadows.
+   One accent (brass). Semantic money colors tuned for dark. Hairline borders.
+--------------------------------------------------------------------------- */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --canvas: #0b0e13;
+  --surface: #11151c;
+  --surface-offset: #171c24;
+
+  --text-primary: #e6e8eb;
+  --text-secondary: #b4bac2;
+  --text-muted: #9aa3ae;
+  --text-faint: rgba(230, 232, 235, 0.55);
+
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.14);
+
+  --accent: #d4af6e;
+  --accent-strong: #e3c288;
+  --accent-soft: rgba(212, 175, 110, 0.12);
+
+  --positive: #22c55e;
+  --negative: #ef4444;
+  --warning: #eab308;
+  --positive-soft: rgba(34, 197, 94, 0.12);
+  --negative-soft: rgba(239, 68, 68, 0.12);
+  --warning-soft: rgba(234, 179, 8, 0.12);
+
+  /* compat aliases — existing cards reference these names */
+  --background: var(--canvas);
+  --foreground: var(--text-primary);
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-offset: var(--surface-offset);
+
+  --color-primary: var(--text-primary);
+  --color-secondary: var(--text-secondary);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-warning: var(--warning);
+  --color-positive-soft: var(--positive-soft);
+  --color-negative-soft: var(--negative-soft);
+  --color-warning-soft: var(--warning-soft);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  /* compat aliases for pre-design-system cards */
+  --color-border: var(--line);
+  --color-divider: var(--line);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-error: var(--negative);
+  --color-warning: var(--warning);
+  --color-primary-highlight: var(--accent-soft);
+  --color-surface-2: var(--surface-offset); /* legacy name → surface-offset */
+  --color-surface-offset: var(--surface-offset);
+  --color-surface: var(--surface);
+  --color-background: var(--canvas);
+  --color-foreground: var(--text-primary);
+  --color-primary-hover: var(--accent-strong); /* legacy name → hover accent */
+
+  --font-sans: var(--font-app-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-app-mono), ui-monospace, monospace;
+
+  --radius-panel: 16px;
+  --radius-control: 10px;
+}
+
+html {
+  background: var(--canvas);
+  color: var(--text-primary);
+  color-scheme: dark;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01" on; /* set per font in Task 2 if unsupported */
+}
+
+/* Ambient canvas — designed darkness, not flat black. One faint brass glow
+   above the fold + a vertical lightness drift. Fixed, behind all content,
+   pointer-transparent. The ONLY gradient in the codebase (components stay flat). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(1100px 520px at 50% -8%, rgba(212, 175, 110, 0.05), transparent 62%),
+    linear-gradient(180deg, #0d1117 0%, var(--canvas) 42%, #090c10 100%);
+}
+
+/* Every column of money aligns. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Focus ring: visible, brass, never removed. */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 @media print {
@@ -23,22 +138,21 @@
   }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Khatam band — draws once on load, then stays still. (Task 7 adds the
+   markup; the animation lives here with the rest of the global CSS.) */
+.khatam-draw {
+  stroke-dasharray: 96;
+  stroke-dashoffset: 96;
+  animation: khatam-draw 900ms ease-out 200ms forwards;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes khatam-draw {
+  to {
+    stroke-dashoffset: 0;
   }
 }
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: reduce) {
+  .khatam-draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
 }
