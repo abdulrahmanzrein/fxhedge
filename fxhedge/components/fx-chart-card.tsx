@@ -112,12 +112,6 @@ export function FxChartCard({ pair, days = 90 }: { pair: string; days?: number }
         <div className="mt-6 h-56 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={series} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
-              <defs>
-                <linearGradient id="fx-line-fill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="rgba(255,255,255,0.04)" />
-                  <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-                </linearGradient>
-              </defs>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="date"
@@ -148,7 +142,7 @@ export function FxChartCard({ pair, days = 90 }: { pair: string; days?: number }
                 dataKey="rate"
                 stroke="var(--text-primary)"
                 strokeWidth={1.5}
-                fill="url(#fx-line-fill)"
+                fill="rgba(255,255,255,0.04)"
                 isAnimationActive
                 animationDuration={700}
                 animationEasing="ease-out"
