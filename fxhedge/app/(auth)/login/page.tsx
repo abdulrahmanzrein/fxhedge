@@ -3,7 +3,7 @@ import { AuthForm } from "@/components/auth-form";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-full flex flex-col items-center justify-center bg-[var(--color-surface)] px-4 py-16">
+    <main className="min-h-full flex flex-col items-center justify-center bg-[var(--color-surface)] px-4 py-16">
       <Link href="/" className="font-serif text-2xl font-semibold text-[var(--color-fg)] mb-8">
         Hedged
       </Link>
@@ -16,6 +16,6 @@ export default function LoginPage() {
         No account?{" "}
         <Link href="/signup" className="text-[var(--color-primary)] hover:underline">Sign up free</Link>
       </p>
-    </div>
+    </main>
   );
 }

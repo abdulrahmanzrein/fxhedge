@@ -101,7 +101,7 @@ export default function ShariaPage() {
             <button
               key={q}
               onClick={() => ask(q)}
-              className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)] px-3 py-1 text-xs text-[var(--color-fg)] hover:bg-[var(--color-primary)] hover:text-white hover:border-transparent transition-colors"
+              className="rounded-lg border border-[var(--color-border)] bg-[var(--color-muted)] px-3 py-1 text-xs text-[var(--color-fg)] hover:bg-[var(--color-primary)] hover:text-white hover:border-transparent transition-colors"
             >
               {q}
             </button>
@@ -110,7 +110,9 @@ export default function ShariaPage() {
 
         {/* Input */}
         <div className="flex gap-2">
+          <label htmlFor="sharia-question" className="sr-only">Question for Islamic finance assistant</label>
           <input
+            id="sharia-question"
             value={question}
             onChange={e => setQuestion(e.target.value)}
             onKeyDown={e => e.key === "Enter" && question.trim() && ask(question.trim())}
@@ -126,22 +128,24 @@ export default function ShariaPage() {
           </button>
         </div>
 
-        {/* Answer */}
-        {loading && (
-          <div className="mt-4 space-y-2">
-            <div className="h-3 w-3/4 animate-pulse rounded bg-[var(--color-muted)]" />
-            <div className="h-3 w-full animate-pulse rounded bg-[var(--color-muted)]" />
-            <div className="h-3 w-2/3 animate-pulse rounded bg-[var(--color-muted)]" />
-          </div>
-        )}
-        {answer && !loading && (
-          <div className="mt-4 border-t border-[var(--color-border)] pt-4">
-            <Markdown>{answer}</Markdown>
-            <p className="mt-3 text-[10px] text-[var(--color-muted-fg)]">
-              This is general education, not a fatwa or financial advice. Consult a qualified scholar for a ruling specific to your situation.
-            </p>
-          </div>
-        )}
+        {/* Answer — live region always in DOM so screen readers pick up changes */}
+        <div role="status" aria-live="polite" aria-atomic="true">
+          {loading && (
+            <div className="mt-4 space-y-2" aria-label="Loading answer…">
+              <div className="h-3 w-3/4 animate-pulse rounded bg-[var(--color-muted)]" />
+              <div className="h-3 w-full animate-pulse rounded bg-[var(--color-muted)]" />
+              <div className="h-3 w-2/3 animate-pulse rounded bg-[var(--color-muted)]" />
+            </div>
+          )}
+          {answer && !loading && (
+            <div className="mt-4 border-t border-[var(--color-border)] pt-4">
+              <Markdown>{answer}</Markdown>
+              <p className="mt-3 text-[10px] text-[var(--color-muted-fg)]">
+                This is general education, not a fatwa or financial advice. Consult a qualified scholar for a ruling specific to your situation.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

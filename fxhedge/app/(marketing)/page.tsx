@@ -17,6 +17,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
+      <main>
       {/* Hero */}
       <section className="max-w-[1180px] mx-auto px-6 py-20 text-center">
         <h1 className="font-serif text-5xl font-semibold leading-tight text-[var(--color-fg)] mb-6 max-w-2xl mx-auto">
@@ -71,13 +72,14 @@ export default function LandingPage() {
             },
           ].map(f => (
             <div key={f.title} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
-              <h3 className="font-semibold text-[var(--color-fg)] mb-2">{f.title}</h3>
+              <h2 className="font-semibold text-[var(--color-fg)] mb-2">{f.title}</h2>
               <p className="text-sm text-[var(--color-muted-fg)]">{f.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
+      </main>
       <footer className="border-t border-[var(--color-border)] py-8 text-center text-xs text-[var(--color-muted-fg)]">
         Hedged never moves money and never predicts exchange rates. General education only — not financial advice.
       </footer>

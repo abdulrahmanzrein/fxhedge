@@ -61,7 +61,8 @@ export default function CostPage() {
       </div>
 
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[540px] text-sm">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-left">
               <th className="px-5 py-3 text-xs uppercase tracking-widest text-[var(--color-muted-fg)] font-medium">Component</th>
@@ -88,6 +89,7 @@ export default function CostPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <p className="text-xs text-[var(--color-muted-fg)]">

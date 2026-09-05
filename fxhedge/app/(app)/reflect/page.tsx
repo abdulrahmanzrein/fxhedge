@@ -115,6 +115,7 @@ export default function ReflectPage() {
                 href={s.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`Read ${s.user}'s post on ${s.subreddit} (opens in new tab)`}
                 className="text-xs text-[var(--color-primary)] hover:underline"
               >
                 Read the full post →
@@ -145,7 +146,7 @@ export default function ReflectPage() {
         <p>
           <strong className="text-[var(--color-fg)]">If you&apos;re struggling:</strong>{" "}
           Canada / US: <strong>9-8-8</strong> · UK: <strong>116 123</strong> (Samaritans) ·{" "}
-          International: <a href="https://findahelpline.com" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] hover:underline">findahelpline.com</a>
+          International: <a href="https://findahelpline.com" target="_blank" rel="noopener noreferrer" aria-label="Find a helpline (opens in new tab)" className="text-[var(--color-primary)] hover:underline">findahelpline.com</a>
         </p>
         <p>
           This page is general education, not a fatwa or financial advice. Consult a qualified Islamic finance scholar for a ruling specific to your situation. Hedged never moves money and never predicts exchange rates.

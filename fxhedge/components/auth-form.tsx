@@ -1,34 +1,32 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState, useState } from "react";
+import { loginAction, signUpAction } from "@/app/(auth)/actions";
 
 type Tab = "login" | "signup";
 
-interface AuthFormProps {
-  defaultTab?: Tab;
-}
+const inputCls =
+  "w-full rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2 text-sm text-[var(--color-fg)] placeholder:text-[var(--color-muted-fg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]";
 
-export function AuthForm({ defaultTab = "login" }: AuthFormProps) {
+export function AuthForm({ defaultTab = "login" }: { defaultTab?: Tab }) {
   const [tab, setTab] = useState<Tab>(defaultTab);
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    // mock: redirect to dashboard until Dev 1 ships auth
-    await new Promise(r => setTimeout(r, 600));
-    router.push(tab === "signup" ? "/onboarding" : "/dashboard");
-  }
+  const [loginState,  loginDispatch,  loginPending]  = useActionState(loginAction,  undefined);
+  const [signUpState, signUpDispatch, signUpPending] = useActionState(signUpAction, undefined);
+
+  const action  = tab === "login" ? loginDispatch  : signUpDispatch;
+  const state   = tab === "login" ? loginState     : signUpState;
+  const pending = tab === "login" ? loginPending   : signUpPending;
 
   return (
-    <div className="w-full max-w-sm mx-auto">
+    <div className="w-full">
       {/* Tabs */}
-      <div className="flex mb-6 border border-[var(--color-border)] rounded-lg overflow-hidden">
+      <div className="mb-6 flex overflow-hidden rounded-lg border border-[var(--color-border)]" role="group" aria-label="Sign in or sign up">
         {(["login", "signup"] as Tab[]).map(t => (
           <button
             key={t}
+            type="button"
             onClick={() => setTab(t)}
+            aria-pressed={tab === t}
             className={`flex-1 py-2 text-sm font-medium capitalize transition-colors ${
               tab === t
                 ? "bg-[var(--color-primary)] text-white"
@@ -40,42 +38,40 @@ export function AuthForm({ defaultTab = "login" }: AuthFormProps) {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form action={action} className="flex flex-col gap-4">
         {tab === "signup" && (
           <div>
-            <label className="block text-xs font-medium text-[var(--color-muted-fg)] mb-1">Full name</label>
-            <input
-              type="text"
-              required
-              placeholder="Aisha Al-Farsi"
-              className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2 text-sm text-[var(--color-fg)] placeholder:text-[var(--color-muted-fg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            />
+            <label htmlFor="auth-name" className="block text-xs font-medium text-[var(--color-muted-fg)] mb-1">Full name</label>
+            <input id="auth-name" name="name" type="text" autoComplete="name" placeholder="Aisha Al-Farsi" className={inputCls} />
           </div>
         )}
         <div>
-          <label className="block text-xs font-medium text-[var(--color-muted-fg)] mb-1">Email</label>
-          <input
-            type="email"
-            required
-            placeholder="you@business.com"
-            className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2 text-sm text-[var(--color-fg)] placeholder:text-[var(--color-muted-fg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-          />
+          <label htmlFor="auth-email" className="block text-xs font-medium text-[var(--color-muted-fg)] mb-1">Email</label>
+          <input id="auth-email" name="email" type="email" required autoComplete="email" placeholder="you@business.com" className={inputCls} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-[var(--color-muted-fg)] mb-1">Password</label>
+          <label htmlFor="auth-password" className="block text-xs font-medium text-[var(--color-muted-fg)] mb-1">Password</label>
           <input
+            id="auth-password"
+            name="password"
             type="password"
             required
+            autoComplete={tab === "signup" ? "new-password" : "current-password"}
             placeholder="••••••••"
-            className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2 text-sm text-[var(--color-fg)] placeholder:text-[var(--color-muted-fg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+            className={inputCls}
           />
         </div>
+
+        {state?.error && (
+          <p role="alert" className="text-xs text-[var(--color-negative)]">{state.error}</p>
+        )}
+
         <button
           type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-[var(--color-primary)] py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-60"
+          disabled={pending}
+          className="w-full rounded-md bg-[var(--color-primary)] py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-[opacity,scale] duration-150 active:scale-[0.96] disabled:opacity-60"
         >
-          {loading ? "Loading…" : tab === "signup" ? "Create account" : "Sign in"}
+          {pending ? "Loading…" : tab === "signup" ? "Create account" : "Sign in"}
         </button>
       </form>
     </div>

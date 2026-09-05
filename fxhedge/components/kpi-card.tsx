@@ -15,8 +15,8 @@ export function KpiCard({ label, value, delta, positive, subtext }: KpiCardProps
         <span
           className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
             positive
-              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-              : "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+              ? "bg-[var(--color-positive-muted)] text-[var(--color-positive)]"
+              : "bg-[var(--color-destructive-muted)] text-[var(--color-negative)]"
           }`}
         >
           {delta}

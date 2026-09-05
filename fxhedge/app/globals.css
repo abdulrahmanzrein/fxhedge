@@ -14,6 +14,12 @@
   --color-muted: #E5EAF2;
   --color-muted-fg: #6B7280;
   --color-destructive: #EF4444;
+  --color-destructive-muted: #FEE2E2;
+  --color-negative: #DC2626;
+  --color-positive: #15803D;
+  --color-positive-muted: #DCFCE7;
+  --color-warning: #A16207;
+  --color-warning-muted: #FEF9C3;
 
   --font-serif: 'Instrument Serif', Georgia, serif;
   --font-sans: 'Satoshi', system-ui, sans-serif;
@@ -30,6 +36,12 @@
   --color-muted: #2D2A24;
   --color-muted-fg: #A8A29E;
   --color-destructive: #F87171;
+  --color-destructive-muted: #40211A;
+  --color-negative: #F87171;
+  --color-positive: #4ADE80;
+  --color-positive-muted: #20311F;
+  --color-warning: #FACC15;
+  --color-warning-muted: #3C2B17;
 }
 
 *,

@@ -36,16 +36,16 @@ export default function ComparePage() {
                 isFirst ? "border-[var(--color-primary)]" : "border-[var(--color-border)]"
               }`}
             >
-              <div className="flex items-center gap-4">
+              <div className="flex min-w-0 items-center gap-4">
                 <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                     isFirst ? "bg-[var(--color-primary)] text-white" : "bg-[var(--color-muted)] text-[var(--color-muted-fg)]"
                   }`}
                 >
                   {i + 1}
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold text-[var(--color-fg)]">{provider.name}</span>
                     {provider.midMarket && <Badge variant="success">mid-market</Badge>}
                   </div>
@@ -56,7 +56,7 @@ export default function ComparePage() {
                   )}
                 </div>
               </div>
-              <div className="text-right">
+              <div className="shrink-0 text-right">
                 <p className="font-money text-xl font-bold text-[var(--color-fg)]">
                   {sym}{provider.received.toLocaleString()}
                 </p>
