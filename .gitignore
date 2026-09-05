@@ -1,2 +1,6 @@
-.claude/settings.local.json
+.claude/
+.agents/
+skills-lock.json
+context/
+build/
 awesome-claude-skills/
