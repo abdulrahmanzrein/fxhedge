@@ -1,26 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Dark mode targets [data-theme="dark"] on <html> */
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --color-surface: #EEF2F8;
+  --color-primary: #1D4ED8;
+  --color-fg: #0A0E1A;
+  --color-card: #FFFFFF;
+  --color-border: #D1D9E6;
+  --color-muted: #E5EAF2;
+  --color-muted-fg: #6B7280;
+  --color-destructive: #EF4444;
+
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Satoshi', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Dark mode token overrides — Tailwind reads var(--color-*) so these take effect */
+[data-theme="dark"] {
+  --color-surface: #1A1813;
+  --color-primary: #4ADE80;
+  --color-fg: #F5F3EE;
+  --color-card: #252219;
+  --color-border: #2D2A24;
+  --color-muted: #2D2A24;
+  --color-muted-fg: #A8A29E;
+  --color-destructive: #F87171;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tabular numbers for money values */
+.font-money {
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

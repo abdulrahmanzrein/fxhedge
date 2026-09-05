@@ -1,0 +1,144 @@
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ThemeToggle } from "@/components/theme-toggle";
+import {
+  LayoutDashboard,
+  ArrowLeftRight,
+  BarChart2,
+  GitCompare,
+  TrendingUp,
+  Shield,
+  Scale,
+  LogOut,
+  Menu,
+} from "lucide-react";
+import { useState } from "react";
+
+const workspaceNav = [
+  { href: "/dashboard",  label: "Dashboard",          icon: LayoutDashboard },
+  { href: "/transfer",   label: "New transfer",        icon: ArrowLeftRight  },
+  { href: "/cost",       label: "Cost breakdown",      icon: BarChart2       },
+  { href: "/compare",    label: "Compare providers",   icon: GitCompare      },
+  { href: "/risk",       label: "Risk explorer",       icon: TrendingUp      },
+];
+
+const faithNav = [
+  { href: "/sharia",   label: "Sharia options",      icon: Shield },
+  { href: "/reflect",  label: "The weight of riba",  icon: Scale  },
+];
+
+function NavItem({
+  href,
+  label,
+  icon: Icon,
+  onClick,
+}: {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  onClick?: () => void;
+}) {
+  const pathname = usePathname();
+  const active = pathname === href;
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
+        active
+          ? "bg-[var(--color-primary)] font-medium text-white"
+          : "text-[var(--color-muted-fg)] hover:bg-[var(--color-muted)] hover:text-[var(--color-fg)]"
+      }`}
+    >
+      <Icon size={16} />
+      {label}
+    </Link>
+  );
+}
+
+function Sidebar({ onNav }: { onNav?: () => void }) {
+  return (
+    <div className="flex h-full flex-col py-4">
+      <div className="px-4 mb-6">
+        <span className="font-serif text-xl font-semibold text-[var(--color-fg)]">Hedged</span>
+      </div>
+      <nav className="flex-1 space-y-1 px-2">
+        <p className="mb-1 px-3 text-xs uppercase tracking-widest text-[var(--color-muted-fg)]">
+          Workspace
+        </p>
+        {workspaceNav.map(item => (
+          <NavItem key={item.href} {...item} onClick={onNav} />
+        ))}
+        <p className="mt-5 mb-1 px-3 text-xs uppercase tracking-widest text-[var(--color-muted-fg)]">
+          Faith &amp; finance
+        </p>
+        {faithNav.map(item => (
+          <NavItem key={item.href} {...item} onClick={onNav} />
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+export function AppShell({
+  children,
+  initials = "?",
+}: {
+  children: React.ReactNode;
+  initials?: string;
+}) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <div className="flex h-full bg-[var(--color-surface)]">
+      {/* Desktop sidebar */}
+      <aside className="hidden min-[920px]:flex w-[248px] shrink-0 flex-col border-r border-[var(--color-border)] bg-[var(--color-card)]">
+        <Sidebar />
+      </aside>
+
+      {/* Mobile sidebar overlay */}
+      {mobileOpen && (
+        <div className="min-[920px]:hidden fixed inset-0 z-40 flex">
+          <div
+            className="fixed inset-0 bg-black/40"
+            onClick={() => setMobileOpen(false)}
+            aria-hidden
+          />
+          <aside className="relative z-50 w-[248px] border-r border-[var(--color-border)] bg-[var(--color-card)]">
+            <Sidebar onNav={() => setMobileOpen(false)} />
+          </aside>
+        </div>
+      )}
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Topbar */}
+        <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[var(--color-border)] bg-[var(--color-card)] px-4">
+          <button
+            className="min-[920px]:hidden"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open navigation"
+          >
+            <Menu size={20} />
+          </button>
+          <div className="flex-1" />
+          <ThemeToggle />
+          <button
+            aria-label="Sign out"
+            className="flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-card)] hover:bg-[var(--color-muted)] transition-colors"
+          >
+            <LogOut size={16} />
+          </button>
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-primary)] text-xs font-bold text-white">
+            {initials.slice(0, 2).toUpperCase()}
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-[1180px] px-6 py-8">{children}</div>
+        </main>
+      </div>
+    </div>
+  );
+}
