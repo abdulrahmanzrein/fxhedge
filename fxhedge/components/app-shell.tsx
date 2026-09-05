@@ -168,7 +168,7 @@ export function AppShell({
 
       {/* Main content — inert when sidebar is open on mobile */}
       <div
-        {...(mobileOpen ? { inert: "" } : {})}
+        {...(mobileOpen ? ({ inert: true } as unknown as React.HTMLAttributes<HTMLDivElement>) : {})}
         className="flex min-w-0 flex-1 flex-col"
       >
         {/* Topbar */}
