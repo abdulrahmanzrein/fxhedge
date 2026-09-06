@@ -1,0 +1,87 @@
+- generic [active] [ref=f10e1]:
+  - generic [ref=f10e2]:
+    - link "Skip to content" [ref=f10e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f10e4]:
+      - generic [ref=f10e5]:
+        - link "HalalFlow" [ref=f10e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f10e12]:
+          - navigation "Workspace" [ref=f10e13]:
+            - paragraph [aria-hidden] [ref=f10e14]: Workspace
+            - generic [ref=f10e15]:
+              - link "Dashboard" [ref=f10e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f10e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f10e26] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f10e30] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f10e35]:
+            - paragraph [aria-hidden] [ref=f10e36]: Faith & finance
+            - generic [ref=f10e37]:
+              - link "Sharia options" [ref=f10e38] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f10e41] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f10e44] [cursor=pointer]:
+                - /url: /reflect
+        - generic [ref=f10e49]:
+          - button "Switch to dark mode" [ref=f10e50]
+          - button "Sign out" [ref=f10e61]
+    - generic [ref=f10e65]:
+      - generic [ref=f10e66]:
+        - generic [ref=f10e67]: Market closed
+        - button "Scroll rates left" [ref=f10e69]
+        - generic [ref=f10e72]:
+          - generic "EUR/CAD 1.6038 — 30-day change" [ref=f10e73]:
+            - generic [ref=f10e74]: EUR/CAD
+            - generic [ref=f10e75]: "1.6038"
+            - generic [ref=f10e78]: "-0.75%"
+          - generic "USD/CAD 1.3800 — 30-day change" [ref=f10e79]:
+            - generic [ref=f10e80]: USD/CAD
+            - generic [ref=f10e81]: "1.3800"
+            - generic [ref=f10e84]: "-1.50%"
+          - generic "GBP/CAD 1.8671 — 30-day change" [ref=f10e85]:
+            - generic [ref=f10e86]: GBP/CAD
+            - generic [ref=f10e87]: "1.8671"
+            - generic [ref=f10e90]: "-0.91%"
+          - generic "EUR/USD 1.1622 — 30-day change" [ref=f10e91]:
+            - generic [ref=f10e92]: EUR/USD
+            - generic [ref=f10e93]: "1.1622"
+            - generic [ref=f10e96]: +0.75%
+          - generic "GBP/EUR 1.1642 — 30-day change" [ref=f10e97]:
+            - generic [ref=f10e98]: GBP/EUR
+            - generic [ref=f10e99]: "1.1642"
+            - generic [ref=f10e102]: "-0.15%"
+          - generic "AUD/CAD 0.9940 — 30-day change" [ref=f10e103]:
+            - generic [ref=f10e104]: AUD/CAD
+            - generic [ref=f10e105]: "0.9940"
+            - generic [ref=f10e108]: +0.78%
+          - generic "CHF/CAD 1.7053 — 30-day change" [ref=f10e109]:
+            - generic [ref=f10e110]: CHF/CAD
+            - generic [ref=f10e111]: "1.7053"
+            - generic [ref=f10e114]: "-1.37%"
+        - button "Scroll rates right" [ref=f10e115]
+      - main [ref=f10e118]
+      - button "Ask HalalFlow" [ref=f10e127]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - button "Open Next.js Dev Tools" [ref=f10e133] [cursor=pointer]
+  - alert [ref=f10e137]

@@ -1,0 +1,58 @@
+- generic [active] [ref=f21e1]:
+  - main [ref=f21e2]:
+    - link "HalalFlow" [ref=f21e3] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f21e4]:
+      - heading "Tell us about your business" [level=1] [ref=f21e5]
+      - paragraph [ref=f21e6]: Step 2 of 2 — this sets up your dashboard. You can change any of it later.
+      - generic [ref=f21e7]:
+        - generic [ref=f21e8]:
+          - generic [ref=f21e9]: Business name
+          - textbox "Business name" [ref=f21e10]:
+            - /placeholder: Aisha's Halal Imports
+        - generic [ref=f21e11]:
+          - generic [ref=f21e12]: Business type
+          - combobox "Business type" [ref=f21e13]:
+            - option "Select a type…" [selected]
+            - option "Halal grocery importer"
+            - option "Clothing & textiles importer"
+            - option "Electronics importer"
+            - option "Food & beverage distributor"
+            - option "Wholesale trader"
+            - option "Other"
+        - generic [ref=f21e14]:
+          - generic [ref=f21e15]:
+            - generic [ref=f21e16]: You get paid in
+            - combobox "You get paid in" [ref=f21e17]:
+              - option "USD"
+              - option "CAD" [selected]
+              - option "EUR"
+              - option "GBP"
+              - option "AUD"
+              - option "SGD"
+              - option "AED"
+              - option "SAR"
+          - generic [ref=f21e18]:
+            - generic [ref=f21e19]: You pay suppliers in
+            - combobox "You pay suppliers in" [ref=f21e20]:
+              - option "USD"
+              - option "CAD"
+              - option "EUR" [selected]
+              - option "GBP"
+              - option "AUD"
+              - option "SGD"
+              - option "AED"
+              - option "SAR"
+        - generic [ref=f21e21]:
+          - generic [ref=f21e22]: Typical invoice amount (EUR)
+          - spinbutton "Typical invoice amount (EUR)" [ref=f21e23]
+        - generic [ref=f21e24]:
+          - generic [ref=f21e25]:
+            - generic [ref=f21e26]: Target margin (%)
+            - spinbutton "Target margin (%)" [ref=f21e27]
+          - generic [ref=f21e28]:
+            - generic [ref=f21e29]: Days until due
+            - spinbutton "Days until due" [ref=f21e30]
+        - button "Go to dashboard →" [ref=f21e31]
+  - button "Open Next.js Dev Tools" [ref=f21e37] [cursor=pointer]
+  - alert [ref=f21e41]

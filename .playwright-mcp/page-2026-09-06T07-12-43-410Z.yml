@@ -1,0 +1,85 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - link "Skip to content" [ref=f1e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f1e4]:
+      - generic [ref=f1e5]:
+        - link "HalalFlow" [ref=f1e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f1e12]:
+          - navigation "Workspace" [ref=f1e13]:
+            - paragraph [aria-hidden] [ref=f1e14]: Workspace
+            - generic [ref=f1e15]:
+              - link "Dashboard" [ref=f1e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f1e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Cost breakdown" [ref=f1e26] [cursor=pointer]:
+                - /url: /cost
+              - link "Compare providers" [ref=f1e28] [cursor=pointer]:
+                - /url: /compare
+              - link "Risk explorer" [ref=f1e34] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f1e38] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f1e43]:
+            - paragraph [aria-hidden] [ref=f1e44]: Faith & finance
+            - generic [ref=f1e45]:
+              - link "Sharia options" [ref=f1e46] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f1e49] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f1e52] [cursor=pointer]:
+                - /url: /reflect
+        - button "Sign out" [ref=f1e60]
+    - generic [ref=f1e64]:
+      - generic [ref=f1e65]:
+        - generic [ref=f1e66]: Market closed
+        - button "Scroll rates left" [ref=f1e68]
+        - button "Scroll rates right" [ref=f1e87]
+      - main [ref=f1e90]:
+        - generic [ref=f1e92]:
+          - generic [ref=f1e93]:
+            - heading "Breakeven & hedge" [level=1] [ref=f1e94]
+            - paragraph [ref=f1e95]: How much rate movement can you absorb before this deal loses money?
+          - generic [ref=f1e97]:
+            - heading "How to read this" [level=2] [ref=f1e98]
+            - generic [ref=f1e99]:
+              - paragraph [ref=f1e100]:
+                - text: The
+                - strong [ref=f1e101]: breakeven rate
+                - text: is the worst EUR/CAD rate at which you still cover your costs. If EUR weakens past this point, the invoice costs more than you earn on the sale.
+              - paragraph [ref=f1e102]:
+                - text: The
+                - strong [ref=f1e103]: cushion
+                - text: is how far today's rate can move before you hit that breakeven. A larger cushion means more breathing room.
+              - generic [ref=f1e104]:
+                - generic [ref=f1e105]:
+                  - generic [ref=f1e106]: Comfortable
+                  - generic [ref=f1e107]: Cushion exceeds the historical 95th percentile move. You have real buffer.
+                - generic [ref=f1e108]:
+                  - generic [ref=f1e109]: Watch
+                  - generic [ref=f1e110]: Cushion is below the worst typical move. Monitor before the due date.
+                - generic [ref=f1e111]:
+                  - generic [ref=f1e112]: Danger
+                  - generic [ref=f1e113]: Cushion is near zero. Any adverse move puts the deal in the red.
+          - paragraph [ref=f1e114]: HalalFlow never moves money and never predicts exchange rates. This is education only, not financial advice.
+      - button "Ask HalalFlow" [ref=f1e115]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - button "Open Next.js Dev Tools" [ref=f1e121] [cursor=pointer]

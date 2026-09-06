@@ -1,0 +1,27 @@
+- generic [active] [ref=f5e1]:
+  - main [ref=f5e2]:
+    - link "HalalFlow" [ref=f5e3] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f5e4]:
+      - heading "Welcome back" [level=1] [ref=f5e5]
+      - paragraph [ref=f5e6]: Sign in to your account
+      - generic [ref=f5e7]:
+        - group "Sign in or sign up" [ref=f5e8]:
+          - button "login" [pressed] [ref=f5e9]
+          - button "signup" [ref=f5e10]
+        - generic [ref=f5e11]:
+          - generic [ref=f5e12]:
+            - generic [ref=f5e13]: Email
+            - textbox "Email" [ref=f5e14]:
+              - /placeholder: you@business.com
+          - generic [ref=f5e15]:
+            - generic [ref=f5e16]: Password
+            - textbox "Password" [ref=f5e17]:
+              - /placeholder: ••••••••
+          - button "Sign in" [ref=f5e18]
+    - paragraph [ref=f5e19]:
+      - text: No account?
+      - link "Sign up free" [ref=f5e20] [cursor=pointer]:
+        - /url: /signup
+  - button "Open Next.js Dev Tools" [ref=f5e26] [cursor=pointer]
+  - alert [ref=f5e30]

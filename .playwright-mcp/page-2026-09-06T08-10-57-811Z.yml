@@ -1,0 +1,106 @@
+- generic [active] [ref=f20e1]:
+  - generic [ref=f20e2]:
+    - link "Skip to content" [ref=f20e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f20e4]:
+      - generic [ref=f20e5]:
+        - link "HalalFlow" [ref=f20e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f20e12]:
+          - navigation "Workspace" [ref=f20e13]:
+            - paragraph [aria-hidden] [ref=f20e14]: Workspace
+            - generic [ref=f20e15]:
+              - link "Dashboard" [ref=f20e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f20e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f20e26] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f20e30] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f20e35]:
+            - paragraph [aria-hidden] [ref=f20e36]: Faith & finance
+            - generic [ref=f20e37]:
+              - link "Sharia options" [ref=f20e38] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f20e41] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f20e44] [cursor=pointer]:
+                - /url: /reflect
+        - button "Sign out" [ref=f20e52]
+    - generic [ref=f20e56]:
+      - generic [ref=f20e57]:
+        - generic [ref=f20e58]: Market closed
+        - button "Scroll rates left" [ref=f20e60]
+        - button "Scroll rates right" [ref=f20e79]
+      - main [ref=f20e82]:
+        - generic [ref=f20e84]:
+          - generic [ref=f20e85]:
+            - generic [ref=f20e86]: New transfer
+            - heading "What's your next payment?" [level=1] [ref=f20e87]
+            - paragraph [ref=f20e88]: Enter an upcoming supplier invoice. We'll break down providers, rates, and hedging options on the dashboard.
+          - generic [ref=f20e89]:
+            - generic [ref=f20e90]:
+              - generic [ref=f20e97] [cursor=pointer]:
+                - paragraph [ref=f20e98]: Drop an invoice PDF to auto fill
+                - paragraph [ref=f20e99]: Or click to browse. We extract amount + currency locally, nothing uploaded.
+              - generic [ref=f20e100]:
+                - generic [ref=f20e101]:
+                  - generic [ref=f20e102]: From currency
+                  - combobox "From currency" [ref=f20e103]:
+                    - option "EUR" [selected]
+                    - option "USD"
+                    - option "GBP"
+                    - option "CAD"
+                    - option "AUD"
+                    - option "SGD"
+                - generic [ref=f20e104]:
+                  - generic [ref=f20e105]: To currency
+                  - combobox "To currency" [ref=f20e106]:
+                    - option "EUR"
+                    - option "USD"
+                    - option "GBP"
+                    - option "CAD" [selected]
+                    - option "AUD"
+                    - option "SGD"
+              - generic [ref=f20e107]:
+                - generic [ref=f20e108]: Invoice amount (€EUR)
+                - spinbutton "Invoice amount (€EUR)" [ref=f20e109]: "12000"
+              - generic [ref=f20e110]:
+                - generic [ref=f20e111]:
+                  - generic [ref=f20e112]: Invoice date
+                  - textbox "Invoice date" [ref=f20e113]: 2026-09-06
+                - generic [ref=f20e114]:
+                  - generic [ref=f20e115]: Days until due
+                  - spinbutton "Days until due" [ref=f20e116]: "21"
+              - paragraph [ref=f20e117]: The invoice date sets what the rate is compared against. Days until due sets how long you are still exposed.
+              - generic [ref=f20e118]:
+                - generic [ref=f20e119]: Label (optional)
+                - textbox "Label (optional)" [ref=f20e120]:
+                  - /placeholder: Q3 supplier invoice
+              - button "Analyze on dashboard" [ref=f20e121]
+            - generic [ref=f20e124]:
+              - generic [ref=f20e125]: Recent invoices
+              - list [ref=f20e131]:
+                - listitem [ref=f20e132]
+                - listitem [ref=f20e133]
+                - listitem [ref=f20e134]
+      - button "Ask HalalFlow" [ref=f20e135]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - button "Open Next.js Dev Tools" [ref=f20e141] [cursor=pointer]

@@ -1,0 +1,61 @@
+- generic [active] [ref=f49e1]:
+  - generic [ref=f49e2]:
+    - link "Skip to content" [ref=f49e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f49e4]:
+      - generic [ref=f49e5]:
+        - link "HalalFlow" [ref=f49e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f49e12]:
+          - navigation "Your payment" [ref=f49e13]:
+            - paragraph [aria-hidden] [ref=f49e14]: Your payment
+            - generic [ref=f49e15]:
+              - link "Dashboard" [ref=f49e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f49e22] [cursor=pointer]:
+                - /url: /transfer
+          - navigation "Before you pay" [ref=f49e26]:
+            - paragraph [aria-hidden] [ref=f49e27]: Before you pay
+            - generic [ref=f49e28]:
+              - link "Risk explorer" [ref=f49e29] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f49e33] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith & finance" [ref=f49e38]:
+            - paragraph [aria-hidden] [ref=f49e39]: Faith & finance
+            - generic [ref=f49e40]:
+              - link "Sharia options" [ref=f49e41] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f49e44] [cursor=pointer]:
+                - /url: /zakat
+              - link "Ask HalalFlow" [ref=f49e47] [cursor=pointer]:
+                - /url: /ask
+        - generic [ref=f49e50]:
+          - button "Switch to light mode" [ref=f49e51]
+          - button "Sign out" [ref=f49e62]
+    - generic [ref=f49e66]:
+      - generic [ref=f49e67]:
+        - generic [ref=f49e68]: Market closed
+        - button "Scroll rates left" [ref=f49e70]
+        - button "Scroll rates right" [ref=f49e89]
+      - main [ref=f49e92]
+      - button "Ask HalalFlow" [ref=f49e101]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - button "Open Next.js Dev Tools" [ref=f49e107] [cursor=pointer]
+  - alert [ref=f49e111]

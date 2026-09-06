@@ -1,0 +1,83 @@
+- generic [ref=e2]:
+  - link "Skip to content" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - link "HalalFlow" [ref=e7] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e12]:
+        - navigation "Workspace" [ref=e13]:
+          - paragraph [aria-hidden] [ref=e14]: Workspace
+          - generic [ref=e15]:
+            - link "Dashboard" [ref=e16] [cursor=pointer]:
+              - /url: /dashboard
+            - link "New transfer" [ref=e22] [cursor=pointer]:
+              - /url: /transfer
+            - link "Cost breakdown" [ref=e26] [cursor=pointer]:
+              - /url: /cost
+            - link "Compare providers" [ref=e28] [cursor=pointer]:
+              - /url: /compare
+            - link "Risk explorer" [ref=e34] [cursor=pointer]:
+              - /url: /risk
+            - link "Breakeven & hedge" [ref=e38] [cursor=pointer]:
+              - /url: /breakeven
+        - navigation "Faith and finance" [ref=e43]:
+          - paragraph [aria-hidden] [ref=e44]: Faith & finance
+          - generic [ref=e45]:
+            - link "Sharia options" [ref=e46] [cursor=pointer]:
+              - /url: /sharia
+            - link "Zakat calculator" [ref=e49] [cursor=pointer]:
+              - /url: /zakat
+            - link "The weight of riba" [ref=e52] [cursor=pointer]:
+              - /url: /reflect
+      - button "Sign out" [ref=e60]
+  - generic [ref=e64]:
+    - generic [ref=e65]:
+      - generic [ref=e66]: Market closed
+      - button "Scroll rates left" [ref=e68]
+      - button "Scroll rates right" [ref=e87]
+    - main [ref=e90]:
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - heading "Breakeven & hedge" [level=1] [ref=e94]
+          - paragraph [ref=e95]: How much rate movement can you absorb before this deal loses money?
+        - generic [ref=e97]:
+          - heading "How to read this" [level=2] [ref=e98]
+          - generic [ref=e99]:
+            - paragraph [ref=e100]:
+              - text: The
+              - strong [ref=e101]: breakeven rate
+              - text: is the worst EUR/CAD rate at which you still cover your costs. If EUR weakens past this point, the invoice costs more than you earn on the sale.
+            - paragraph [ref=e102]:
+              - text: The
+              - strong [ref=e103]: cushion
+              - text: is how far today's rate can move before you hit that breakeven. A larger cushion means more breathing room.
+            - generic [ref=e104]:
+              - generic [ref=e105]:
+                - generic [ref=e106]: Comfortable
+                - generic [ref=e107]: Cushion exceeds the historical 95th percentile move. You have real buffer.
+              - generic [ref=e108]:
+                - generic [ref=e109]: Watch
+                - generic [ref=e110]: Cushion is below the worst typical move. Monitor before the due date.
+              - generic [ref=e111]:
+                - generic [ref=e112]: Danger
+                - generic [ref=e113]: Cushion is near zero. Any adverse move puts the deal in the red.
+        - paragraph [ref=e114]: HalalFlow never moves money and never predicts exchange rates. This is education only, not financial advice.
+    - button "Ask HalalFlow" [ref=e115]
+    - dialog "Ask HalalFlow":
+      - generic:
+        - generic:
+          - paragraph: Ask HalalFlow
+          - paragraph: Islamic finance · general education only
+      - generic:
+        - generic:
+          - paragraph: Try asking
+          - button "What is murabaha?"
+          - button "Is a forward contract halal?"
+          - button "Halal alternatives to a currency swap?"
+          - button "How does wa'd-based FX work?"
+      - generic:
+        - generic:
+          - textbox "Ask a question…"
+          - button "Send" [disabled]
+        - paragraph: Not a fatwa · Not financial advice

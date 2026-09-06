@@ -1,0 +1,86 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - link "Skip to content" [ref=f1e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - generic [ref=f1e4]:
+      - generic [ref=f1e5]: The market is closed
+      - button "Scroll rates left" [ref=f1e13]
+      - button "Scroll rates right" [ref=f1e35]
+    - generic [ref=f1e38]:
+      - complementary [ref=f1e39]:
+        - generic [ref=f1e40]:
+          - generic [ref=f1e41]:
+            - link "Hedged" [ref=f1e42] [cursor=pointer]:
+              - /url: /
+            - button "Collapse sidebar" [ref=f1e47]
+          - generic [ref=f1e51]:
+            - navigation "Workspace" [ref=f1e52]:
+              - link "Dashboard" [ref=f1e53] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f1e60] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f1e65] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f1e70] [cursor=pointer]:
+                - /url: /breakeven
+              - button "Faith & finance" [ref=f1e78]
+            - navigation "Account" [ref=f1e85]:
+              - link "Settings" [ref=f1e86] [cursor=pointer]:
+                - /url: /onboarding
+              - link "Help & Support" [ref=f1e91] [cursor=pointer]:
+                - /url: /ask
+          - generic [ref=f1e100]:
+            - link [ref=f1e101] [cursor=pointer]:
+              - /url: /ask
+              - paragraph [ref=f1e105]: Amanah AI
+              - paragraph [ref=f1e106]: Sharia-aligned hedging guidance
+            - switch "Dark mode" [checked] [ref=f1e107]:
+              - generic [ref=f1e108]: Dark Mode
+      - generic [ref=f1e113]:
+        - banner [ref=f1e114]:
+          - generic [ref=f1e115]:
+            - generic [ref=f1e116]: Workspace
+            - generic [ref=f1e117]: Aisha's Halal Imports
+          - link "New transfer" [ref=f1e119] [cursor=pointer]:
+            - /url: /transfer
+          - link "Risk explorer" [ref=f1e121] [cursor=pointer]:
+            - /url: /risk
+          - link "Breakeven and hedge" [ref=f1e125] [cursor=pointer]:
+            - /url: /breakeven
+          - generic [ref=f1e131]:
+            - generic [ref=f1e132]: Search
+            - searchbox "Search ⌘K" [ref=f1e133]
+            - generic: ⌘K
+          - link "Alerts" [ref=f1e134] [cursor=pointer]:
+            - /url: /risk
+          - generic [ref=f1e138]:
+            - generic [aria-hidden] [ref=f1e139]: AH
+            - button "Sign out" [ref=f1e141]
+        - main [ref=f1e145]:
+          - generic [ref=f1e147]:
+            - generic [ref=f1e148]:
+              - heading "Breakeven & hedge" [level=1] [ref=f1e149]
+              - paragraph [ref=f1e150]: How much rate movement can you absorb before this deal loses money?
+            - generic [ref=f1e152]:
+              - heading "How to read this" [level=2] [ref=f1e153]
+              - generic [ref=f1e154]:
+                - paragraph [ref=f1e155]:
+                  - text: The
+                  - strong [ref=f1e156]: breakeven rate
+                  - text: is the worst EUR/CAD rate at which you still cover your costs. If EUR weakens past this point, the invoice costs more than you earn on the sale.
+                - paragraph [ref=f1e157]:
+                  - text: The
+                  - strong [ref=f1e158]: cushion
+                  - text: is how far today's rate can move before you hit that breakeven. A larger cushion means more breathing room.
+                - generic [ref=f1e159]:
+                  - generic [ref=f1e160]:
+                    - generic [ref=f1e161]: Comfortable
+                    - generic [ref=f1e162]: Cushion exceeds the historical 95th-percentile move — you have real buffer.
+                  - generic [ref=f1e163]:
+                    - generic [ref=f1e164]: Watch
+                    - generic [ref=f1e165]: Cushion is below the worst typical move — monitor before the due date.
+                  - generic [ref=f1e166]:
+                    - generic [ref=f1e167]: Danger
+                    - generic [ref=f1e168]: Cushion is near zero — any adverse move puts the deal in the red.
+            - paragraph [ref=f1e169]: Hedged never moves money and never predicts exchange rates. This is education only, not financial advice.
+  - button "Open Next.js Dev Tools" [ref=f1e175] [cursor=pointer]

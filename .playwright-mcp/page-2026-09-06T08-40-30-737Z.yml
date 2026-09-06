@@ -1,0 +1,263 @@
+- generic [ref=f29e1]:
+  - generic [ref=f29e2]:
+    - link "Skip to content" [ref=f29e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f29e4]:
+      - generic [ref=f29e5]:
+        - link "HalalFlow" [ref=f29e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f29e12]:
+          - navigation "Workspace" [ref=f29e13]:
+            - paragraph [aria-hidden] [ref=f29e14]: Workspace
+            - generic [ref=f29e15]:
+              - link "Dashboard" [ref=f29e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f29e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f29e26] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f29e30] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f29e35]:
+            - paragraph [aria-hidden] [ref=f29e36]: Faith & finance
+            - generic [ref=f29e37]:
+              - link "Sharia options" [ref=f29e38] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f29e41] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f29e44] [cursor=pointer]:
+                - /url: /reflect
+        - generic [ref=f29e49]:
+          - button "Switch to light mode" [ref=f29e112]
+          - button "Sign out" [ref=f29e52]
+    - generic [ref=f29e56]:
+      - generic [ref=f29e57]:
+        - generic [ref=f29e58]: Market closed
+        - button "Scroll rates left" [ref=f29e60]
+        - generic [ref=f29e63]:
+          - generic "EUR/CAD 1.6038 — 30-day change" [ref=f29e122]:
+            - generic [ref=f29e123]: EUR/CAD
+            - generic [ref=f29e124]: "1.6038"
+            - generic [ref=f29e127]: "-0.75%"
+          - generic "USD/CAD 1.3800 — 30-day change" [ref=f29e128]:
+            - generic [ref=f29e129]: USD/CAD
+            - generic [ref=f29e130]: "1.3800"
+            - generic [ref=f29e133]: "-1.50%"
+          - generic "GBP/CAD 1.8671 — 30-day change" [ref=f29e134]:
+            - generic [ref=f29e135]: GBP/CAD
+            - generic [ref=f29e136]: "1.8671"
+            - generic [ref=f29e139]: "-0.91%"
+          - generic "EUR/USD 1.1622 — 30-day change" [ref=f29e140]:
+            - generic [ref=f29e141]: EUR/USD
+            - generic [ref=f29e142]: "1.1622"
+            - generic [ref=f29e145]: +0.75%
+          - generic "GBP/EUR 1.1642 — 30-day change" [ref=f29e146]:
+            - generic [ref=f29e147]: GBP/EUR
+            - generic [ref=f29e148]: "1.1642"
+            - generic [ref=f29e151]: "-0.15%"
+          - generic "AUD/CAD 0.9940 — 30-day change" [ref=f29e152]:
+            - generic [ref=f29e153]: AUD/CAD
+            - generic [ref=f29e154]: "0.9940"
+            - generic [ref=f29e157]: +0.78%
+          - generic "CHF/CAD 1.7053 — 30-day change" [ref=f29e158]:
+            - generic [ref=f29e159]: CHF/CAD
+            - generic [ref=f29e160]: "1.7053"
+            - generic [ref=f29e163]: "-1.37%"
+        - button "Scroll rates right" [ref=f29e79]
+      - main [ref=f29e82]:
+        - generic [ref=f29e84]:
+          - generic [ref=f29e85]:
+            - generic [ref=f29e86]:
+              - button "← Edit holdings" [ref=f29e164]
+              - paragraph [ref=f29e87]: Zakat calculator
+              - heading "What you owe this year." [level=1] [ref=f29e88]
+              - paragraph [ref=f29e89]: 2.5% of your zakatable pool, valued at live reference rates.
+            - generic [ref=f29e90]:
+              - button "AAOIFI · Standard No. 9" [ref=f29e91]
+              - button "Hanafi view" [ref=f29e92]
+          - generic [ref=f29e93]:
+            - generic:
+              - generic:
+                - generic:
+                  - heading "Your holdings" [level=2]
+                  - paragraph: Cash, receivables and resale stock count; what you owe is deducted.
+                - generic:
+                  - generic:
+                    - generic:
+                      - textbox "Label":
+                        - /placeholder: e.g. EUR customer invoice
+                        - text: Operating account
+                      - button "Remove holding"
+                    - generic:
+                      - generic:
+                        - generic: Type
+                        - combobox "Type":
+                          - option "Cash (home)" [selected]
+                          - option "Cash (foreign)"
+                          - option "Receivable"
+                          - option "Inventory"
+                          - option "Liability (you owe)"
+                      - generic:
+                        - generic: Currency
+                        - combobox "Currency":
+                          - option "USD" [selected]
+                          - option "CAD"
+                          - option "EUR"
+                          - option "GBP"
+                          - option "AED"
+                          - option "TRY"
+                      - generic:
+                        - generic: Amount (USD)
+                        - spinbutton "Amount": "18500"
+                  - generic:
+                    - generic:
+                      - textbox "Label":
+                        - /placeholder: e.g. EUR customer invoice
+                        - text: Customer invoice
+                      - button "Remove holding"
+                    - generic:
+                      - generic:
+                        - generic: Type
+                        - combobox "Type":
+                          - option "Cash (home)"
+                          - option "Cash (foreign)"
+                          - option "Receivable" [selected]
+                          - option "Inventory"
+                          - option "Liability (you owe)"
+                      - generic:
+                        - generic: Currency
+                        - combobox "Currency":
+                          - option "USD"
+                          - option "CAD"
+                          - option "EUR"
+                          - option "GBP" [selected]
+                          - option "AED"
+                          - option "TRY"
+                      - generic:
+                        - generic: Amount (GBP)
+                        - spinbutton "Amount": "12000"
+                    - generic:
+                      - generic:
+                        - generic: Due in
+                        - spinbutton "Days until due": "20"
+                        - generic: days
+                      - generic:
+                        - checkbox "Seriously doubtful collection"
+                        - generic: Seriously doubtful collection
+                  - generic:
+                    - generic:
+                      - textbox "Label":
+                        - /placeholder: e.g. EUR customer invoice
+                        - text: Resale stock
+                      - button "Remove holding"
+                    - generic:
+                      - generic:
+                        - generic: Type
+                        - combobox "Type":
+                          - option "Cash (home)"
+                          - option "Cash (foreign)"
+                          - option "Receivable"
+                          - option "Inventory" [selected]
+                          - option "Liability (you owe)"
+                      - generic:
+                        - generic: Currency
+                        - combobox "Currency":
+                          - option "USD" [selected]
+                          - option "CAD"
+                          - option "EUR"
+                          - option "GBP"
+                          - option "AED"
+                          - option "TRY"
+                      - generic:
+                        - generic: Amount (USD)
+                        - spinbutton "Amount": "6000"
+                  - generic:
+                    - generic:
+                      - textbox "Label":
+                        - /placeholder: e.g. EUR customer invoice
+                        - text: Supplier loan
+                      - button "Remove holding"
+                    - generic:
+                      - generic:
+                        - generic: Type
+                        - combobox "Type":
+                          - option "Cash (home)"
+                          - option "Cash (foreign)"
+                          - option "Receivable"
+                          - option "Inventory"
+                          - option "Liability (you owe)" [selected]
+                      - generic:
+                        - generic: Currency
+                        - combobox "Currency":
+                          - option "USD" [selected]
+                          - option "CAD"
+                          - option "EUR"
+                          - option "GBP"
+                          - option "AED"
+                          - option "TRY"
+                      - generic:
+                        - generic: Amount (USD)
+                        - spinbutton "Amount": "9000"
+                - generic:
+                  - button "+ Add holding"
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Gold price per gram (USD) — you enter this
+                      - spinbutton "Gold price per gram in USD": "105.40"
+                    - paragraph: Nisab is the value of 87.48g of gold — below it, no zakat is due. Check today's price with your local dealer. Yours works out to US$9,220.
+                - generic:
+                  - generic:
+                    - text: 4 holdings
+                    - generic: · rates 2026-09-04
+                  - button "Calculate zakat →" [active]
+            - generic [ref=f29e167]:
+              - paragraph [ref=f29e168]: Zakat due · AAOIFI · Standard No. 9
+              - paragraph [ref=f29e169]: US$353.66
+              - generic [ref=f29e170]: Nisab met
+              - paragraph [ref=f29e172]: 2.5% of your zakatable pool. Threshold US$9,220.
+              - generic [ref=f29e173]:
+                - generic [ref=f29e175]:
+                  - generic [ref=f29e176]: Cash
+                  - generic [ref=f29e178]: US$18,500
+                - generic [ref=f29e182]:
+                  - generic [ref=f29e183]: Receivables
+                  - generic [ref=f29e185]: US$0
+                - generic [ref=f29e188]:
+                  - generic [ref=f29e189]: Inventory
+                  - generic [ref=f29e191]: US$6,000
+                - generic [ref=f29e195]:
+                  - generic [ref=f29e196]: Liabilities
+                  - generic [ref=f29e198]: −US$9,000
+              - generic [ref=f29e201]:
+                - generic [ref=f29e202]: Zakatable pool
+                - generic [ref=f29e203]: US$14,146
+              - paragraph [ref=f29e204]: Rates as of 2026-09-06 · live ECB reference
+      - button "Ask HalalFlow" [ref=f29e111]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - generic [ref=f29e209] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f29e210]
+    - generic [ref=f29e214]:
+      - button "Open issues overlay" [ref=f29e215]:
+        - generic [ref=f29e216]:
+          - generic [aria-hidden] [ref=f29e217]: "0"
+          - generic [ref=f29e218]: "1"
+        - generic [ref=f29e219]: Issue
+      - button "Collapse issues badge" [ref=f29e220]
+  - alert [ref=f29e223]

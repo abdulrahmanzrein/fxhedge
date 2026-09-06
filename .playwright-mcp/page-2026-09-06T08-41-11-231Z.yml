@@ -1,0 +1,77 @@
+- generic [active] [ref=f30e1]:
+  - generic [ref=f30e2]:
+    - link "Skip to content" [ref=f30e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f30e4]:
+      - generic [ref=f30e5]:
+        - link "HalalFlow" [ref=f30e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f30e12]:
+          - navigation "Workspace" [ref=f30e13]:
+            - paragraph [aria-hidden] [ref=f30e14]: Workspace
+            - generic [ref=f30e15]:
+              - link "Dashboard" [ref=f30e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f30e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f30e26] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f30e30] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f30e35]:
+            - paragraph [aria-hidden] [ref=f30e36]: Faith & finance
+            - generic [ref=f30e37]:
+              - link "Sharia options" [ref=f30e38] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f30e41] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f30e44] [cursor=pointer]:
+                - /url: /reflect
+        - button "Sign out" [ref=f30e52]
+    - generic [ref=f30e56]:
+      - generic [ref=f30e57]:
+        - generic [ref=f30e58]: Market closed
+        - button "Scroll rates left" [ref=f30e60]
+        - button "Scroll rates right" [ref=f30e79]
+      - main [ref=f30e82]:
+        - generic [ref=f30e84]:
+          - generic [ref=f30e85]:
+            - generic [ref=f30e86]:
+              - paragraph [ref=f30e87]: Zakat calculator
+              - heading "What you owe this year." [level=1] [ref=f30e88]
+              - paragraph [ref=f30e89]: Add each holding and choose its type, then calculate.
+            - generic [ref=f30e90]:
+              - button "AAOIFI · Standard No. 9" [ref=f30e91]
+              - button "Hanafi view" [ref=f30e92]
+          - generic [ref=f30e95]:
+            - generic [ref=f30e96]:
+              - heading "Your holdings" [level=2] [ref=f30e97]
+              - paragraph [ref=f30e98]: Cash, receivables and resale stock count; what you owe is deducted.
+            - button "+ Add holding" [ref=f30e101]
+            - generic [ref=f30e103]:
+              - generic [ref=f30e104]:
+                - generic [ref=f30e105]: Gold price per gram (CAD) — you enter this
+                - spinbutton "Gold price per gram in CAD" [ref=f30e106]
+              - paragraph [ref=f30e107]: Nisab is the value of 87.48g of gold — below it, no zakat is due. Check today's price with your local dealer.
+            - generic [ref=f30e108]:
+              - generic [ref=f30e109]: 0 holdings
+              - button "Enter gold price first" [disabled] [ref=f30e110]
+      - button "Ask HalalFlow" [ref=f30e111]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - button "Open Next.js Dev Tools" [ref=f30e117] [cursor=pointer]

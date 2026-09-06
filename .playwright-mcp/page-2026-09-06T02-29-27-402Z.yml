@@ -1,0 +1,135 @@
+- generic [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - link "Skip to content" [ref=f1e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - generic [ref=f1e4]:
+      - generic [ref=f1e5]: The market is closed
+      - button "Scroll rates left" [ref=f1e13]
+      - generic [ref=f1e16]:
+        - generic [ref=f1e179]:
+          - generic [ref=f1e180]: EUR
+          - generic [ref=f1e181]: EUR/CAD
+          - generic [ref=f1e184]: "-0.75%"
+        - generic [ref=f1e185]:
+          - generic [ref=f1e186]: USD
+          - generic [ref=f1e187]: USD/CAD
+          - generic [ref=f1e190]: "-1.50%"
+        - generic [ref=f1e191]:
+          - generic [ref=f1e192]: GBP
+          - generic [ref=f1e193]: GBP/CAD
+          - generic [ref=f1e196]: "-0.91%"
+        - generic [ref=f1e197]:
+          - generic [ref=f1e198]: EUR
+          - generic [ref=f1e199]: EUR/USD
+          - generic [ref=f1e202]: +0.75%
+        - generic [ref=f1e203]:
+          - generic [ref=f1e204]: GBP
+          - generic [ref=f1e205]: GBP/EUR
+          - generic [ref=f1e208]: "-0.15%"
+        - generic [ref=f1e209]:
+          - generic [ref=f1e210]: AUD
+          - generic [ref=f1e211]: AUD/CAD
+          - generic [ref=f1e214]: +0.78%
+        - generic [ref=f1e215]:
+          - generic [ref=f1e216]: CHF
+          - generic [ref=f1e217]: CHF/CAD
+          - generic [ref=f1e220]: "-1.37%"
+      - button "Scroll rates right" [ref=f1e35]
+    - generic [ref=f1e38]:
+      - complementary [ref=f1e39]:
+        - generic [ref=f1e40]:
+          - generic [ref=f1e41]:
+            - link "Hedged" [ref=f1e42] [cursor=pointer]:
+              - /url: /
+            - button "Collapse sidebar" [ref=f1e47]
+          - generic [ref=f1e51]:
+            - navigation "Workspace" [ref=f1e52]:
+              - link "Dashboard" [ref=f1e53] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f1e60] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f1e65] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f1e70] [cursor=pointer]:
+                - /url: /breakeven
+              - button "Faith & finance" [ref=f1e78]
+            - navigation "Account" [ref=f1e85]:
+              - link "Settings" [ref=f1e86] [cursor=pointer]:
+                - /url: /onboarding
+              - link "Help & Support" [ref=f1e91] [cursor=pointer]:
+                - /url: /ask
+          - generic [ref=f1e100]:
+            - link [ref=f1e101] [cursor=pointer]:
+              - /url: /ask
+              - paragraph [ref=f1e105]: Amanah AI
+              - paragraph [ref=f1e106]: Sharia-aligned hedging guidance
+            - switch "Dark mode" [active] [ref=f1e107]:
+              - generic [ref=f1e108]: Dark Mode
+      - generic [ref=f1e113]:
+        - banner [ref=f1e114]:
+          - generic [ref=f1e115]:
+            - generic [ref=f1e116]: Workspace
+            - generic [ref=f1e117]: Aisha's Halal Imports
+          - link "New transfer" [ref=f1e119] [cursor=pointer]:
+            - /url: /transfer
+          - link "Risk explorer" [ref=f1e121] [cursor=pointer]:
+            - /url: /risk
+          - link "Breakeven and hedge" [ref=f1e125] [cursor=pointer]:
+            - /url: /breakeven
+          - generic [ref=f1e131]:
+            - generic [ref=f1e132]: Search
+            - searchbox "Search ⌘K" [ref=f1e133]
+            - generic: ⌘K
+          - link "Alerts" [ref=f1e134] [cursor=pointer]:
+            - /url: /risk
+          - generic [ref=f1e138]:
+            - generic [aria-hidden] [ref=f1e139]: AH
+            - button "Sign out" [ref=f1e141]
+        - main [ref=f1e145]:
+          - generic [ref=f1e147]:
+            - generic [ref=f1e148]:
+              - heading "Breakeven & hedge" [level=1] [ref=f1e149]
+              - paragraph [ref=f1e150]: How much rate movement can you absorb before this deal loses money?
+            - generic [ref=f1e221]:
+              - generic [ref=f1e222]:
+                - generic [ref=f1e223]:
+                  - paragraph [ref=f1e224]: Breakeven cushion
+                  - paragraph [ref=f1e225]: 6.5%
+                  - paragraph [ref=f1e226]: "Breakeven rate: 1.5000 · Today: 1.6038"
+                - generic [ref=f1e227]: Watch
+              - paragraph [ref=f1e228]: Your cushion is 6.5% — history says 5% of similar windows move 3.5%+, so a bad week eats most of it. Worth checking weekly.
+              - generic [ref=f1e229]:
+                - generic [ref=f1e230]:
+                  - paragraph [ref=f1e231]: Breakeven rate
+                  - paragraph [ref=f1e232]: "1.5000"
+                - generic [ref=f1e233]:
+                  - paragraph [ref=f1e234]: Today's rate
+                  - paragraph [ref=f1e235]: "1.6038"
+                - generic [ref=f1e236]:
+                  - paragraph [ref=f1e237]: Historical windows
+                  - paragraph [ref=f1e238]: "121"
+              - paragraph [ref=f1e239]: "Source: ECB / Frankfurter"
+            - generic [ref=f1e152]:
+              - heading "How to read this" [level=2] [ref=f1e153]
+              - generic [ref=f1e154]:
+                - paragraph [ref=f1e155]:
+                  - text: The
+                  - strong [ref=f1e156]: breakeven rate
+                  - text: is the worst EUR/CAD rate at which you still cover your costs. If EUR weakens past this point, the invoice costs more than you earn on the sale.
+                - paragraph [ref=f1e157]:
+                  - text: The
+                  - strong [ref=f1e158]: cushion
+                  - text: is how far today's rate can move before you hit that breakeven. A larger cushion means more breathing room.
+                - generic [ref=f1e159]:
+                  - generic [ref=f1e160]:
+                    - generic [ref=f1e161]: Comfortable
+                    - generic [ref=f1e162]: Cushion exceeds the historical 95th-percentile move — you have real buffer.
+                  - generic [ref=f1e163]:
+                    - generic [ref=f1e164]: Watch
+                    - generic [ref=f1e165]: Cushion is below the worst typical move — monitor before the due date.
+                  - generic [ref=f1e166]:
+                    - generic [ref=f1e167]: Danger
+                    - generic [ref=f1e168]: Cushion is near zero — any adverse move puts the deal in the red.
+            - paragraph [ref=f1e169]: Hedged never moves money and never predicts exchange rates. This is education only, not financial advice.
+  - button "Open Next.js Dev Tools" [ref=f1e175] [cursor=pointer]
+  - alert [ref=f1e240]

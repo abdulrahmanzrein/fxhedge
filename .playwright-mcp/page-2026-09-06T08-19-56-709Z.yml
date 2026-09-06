@@ -1,0 +1,136 @@
+- generic [ref=f24e1]:
+  - generic [ref=f24e2]:
+    - link "Skip to content" [ref=f24e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f24e4]:
+      - generic [ref=f24e5]:
+        - link "HalalFlow" [ref=f24e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f24e12]:
+          - navigation "Workspace" [ref=f24e13]:
+            - paragraph [aria-hidden] [ref=f24e14]: Workspace
+            - generic [ref=f24e15]:
+              - link "Dashboard" [ref=f24e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f24e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f24e26] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f24e30] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f24e35]:
+            - paragraph [aria-hidden] [ref=f24e36]: Faith & finance
+            - generic [ref=f24e37]:
+              - link "Sharia options" [ref=f24e38] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f24e41] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f24e44] [cursor=pointer]:
+                - /url: /reflect
+        - generic [ref=f24e49]:
+          - button "Switch to light mode" [ref=f24e50]
+          - button "Sign out" [ref=f24e61]
+    - generic [ref=f24e65]:
+      - generic [ref=f24e66]:
+        - generic [ref=f24e67]: Market closed
+        - button "Scroll rates left" [ref=f24e69]
+        - generic [ref=f24e72]:
+          - generic "EUR/CAD 1.6038 — 30-day change" [ref=f24e150]:
+            - generic [ref=f24e151]: EUR/CAD
+            - generic [ref=f24e152]: "1.6038"
+            - generic [ref=f24e155]: "-0.75%"
+          - generic "USD/CAD 1.3800 — 30-day change" [ref=f24e156]:
+            - generic [ref=f24e157]: USD/CAD
+            - generic [ref=f24e158]: "1.3800"
+            - generic [ref=f24e161]: "-1.50%"
+          - generic "GBP/CAD 1.8671 — 30-day change" [ref=f24e162]:
+            - generic [ref=f24e163]: GBP/CAD
+            - generic [ref=f24e164]: "1.8671"
+            - generic [ref=f24e167]: "-0.91%"
+          - generic "EUR/USD 1.1622 — 30-day change" [ref=f24e168]:
+            - generic [ref=f24e169]: EUR/USD
+            - generic [ref=f24e170]: "1.1622"
+            - generic [ref=f24e173]: +0.75%
+          - generic "GBP/EUR 1.1642 — 30-day change" [ref=f24e174]:
+            - generic [ref=f24e175]: GBP/EUR
+            - generic [ref=f24e176]: "1.1642"
+            - generic [ref=f24e179]: "-0.15%"
+          - generic "AUD/CAD 0.9940 — 30-day change" [ref=f24e180]:
+            - generic [ref=f24e181]: AUD/CAD
+            - generic [ref=f24e182]: "0.9940"
+            - generic [ref=f24e185]: +0.78%
+          - generic "CHF/CAD 1.7053 — 30-day change" [ref=f24e186]:
+            - generic [ref=f24e187]: CHF/CAD
+            - generic [ref=f24e188]: "1.7053"
+            - generic [ref=f24e191]: "-1.37%"
+        - button "Scroll rates right" [ref=f24e88]
+      - main [ref=f24e91]:
+        - generic [ref=f24e93]:
+          - generic [ref=f24e94]:
+            - heading "Sharia options" [level=1] [ref=f24e95]
+            - paragraph [ref=f24e96]: Islamic finance alternatives to conventional FX hedging · grounded in cited sources
+          - generic [ref=f24e97]:
+            - generic [ref=f24e98]:
+              - generic [ref=f24e99]:
+                - heading "Natural hedge" [level=3] [ref=f24e100]
+                - generic [ref=f24e101]: halal
+              - paragraph [ref=f24e102]: Match your income and expenses in the same currency. Zero cost, zero riba exposure. Best if you already earn in your supplier's currency.
+            - generic [ref=f24e103]:
+              - generic [ref=f24e104]:
+                - heading "Murabaha (cost-plus sale)" [level=3] [ref=f24e105]
+                - generic [ref=f24e106]: halal
+              - paragraph [ref=f24e107]: Bank buys the currency at today's rate and sells it to you at a fixed markup. Widely accepted. Avoid if the markup is not disclosed upfront.
+            - generic [ref=f24e108]:
+              - generic [ref=f24e109]:
+                - heading "Wa'd (unilateral promise)" [level=3] [ref=f24e110]
+                - generic [ref=f24e111]: debated
+              - paragraph [ref=f24e112]: "A promise, not a contract, to buy currency at a future date. Scholarly debate exists: some scholars accept it, others see binding wa'd as equivalent to a forward. Check your madhab."
+            - generic [ref=f24e113]:
+              - generic [ref=f24e114]:
+                - heading "Conventional forward" [level=3] [ref=f24e115]
+                - generic [ref=f24e116]: caution
+              - paragraph [ref=f24e117]: A contract to exchange currency at a fixed future rate. Contains an element of gharar (uncertainty). Generally not permissible under Sharia.
+          - generic [ref=f24e118]:
+            - heading "Ask the Islamic finance assistant" [level=2] [ref=f24e119]
+            - paragraph [ref=f24e120]: Grounded in cited scholarly sources. Never issues a fatwa. Always surfaces scholarly disagreement.
+            - generic [ref=f24e121]:
+              - button "What is the difference between wa'd and a forward contract?" [ref=f24e122]
+              - button "Is murabaha available for FX in Canada?" [active] [ref=f24e123]
+              - button "How can I use a natural hedge for EUR-CAD?" [ref=f24e124]
+              - button "What do AAOIFI standards say about FX hedging?" [ref=f24e125]
+            - generic [ref=f24e126]:
+              - generic [ref=f24e127]: Question for Islamic finance assistant
+              - textbox "Question for Islamic finance assistant" [ref=f24e128]:
+                - /placeholder: Ask a question about Islamic finance & FX…
+                - text: Is murabaha available for FX in Canada?
+              - button "Ask" [ref=f24e129]
+            - status [ref=f24e192]:
+              - paragraph [ref=f24e194]: The assistant is unavailable right now. For Islamic-finance questions about your payment, please consult a qualified Sharia advisor.
+      - button "Ask HalalFlow" [ref=f24e130]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - generic [ref=f24e135] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f24e136]
+    - generic [ref=f24e140]:
+      - button "Open issues overlay" [ref=f24e141]:
+        - generic [ref=f24e142]:
+          - generic [aria-hidden] [ref=f24e143]: "0"
+          - generic [ref=f24e144]: "1"
+        - generic [ref=f24e145]: Issue
+      - button "Collapse issues badge" [ref=f24e146]
+  - alert [ref=f24e149]

@@ -1,0 +1,165 @@
+- generic [ref=f32e1]:
+  - generic [ref=f32e2]:
+    - link "Skip to content" [ref=f32e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f32e4]:
+      - generic [ref=f32e5]:
+        - link "HalalFlow" [ref=f32e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f32e12]:
+          - navigation "Workspace" [ref=f32e13]:
+            - paragraph [aria-hidden] [ref=f32e14]: Workspace
+            - generic [ref=f32e15]:
+              - link "Dashboard" [ref=f32e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f32e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f32e26] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f32e30] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f32e35]:
+            - paragraph [aria-hidden] [ref=f32e36]: Faith & finance
+            - generic [ref=f32e37]:
+              - link "Sharia options" [ref=f32e38] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f32e41] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f32e44] [cursor=pointer]:
+                - /url: /reflect
+        - generic [ref=f32e49]:
+          - button "Switch to light mode" [ref=f32e128]
+          - button "Sign out" [ref=f32e52]
+    - generic [ref=f32e56]:
+      - generic [ref=f32e57]:
+        - generic [ref=f32e58]: Market closed
+        - button "Scroll rates left" [ref=f32e60]
+        - generic [ref=f32e63]:
+          - generic "EUR/CAD 1.6038 — 30-day change" [ref=f32e138]:
+            - generic [ref=f32e139]: EUR/CAD
+            - generic [ref=f32e140]: "1.6038"
+            - generic [ref=f32e143]: "-0.75%"
+          - generic "USD/CAD 1.3800 — 30-day change" [ref=f32e144]:
+            - generic [ref=f32e145]: USD/CAD
+            - generic [ref=f32e146]: "1.3800"
+            - generic [ref=f32e149]: "-1.50%"
+          - generic "GBP/CAD 1.8671 — 30-day change" [ref=f32e150]:
+            - generic [ref=f32e151]: GBP/CAD
+            - generic [ref=f32e152]: "1.8671"
+            - generic [ref=f32e155]: "-0.91%"
+          - generic "EUR/USD 1.1622 — 30-day change" [ref=f32e156]:
+            - generic [ref=f32e157]: EUR/USD
+            - generic [ref=f32e158]: "1.1622"
+            - generic [ref=f32e161]: +0.75%
+          - generic "GBP/EUR 1.1642 — 30-day change" [ref=f32e162]:
+            - generic [ref=f32e163]: GBP/EUR
+            - generic [ref=f32e164]: "1.1642"
+            - generic [ref=f32e167]: "-0.15%"
+          - generic "AUD/CAD 0.9940 — 30-day change" [ref=f32e168]:
+            - generic [ref=f32e169]: AUD/CAD
+            - generic [ref=f32e170]: "0.9940"
+            - generic [ref=f32e173]: +0.78%
+          - generic "CHF/CAD 1.7053 — 30-day change" [ref=f32e174]:
+            - generic [ref=f32e175]: CHF/CAD
+            - generic [ref=f32e176]: "1.7053"
+            - generic [ref=f32e179]: "-1.37%"
+        - button "Scroll rates right" [ref=f32e79]
+      - main [ref=f32e82]:
+        - generic [ref=f32e84]:
+          - complementary [ref=f32e85]:
+            - button "New conversation" [ref=f32e87]
+            - generic [ref=f32e180]:
+              - paragraph [ref=f32e181]: Today
+              - list [ref=f32e182]:
+                - listitem [ref=f32e183]:
+                  - button "Explain murabaha for FX hedging" [active] [ref=f32e184]
+                  - 'button "Delete conversation: Explain murabaha for FX hedging" [ref=f32e185]'
+          - generic [ref=f32e90]:
+            - generic [ref=f32e91]:
+              - button "Hide history" [expanded] [ref=f32e92]
+              - generic [ref=f32e95]:
+                - heading "Explain murabaha for FX hedging" [level=1] [ref=f32e189]
+                - paragraph [ref=f32e97]: Islamic finance questions about your GBP/USD payment · general education, never a fatwa
+            - generic [ref=f32e98]:
+              - generic [ref=f32e99]:
+                - paragraph [ref=f32e191]: Explain murabaha for FX hedging with a heading, list and a caution.
+                - generic [ref=f32e196]:
+                  - generic [ref=f32e197]:
+                    - heading "Commodity murabaha for FX hedging" [level=3] [ref=f32e198]
+                    - paragraph [ref=f32e199]:
+                      - text: A
+                      - strong [ref=f32e200]: murabaha
+                      - text: "is a cost-plus sale: the bank buys an asset and sells it to you at a"
+                      - emphasis [ref=f32e201]: disclosed
+                      - text: markup. Applied to treasury, it fixes today's value for a future currency need.
+                    - paragraph [ref=f32e202]: "Three conditions must hold:"
+                    - list [ref=f32e203]:
+                      - listitem [ref=f32e204]:
+                        - text: The bank must take
+                        - strong [ref=f32e205]: real ownership
+                        - text: of the asset before selling it on
+                      - listitem [ref=f32e206]:
+                        - text: The markup must be
+                        - strong [ref=f32e207]: disclosed upfront
+                        - text: and fixed, not indexed to a rate
+                      - listitem [ref=f32e208]:
+                        - text: Settlement must follow the rules of
+                        - code [ref=f32e209]: sarf
+                        - text: for the currency leg
+                    - list [ref=f32e210]:
+                      - listitem [ref=f32e211]: Confirm the structure in writing
+                      - listitem [ref=f32e212]: Check your bank actually holds the commodity
+                      - listitem [ref=f32e213]: Ask which standard they follow
+                    - blockquote [ref=f32e214]:
+                      - paragraph [ref=f32e215]: Scholars differ on whether parallel promises amount to a forward. AAOIFI permits a single binding wa'd; the Fiqh Academy is more cautious.
+                    - table [ref=f32e216]:
+                      - rowgroup [ref=f32e217]:
+                        - row [ref=f32e218]:
+                          - columnheader "Structure" [ref=f32e219]
+                          - columnheader "Status" [ref=f32e220]
+                      - rowgroup [ref=f32e221]:
+                        - row [ref=f32e222]:
+                          - cell "Natural hedge" [ref=f32e223]
+                          - cell "Widely accepted" [ref=f32e224]
+                        - row [ref=f32e225]:
+                          - cell "Murabaha" [ref=f32e226]
+                          - cell "Widely accepted" [ref=f32e227]
+                        - row [ref=f32e228]:
+                          - cell "Conventional forward" [ref=f32e229]
+                          - cell "Generally not permitted" [ref=f32e230]
+                  - paragraph [ref=f32e231]: General education, not a fatwa. Consult a qualified scholar for a ruling on your situation.
+              - generic [ref=f32e110]:
+                - generic [ref=f32e111]:
+                  - generic [ref=f32e112]: Your question
+                  - textbox "Your question" [ref=f32e113]:
+                    - /placeholder: Ask about murabaha, wa'd, riba…
+                  - button "Send question" [disabled] [ref=f32e114]
+                - paragraph [ref=f32e117]: Enter to send · Shift+Enter for a new line · history is saved on this device only
+      - button "Ask HalalFlow" [ref=f32e118]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - generic [ref=f32e123] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f32e124]
+    - generic [ref=f32e232]:
+      - button "Open issues overlay" [ref=f32e233]:
+        - generic [ref=f32e234]:
+          - generic [aria-hidden] [ref=f32e235]: "0"
+          - generic [ref=f32e236]: "1"
+        - generic [ref=f32e237]: Issue
+      - button "Collapse issues badge" [ref=f32e238]
+  - alert [ref=f32e241]

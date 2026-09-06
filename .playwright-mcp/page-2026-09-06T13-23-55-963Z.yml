@@ -1,0 +1,90 @@
+- generic [active] [ref=f28e1]:
+  - generic [ref=f28e2]:
+    - link "Skip to content" [ref=f28e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f28e4]:
+      - generic [ref=f28e5]:
+        - link "HalalFlow" [ref=f28e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f28e12]:
+          - navigation "Your payment" [ref=f28e13]:
+            - paragraph [aria-hidden] [ref=f28e14]: Your payment
+            - generic [ref=f28e15]:
+              - link "Dashboard" [ref=f28e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f28e22] [cursor=pointer]:
+                - /url: /transfer
+          - navigation "Before you pay" [ref=f28e26]:
+            - paragraph [aria-hidden] [ref=f28e27]: Before you pay
+            - generic [ref=f28e28]:
+              - link "Risk explorer" [ref=f28e29] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f28e33] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith & finance" [ref=f28e38]:
+            - paragraph [aria-hidden] [ref=f28e39]: Faith & finance
+            - generic [ref=f28e40]:
+              - link "Sharia options" [ref=f28e41] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f28e44] [cursor=pointer]:
+                - /url: /zakat
+              - link "Ask HalalFlow" [ref=f28e47] [cursor=pointer]:
+                - /url: /ask
+        - generic [ref=f28e50]:
+          - button "Switch to light mode" [ref=f28e51]
+          - button "Sign out" [ref=f28e62]
+    - generic [ref=f28e66]:
+      - generic [ref=f28e67]:
+        - generic [ref=f28e68]: Market closed
+        - button "Scroll rates left" [ref=f28e70]
+        - generic [ref=f28e73]:
+          - generic "EUR/CAD 1.6038 — 30-day change" [ref=f28e74]:
+            - generic [ref=f28e75]: EUR/CAD
+            - generic [ref=f28e76]: "1.6038"
+            - generic [ref=f28e79]: "-0.75%"
+          - generic "USD/CAD 1.3800 — 30-day change" [ref=f28e80]:
+            - generic [ref=f28e81]: USD/CAD
+            - generic [ref=f28e82]: "1.3800"
+            - generic [ref=f28e85]: "-1.50%"
+          - generic "GBP/CAD 1.8671 — 30-day change" [ref=f28e86]:
+            - generic [ref=f28e87]: GBP/CAD
+            - generic [ref=f28e88]: "1.8671"
+            - generic [ref=f28e91]: "-0.91%"
+          - generic "EUR/USD 1.1622 — 30-day change" [ref=f28e92]:
+            - generic [ref=f28e93]: EUR/USD
+            - generic [ref=f28e94]: "1.1622"
+            - generic [ref=f28e97]: +0.75%
+          - generic "GBP/EUR 1.1642 — 30-day change" [ref=f28e98]:
+            - generic [ref=f28e99]: GBP/EUR
+            - generic [ref=f28e100]: "1.1642"
+            - generic [ref=f28e103]: "-0.15%"
+          - generic "AUD/CAD 0.9940 — 30-day change" [ref=f28e104]:
+            - generic [ref=f28e105]: AUD/CAD
+            - generic [ref=f28e106]: "0.9940"
+            - generic [ref=f28e109]: +0.78%
+          - generic "CHF/CAD 1.7053 — 30-day change" [ref=f28e110]:
+            - generic [ref=f28e111]: CHF/CAD
+            - generic [ref=f28e112]: "1.7053"
+            - generic [ref=f28e115]: "-1.37%"
+        - button "Scroll rates right" [ref=f28e116]
+      - main [ref=f28e119]
+      - button "Ask HalalFlow" [ref=f28e128]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - button "Open Next.js Dev Tools" [ref=f28e134] [cursor=pointer]
+  - alert [ref=f28e138]

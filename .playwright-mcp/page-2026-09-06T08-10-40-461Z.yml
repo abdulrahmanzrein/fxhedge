@@ -1,0 +1,115 @@
+- generic [active] [ref=f19e1]:
+  - generic [ref=f19e2]:
+    - link "Skip to content" [ref=f19e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f19e4]:
+      - generic [ref=f19e5]:
+        - link "HalalFlow" [ref=f19e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f19e12]:
+          - navigation "Workspace" [ref=f19e13]:
+            - paragraph [aria-hidden] [ref=f19e14]: Workspace
+            - generic [ref=f19e15]:
+              - link "Dashboard" [ref=f19e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f19e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f19e26] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f19e30] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f19e35]:
+            - paragraph [aria-hidden] [ref=f19e36]: Faith & finance
+            - generic [ref=f19e37]:
+              - link "Sharia options" [ref=f19e38] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f19e41] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f19e44] [cursor=pointer]:
+                - /url: /reflect
+        - generic [ref=f19e49]:
+          - button "Switch to light mode" [ref=f19e50]
+          - button "Sign out" [ref=f19e61]
+    - generic [ref=f19e65]:
+      - generic [ref=f19e66]:
+        - generic [ref=f19e67]: Market closed
+        - button "Scroll rates left" [ref=f19e69]
+        - button "Scroll rates right" [ref=f19e88]
+      - main [ref=f19e91]:
+        - generic [ref=f19e93]:
+          - generic [ref=f19e94]:
+            - heading "Risk explorer" [level=1] [ref=f19e95]
+            - paragraph [ref=f19e96]:
+              - text: Exchange rates move every day. This page shows how much your
+              - generic [ref=f19e97]: €12,000
+              - text: bill could move with them before it is due in 21 days.
+          - generic [ref=f19e98]:
+            - generic [ref=f19e99]:
+              - heading "Should you pay now or wait?" [level=2] [ref=f19e100]
+              - generic [ref=f19e101]: Too close to call
+            - paragraph [ref=f19e102]: Neither paying now nor waiting is clearly better. If a stable bill matters more to you than a slightly cheaper one, pay now.
+            - paragraph [ref=f19e103]: In the 21 days since your invoice was issued the rate has moved 0.1% in your favour — about $19 on this bill. The bigger question is the 3.2% swing that shows up in the roughest 1 in 20 stretches, which is worth about $616 here.
+          - generic [ref=f19e104]:
+            - heading "What your bill could become" [level=2] [ref=f19e105]
+            - paragraph [ref=f19e106]: We looked at every 21-day stretch in the last 10 years — 2796 of them. In the roughest 1 in 20, the rate swung 3.2%. That is the range below. It is not a forecast; nobody can predict rates.
+            - generic [ref=f19e107]:
+              - generic [ref=f19e108]:
+                - generic [ref=f19e109]:
+                  - paragraph [ref=f19e110]: If it moves your way
+                  - paragraph [ref=f19e111]: $18,630
+                - generic [ref=f19e112]:
+                  - paragraph [ref=f19e113]: Today
+                  - paragraph [ref=f19e114]: $19,246
+                - generic [ref=f19e115]:
+                  - paragraph [ref=f19e116]: If it moves against you
+                  - paragraph [ref=f19e117]: $19,862
+              - paragraph [ref=f19e120]:
+                - text: Worst case here is
+                - generic [ref=f19e121]: $616 more
+                - text: than paying today. That is the number worth protecting against.
+          - generic [ref=f19e122]:
+            - generic [ref=f19e123]:
+              - paragraph [ref=f19e124]: Today's rate
+              - paragraph [ref=f19e125]: "1.6038"
+              - paragraph [ref=f19e126]: One EUR costs this many CAD, before any provider adds a markup.
+            - generic [ref=f19e127]:
+              - paragraph [ref=f19e128]: Since your invoice (21d)
+              - paragraph [ref=f19e129]: "-0.1%"
+              - paragraph [ref=f19e130]: The rate fell, so your bill is about $19 cheaper than on the day it was issued.
+            - generic [ref=f19e131]:
+              - paragraph [ref=f19e132]: Past 12 months
+              - paragraph [ref=f19e133]: …
+              - paragraph [ref=f19e134]: Loading a year of history.
+          - figure "Area chart of the EUR/CAD exchange rate over the past 12 months, sourced from the ECB via Frankfurter. Click any point for what the invoice would have cost at that historical rate." [ref=f19e136]:
+            - heading "The last 12 months, day by day" [level=2] [ref=f19e137]
+            - paragraph [ref=f19e138]: Higher line means a dearer bill for you. Click any day to price your invoice at that day's rate.
+            - paragraph [ref=f19e142]: Loading rate history…
+          - paragraph [ref=f19e143]: Every figure here comes from past rates published by the European Central Bank. HalalFlow never predicts exchange rates and never moves your money.
+      - button "Ask HalalFlow" [ref=f19e144]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - generic [ref=f19e149] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f19e150]
+    - generic [ref=f19e154]:
+      - button "Open issues overlay" [ref=f19e155]:
+        - generic [ref=f19e156]:
+          - generic [aria-hidden] [ref=f19e157]: "0"
+          - generic [ref=f19e158]: "1"
+        - generic [ref=f19e159]: Issue
+      - button "Collapse issues badge" [ref=f19e160]
+  - alert [ref=f19e163]

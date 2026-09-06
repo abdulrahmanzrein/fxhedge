@@ -1,0 +1,107 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - link "Skip to content" [ref=f3e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f3e4]:
+      - generic [ref=f3e5]:
+        - link "HalalFlow" [ref=f3e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f3e12]:
+          - navigation "Workspace" [ref=f3e13]:
+            - paragraph [aria-hidden] [ref=f3e14]: Workspace
+            - generic [ref=f3e15]:
+              - link "Dashboard" [ref=f3e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f3e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f3e26] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f3e30] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f3e35]:
+            - paragraph [aria-hidden] [ref=f3e36]: Faith & finance
+            - generic [ref=f3e37]:
+              - link "Sharia options" [ref=f3e38] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f3e41] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f3e44] [cursor=pointer]:
+                - /url: /reflect
+        - generic [ref=f3e49]:
+          - button "Switch to light mode" [ref=f3e50]
+          - button "Sign out" [ref=f3e61]
+    - generic [ref=f3e65]:
+      - generic [ref=f3e66]:
+        - generic [ref=f3e67]: Market closed
+        - button "Scroll rates left" [ref=f3e69]
+        - button "Scroll rates right" [ref=f3e88]
+      - main [ref=f3e91]:
+        - generic [ref=f3e93]:
+          - generic [ref=f3e94]:
+            - heading "Risk explorer" [level=1] [ref=f3e95]
+            - paragraph [ref=f3e96]:
+              - text: Exchange rates move every day. This page shows how much your
+              - generic [ref=f3e97]: €12,000
+              - text: bill could move with them before it is due in 21 days.
+          - generic [ref=f3e98]:
+            - generic [ref=f3e99]:
+              - heading "Should you pay now or wait?" [level=2] [ref=f3e100]
+              - generic [ref=f3e101]: Too close to call
+            - paragraph [ref=f3e102]: Neither paying now nor waiting is clearly better. If a stable bill matters more to you than a slightly cheaper one, pay now.
+            - paragraph [ref=f3e103]: In the 21 days since your invoice was issued the rate has moved 0.1% in your favour — about $19 on this bill. The bigger question is the 3.2% swing that shows up in the roughest 1 in 20 stretches, which is worth about $616 here.
+          - generic [ref=f3e104]:
+            - heading "What your bill could become" [level=2] [ref=f3e105]
+            - paragraph [ref=f3e106]: We looked at every 21-day stretch in the last 10 years — 2796 of them. In the roughest 1 in 20, the rate swung 3.2%. That is the range below. It is not a forecast; nobody can predict rates.
+            - generic [ref=f3e107]:
+              - generic [ref=f3e108]:
+                - generic [ref=f3e109]:
+                  - paragraph [ref=f3e110]: If it moves your way
+                  - paragraph [ref=f3e111]: $18,630
+                - generic [ref=f3e112]:
+                  - paragraph [ref=f3e113]: Today
+                  - paragraph [ref=f3e114]: $19,246
+                - generic [ref=f3e115]:
+                  - paragraph [ref=f3e116]: If it moves against you
+                  - paragraph [ref=f3e117]: $19,862
+              - paragraph [ref=f3e120]:
+                - text: Worst case here is
+                - generic [ref=f3e121]: $616 more
+                - text: than paying today. That is the number worth protecting against.
+          - generic [ref=f3e122]:
+            - generic [ref=f3e123]:
+              - paragraph [ref=f3e124]: Today's rate
+              - paragraph [ref=f3e125]: "1.6038"
+              - paragraph [ref=f3e126]: One EUR costs this many CAD, before any provider adds a markup.
+            - generic [ref=f3e127]:
+              - paragraph [ref=f3e128]: Since your invoice (21d)
+              - paragraph [ref=f3e129]: "-0.1%"
+              - paragraph [ref=f3e130]: The rate fell, so your bill is about $19 cheaper than on the day it was issued.
+            - generic [ref=f3e131]:
+              - paragraph [ref=f3e132]: Past 12 months
+              - paragraph [ref=f3e133]: …
+              - paragraph [ref=f3e134]: Loading a year of history.
+          - figure "Area chart of the EUR/CAD exchange rate over the past 12 months, sourced from the ECB via Frankfurter. Click any point for what the invoice would have cost at that historical rate." [ref=f3e136]:
+            - heading "The last 12 months, day by day" [level=2] [ref=f3e137]
+            - paragraph [ref=f3e138]: Higher line means a dearer bill for you. Click any day to price your invoice at that day's rate.
+            - paragraph [ref=f3e142]: Loading rate history…
+          - paragraph [ref=f3e143]: Every figure here comes from past rates published by the European Central Bank. HalalFlow never predicts exchange rates and never moves your money.
+      - button "Ask HalalFlow" [ref=f3e144]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - button "Open Next.js Dev Tools" [ref=f3e150] [cursor=pointer]
+  - alert [ref=f3e154]

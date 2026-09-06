@@ -1,0 +1,278 @@
+- generic [active] [ref=f8e1]:
+  - button "Open Next.js Dev Tools" [ref=f8e26] [cursor=pointer]
+  - alert [ref=f8e30]
+  - generic [ref=f8e31]:
+    - link "Skip to content" [ref=f8e32] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f8e33]:
+      - generic [ref=f8e34]:
+        - link "HalalFlow" [ref=f8e36] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f8e41]:
+          - navigation "Workspace" [ref=f8e42]:
+            - paragraph [aria-hidden] [ref=f8e43]: Workspace
+            - generic [ref=f8e44]:
+              - link "Dashboard" [ref=f8e45] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f8e51] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f8e55] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f8e59] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f8e64]:
+            - paragraph [aria-hidden] [ref=f8e65]: Faith & finance
+            - generic [ref=f8e66]:
+              - link "Sharia options" [ref=f8e67] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f8e70] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f8e73] [cursor=pointer]:
+                - /url: /reflect
+        - generic [ref=f8e78]:
+          - button "Switch to light mode" [ref=f8e79]
+          - button "Sign out" [ref=f8e90]
+    - generic [ref=f8e94]:
+      - generic [ref=f8e95]:
+        - generic [ref=f8e96]: Market closed
+        - button "Scroll rates left" [ref=f8e98]
+        - generic [ref=f8e101]:
+          - generic "EUR/CAD 1.6038 — 30-day change" [ref=f8e102]:
+            - generic [ref=f8e103]: EUR/CAD
+            - generic [ref=f8e104]: "1.6038"
+            - generic [ref=f8e107]: "-0.75%"
+          - generic "USD/CAD 1.3800 — 30-day change" [ref=f8e108]:
+            - generic [ref=f8e109]: USD/CAD
+            - generic [ref=f8e110]: "1.3800"
+            - generic [ref=f8e113]: "-1.50%"
+          - generic "GBP/CAD 1.8671 — 30-day change" [ref=f8e114]:
+            - generic [ref=f8e115]: GBP/CAD
+            - generic [ref=f8e116]: "1.8671"
+            - generic [ref=f8e119]: "-0.91%"
+          - generic "EUR/USD 1.1622 — 30-day change" [ref=f8e120]:
+            - generic [ref=f8e121]: EUR/USD
+            - generic [ref=f8e122]: "1.1622"
+            - generic [ref=f8e125]: +0.75%
+          - generic "GBP/EUR 1.1642 — 30-day change" [ref=f8e126]:
+            - generic [ref=f8e127]: GBP/EUR
+            - generic [ref=f8e128]: "1.1642"
+            - generic [ref=f8e131]: "-0.15%"
+          - generic "AUD/CAD 0.9940 — 30-day change" [ref=f8e132]:
+            - generic [ref=f8e133]: AUD/CAD
+            - generic [ref=f8e134]: "0.9940"
+            - generic [ref=f8e137]: +0.78%
+          - generic "CHF/CAD 1.7053 — 30-day change" [ref=f8e138]:
+            - generic [ref=f8e139]: CHF/CAD
+            - generic [ref=f8e140]: "1.7053"
+            - generic [ref=f8e143]: "-1.37%"
+        - button "Scroll rates right" [ref=f8e144]
+      - main [ref=f8e147]:
+        - generic [ref=f8e149]:
+          - generic [ref=f8e150]:
+            - heading "Assalamu alaikum, abdulzrein" [level=1] [ref=f8e151]
+            - paragraph [ref=f8e152]:
+              - text: Your
+              - generic [ref=f8e153]: €12,000
+              - text: supplier invoice, 21 days on terms.
+          - generic [ref=f8e154]:
+            - generic [ref=f8e155]:
+              - generic [ref=f8e156]: Compare banks · 12 providers, ranked by what your supplier receives
+              - generic [ref=f8e157]:
+                - generic [ref=f8e158]:
+                  - generic [ref=f8e159]: True mid market
+                  - generic [ref=f8e160]: $16,203
+                - generic [ref=f8e163]:
+                  - generic [ref=f8e164]: ECB EUR/CAD 1.6038
+                  - generic [ref=f8e165]: €12,000 invoice
+              - list [ref=f8e166]:
+                - listitem [ref=f8e167]:
+                  - button "1 Wise mid market $19,195" [ref=f8e168]:
+                    - generic [ref=f8e169]:
+                      - generic [ref=f8e170]: "1"
+                      - generic [ref=f8e171]: Wise
+                      - generic [ref=f8e172]: mid market
+                    - generic [ref=f8e173]: $19,195
+                  - generic [ref=f8e176]:
+                    - text: "Hidden cost vs mid market:"
+                    - generic [ref=f8e177]: −$51
+                - listitem [ref=f8e178]:
+                  - button "2 Instarem $19,158" [ref=f8e179]:
+                    - generic [ref=f8e180]:
+                      - generic [ref=f8e181]: "2"
+                      - generic [ref=f8e182]: Instarem
+                    - generic [ref=f8e183]: $19,158
+                  - generic [ref=f8e186]:
+                    - text: "Hidden cost vs mid market:"
+                    - generic [ref=f8e187]: −$88
+                - listitem [ref=f8e188]:
+                  - button "3 Deutsche Bank $19,156" [ref=f8e189]:
+                    - generic [ref=f8e190]:
+                      - generic [ref=f8e191]: "3"
+                      - generic [ref=f8e192]: Deutsche Bank
+                    - generic [ref=f8e193]: $19,156
+                  - generic [ref=f8e196]:
+                    - text: "Hidden cost vs mid market:"
+                    - generic [ref=f8e197]: −$90
+                - listitem [ref=f8e198]:
+                  - button "4 Western Union $19,098" [ref=f8e199]:
+                    - generic [ref=f8e200]:
+                      - generic [ref=f8e201]: "4"
+                      - generic [ref=f8e202]: Western Union
+                    - generic [ref=f8e203]: $19,098
+                  - generic [ref=f8e206]:
+                    - text: "Hidden cost vs mid market:"
+                    - generic [ref=f8e207]: −$148
+                - listitem [ref=f8e208]:
+                  - button "5 ABN AMRO Bank $19,089" [ref=f8e209]:
+                    - generic [ref=f8e210]:
+                      - generic [ref=f8e211]: "5"
+                      - generic [ref=f8e212]: ABN AMRO Bank
+                    - generic [ref=f8e213]: $19,089
+                  - generic [ref=f8e216]:
+                    - text: "Hidden cost vs mid market:"
+                    - generic [ref=f8e217]: −$157
+                - listitem [ref=f8e218]:
+                  - button "6 Rabobank $19,083" [ref=f8e219]:
+                    - generic [ref=f8e220]:
+                      - generic [ref=f8e221]: "6"
+                      - generic [ref=f8e222]: Rabobank
+                    - generic [ref=f8e223]: $19,083
+                  - generic [ref=f8e226]:
+                    - text: "Hidden cost vs mid market:"
+                    - generic [ref=f8e227]: −$163
+                - listitem [ref=f8e228]:
+                  - button "7 BNP Paribas $19,060" [ref=f8e229]:
+                    - generic [ref=f8e230]:
+                      - generic [ref=f8e231]: "7"
+                      - generic [ref=f8e232]: BNP Paribas
+                    - generic [ref=f8e233]: $19,060
+                  - generic [ref=f8e236]:
+                    - text: "Hidden cost vs mid market:"
+                    - generic [ref=f8e237]: −$186
+                - listitem [ref=f8e238]:
+                  - button "8 OFX $18,970" [ref=f8e239]:
+                    - generic [ref=f8e240]:
+                      - generic [ref=f8e241]: "8"
+                      - generic [ref=f8e242]: OFX
+                    - generic [ref=f8e243]: $18,970
+                  - generic [ref=f8e246]:
+                    - text: "Hidden cost vs mid market:"
+                    - generic [ref=f8e247]: −$276
+                - listitem [ref=f8e248]:
+                  - button "9 UniCredit $18,874" [ref=f8e249]:
+                    - generic [ref=f8e250]:
+                      - generic [ref=f8e251]: "9"
+                      - generic [ref=f8e252]: UniCredit
+                    - generic [ref=f8e253]: $18,874
+                  - generic [ref=f8e256]:
+                    - text: "Hidden cost vs mid market:"
+                    - generic [ref=f8e257]: −$372
+                - listitem [ref=f8e258]:
+                  - button "10 LaCaixa $18,708" [ref=f8e259]:
+                    - generic [ref=f8e260]:
+                      - generic [ref=f8e261]: "10"
+                      - generic [ref=f8e262]: LaCaixa
+                    - generic [ref=f8e263]: $18,708
+                  - generic [ref=f8e266]:
+                    - text: "Hidden cost vs mid market:"
+                    - generic [ref=f8e267]: −$538
+                - listitem [ref=f8e268]:
+                  - button "11 Monese $18,694" [ref=f8e269]:
+                    - generic [ref=f8e270]:
+                      - generic [ref=f8e271]: "11"
+                      - generic [ref=f8e272]: Monese
+                    - generic [ref=f8e273]: $18,694
+                  - generic [ref=f8e275]:
+                    - text: "Hidden cost vs mid market:"
+                    - generic [ref=f8e276]: −$552
+                - listitem [ref=f8e277]:
+                  - button "12 PayPal $18,428" [ref=f8e278]:
+                    - generic [ref=f8e279]:
+                      - generic [ref=f8e280]: "12"
+                      - generic [ref=f8e281]: PayPal
+                    - generic [ref=f8e282]: $18,428
+                  - generic [ref=f8e284]:
+                    - text: "Hidden cost vs mid market:"
+                    - generic [ref=f8e285]: −$818
+            - generic [ref=f8e286]:
+              - generic [ref=f8e287]:
+                - generic [ref=f8e288]: Best provider net received
+                - generic [ref=f8e289]: Favorable
+              - generic [ref=f8e293]: $16,161
+              - generic [ref=f8e294]: Wise · mid market rate · no hidden spread
+              - application [ref=f8e298]:
+                - generic [ref=f8e310]:
+                  - generic [ref=f8e311]:
+                    - generic [ref=f8e312]: Jun 15
+                    - generic [ref=f8e314]: Jun 23
+                    - generic [ref=f8e316]: Jul 1
+                    - generic [ref=f8e318]: Jul 7
+                    - generic [ref=f8e320]: Jul 14
+                    - generic [ref=f8e322]: Jul 21
+                    - generic [ref=f8e324]: Jul 28
+                    - generic [ref=f8e326]: Aug 4
+                    - generic [ref=f8e328]: Aug 12
+                    - generic [ref=f8e330]: Aug 20
+                    - generic [ref=f8e332]: Sep 4
+                  - generic [ref=f8e334]:
+                    - generic [ref=f8e335]: "1.597"
+                    - generic [ref=f8e337]: "1.605"
+                    - generic [ref=f8e339]: "1.613"
+                    - generic [ref=f8e341]: "1.620"
+                    - generic [ref=f8e343]: "1.627"
+            - generic [ref=f8e345]:
+              - generic [ref=f8e346]: Cost breakdown · where your margin goes
+              - generic [ref=f8e347]:
+                - generic [ref=f8e348]: $2,895
+                - paragraph [ref=f8e349]: total spread lost across 12 providers vs the ECB mid market
+              - generic [ref=f8e350]:
+                - 'generic "Wise: $51 lost" [ref=f8e351]'
+                - 'generic "Instarem: $88 lost" [ref=f8e352]'
+                - 'generic "Deutsche Bank: $90 lost" [ref=f8e353]'
+                - 'generic "Western Union: $148 lost" [ref=f8e354]'
+                - 'generic "ABN AMRO Bank: $157 lost" [ref=f8e355]'
+                - 'generic "Rabobank: $163 lost" [ref=f8e356]'
+                - 'generic "BNP Paribas: $186 lost" [ref=f8e357]'
+                - 'generic "OFX: $276 lost" [ref=f8e358]'
+                - 'generic "UniCredit: $372 lost" [ref=f8e359]'
+                - 'generic "LaCaixa: $538 lost" [ref=f8e360]'
+                - 'generic "Monese: $552 lost" [ref=f8e361]'
+                - 'generic "PayPal: $818 lost" [ref=f8e362]'
+              - paragraph [ref=f8e363]: Best to worst, left to right. Full list in Compare banks.
+              - generic [ref=f8e364]:
+                - generic [ref=f8e365]:
+                  - term [ref=f8e366]: Invoice amount
+                  - definition [ref=f8e367]: €12,000
+                - generic [ref=f8e368]:
+                  - term [ref=f8e369]: True mid market cost
+                  - definition [ref=f8e370]: $19,246
+                - generic [ref=f8e371]:
+                  - term [ref=f8e372]: Saving with Wise vs PayPal
+                  - definition [ref=f8e373]: $767
+            - generic [ref=f8e374]:
+              - heading "HalalFlow AI Advisor" [level=3] [ref=f8e379]
+              - paragraph [ref=f8e380]: Automated margin protection, real time rate insight, and Sharia aligned hedging guidance, grounded in cited sources, never a fatwa.
+              - generic [ref=f8e381]:
+                - link "Try now" [ref=f8e382] [cursor=pointer]:
+                  - /url: /ask
+                - link "See risk" [ref=f8e385] [cursor=pointer]:
+                  - /url: /risk
+      - button "Ask HalalFlow" [ref=f8e388]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - generic [aria-hidden] [ref=f8e389]: "20"

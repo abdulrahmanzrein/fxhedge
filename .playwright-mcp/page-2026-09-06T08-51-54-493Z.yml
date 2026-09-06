@@ -1,0 +1,80 @@
+- generic [active] [ref=f32e1]:
+  - generic [ref=f32e2]:
+    - link "Skip to content" [ref=f32e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f32e4]:
+      - generic [ref=f32e5]:
+        - link "HalalFlow" [ref=f32e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f32e12]:
+          - navigation "Workspace" [ref=f32e13]:
+            - paragraph [aria-hidden] [ref=f32e14]: Workspace
+            - generic [ref=f32e15]:
+              - link "Dashboard" [ref=f32e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f32e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f32e26] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f32e30] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f32e35]:
+            - paragraph [aria-hidden] [ref=f32e36]: Faith & finance
+            - generic [ref=f32e37]:
+              - link "Sharia options" [ref=f32e38] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f32e41] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f32e44] [cursor=pointer]:
+                - /url: /reflect
+        - button "Sign out" [ref=f32e52]
+    - generic [ref=f32e56]:
+      - generic [ref=f32e57]:
+        - generic [ref=f32e58]: Market closed
+        - button "Scroll rates left" [ref=f32e60]
+        - button "Scroll rates right" [ref=f32e79]
+      - main [ref=f32e82]:
+        - generic [ref=f32e84]:
+          - complementary [ref=f32e85]:
+            - button "New conversation" [ref=f32e87]
+          - generic [ref=f32e90]:
+            - generic [ref=f32e91]:
+              - button "Hide history" [expanded] [ref=f32e92]
+              - generic [ref=f32e95]:
+                - heading "Ask HalalFlow" [level=1] [ref=f32e96]
+                - paragraph [ref=f32e97]: Islamic finance questions about your EUR/CAD payment · general education, never a fatwa
+            - generic [ref=f32e98]:
+              - generic [ref=f32e99]:
+                - heading "What would you like to know?" [level=2] [ref=f32e103]
+                - paragraph [ref=f32e104]: Grounded in cited scholarly sources. Surfaces disagreement between schools rather than resolving it.
+                - generic [ref=f32e105]:
+                  - button "What is murabaha and can I use it to hedge my invoice?" [ref=f32e106]
+                  - button "Is a forward contract permissible in Islamic finance?" [ref=f32e107]
+                  - button "What are my halal alternatives to a currency swap?" [ref=f32e108]
+                  - button "How does a wa'd-based FX arrangement work?" [ref=f32e109]
+              - generic [ref=f32e110]:
+                - generic [ref=f32e111]:
+                  - generic [ref=f32e112]: Your question
+                  - textbox "Your question" [ref=f32e113]:
+                    - /placeholder: Ask about murabaha, wa'd, riba…
+                  - button "Send question" [disabled] [ref=f32e114]
+                - paragraph [ref=f32e117]: Enter to send · Shift+Enter for a new line · history is saved on this device only
+      - button "Ask HalalFlow" [ref=f32e118]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - button "Open Next.js Dev Tools" [ref=f32e124] [cursor=pointer]

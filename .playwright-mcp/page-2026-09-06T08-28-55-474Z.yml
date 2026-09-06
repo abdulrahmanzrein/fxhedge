@@ -1,0 +1,186 @@
+- generic [ref=f27e1]:
+  - generic [ref=f27e2]:
+    - link "Skip to content" [ref=f27e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f27e4]:
+      - generic [ref=f27e5]:
+        - link "HalalFlow" [ref=f27e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f27e12]:
+          - navigation "Workspace" [ref=f27e13]:
+            - paragraph [aria-hidden] [ref=f27e14]: Workspace
+            - generic [ref=f27e15]:
+              - link "Dashboard" [ref=f27e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f27e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f27e26] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f27e30] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f27e35]:
+            - paragraph [aria-hidden] [ref=f27e36]: Faith & finance
+            - generic [ref=f27e37]:
+              - link "Sharia options" [ref=f27e38] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f27e41] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f27e44] [cursor=pointer]:
+                - /url: /reflect
+        - generic [ref=f27e49]:
+          - button "Switch to light mode" [ref=f27e131]
+          - button "Sign out" [ref=f27e52]
+    - generic [ref=f27e56]:
+      - generic [ref=f27e57]:
+        - generic [ref=f27e58]: Market closed
+        - button "Scroll rates left" [ref=f27e60]
+        - generic [ref=f27e63]:
+          - generic "EUR/CAD 1.6038 — 30-day change" [ref=f27e141]:
+            - generic [ref=f27e142]: EUR/CAD
+            - generic [ref=f27e143]: "1.6038"
+            - generic [ref=f27e146]: "-0.75%"
+          - generic "USD/CAD 1.3800 — 30-day change" [ref=f27e147]:
+            - generic [ref=f27e148]: USD/CAD
+            - generic [ref=f27e149]: "1.3800"
+            - generic [ref=f27e152]: "-1.50%"
+          - generic "GBP/CAD 1.8671 — 30-day change" [ref=f27e153]:
+            - generic [ref=f27e154]: GBP/CAD
+            - generic [ref=f27e155]: "1.8671"
+            - generic [ref=f27e158]: "-0.91%"
+          - generic "EUR/USD 1.1622 — 30-day change" [ref=f27e159]:
+            - generic [ref=f27e160]: EUR/USD
+            - generic [ref=f27e161]: "1.1622"
+            - generic [ref=f27e164]: +0.75%
+          - generic "GBP/EUR 1.1642 — 30-day change" [ref=f27e165]:
+            - generic [ref=f27e166]: GBP/EUR
+            - generic [ref=f27e167]: "1.1642"
+            - generic [ref=f27e170]: "-0.15%"
+          - generic "AUD/CAD 0.9940 — 30-day change" [ref=f27e171]:
+            - generic [ref=f27e172]: AUD/CAD
+            - generic [ref=f27e173]: "0.9940"
+            - generic [ref=f27e176]: +0.78%
+          - generic "CHF/CAD 1.7053 — 30-day change" [ref=f27e177]:
+            - generic [ref=f27e178]: CHF/CAD
+            - generic [ref=f27e179]: "1.7053"
+            - generic [ref=f27e182]: "-1.37%"
+        - button "Scroll rates right" [ref=f27e79]
+      - main [ref=f27e82]:
+        - generic [ref=f27e84]:
+          - generic [ref=f27e85]:
+            - heading "Sharia options" [level=1] [ref=f27e86]
+            - paragraph [ref=f27e87]: Islamic finance alternatives to conventional FX hedging · grounded in cited sources
+          - generic [ref=f27e88]:
+            - generic [ref=f27e89]:
+              - generic [ref=f27e90]:
+                - heading "Natural hedge" [level=3] [ref=f27e91]
+                - generic [ref=f27e92]: halal
+              - paragraph [ref=f27e93]: Match your income and expenses in the same currency. Zero cost, zero riba exposure. Best if you already earn in your supplier's currency.
+            - generic [ref=f27e94]:
+              - generic [ref=f27e95]:
+                - heading "Murabaha (cost-plus sale)" [level=3] [ref=f27e96]
+                - generic [ref=f27e97]: halal
+              - paragraph [ref=f27e98]: Bank buys the currency at today's rate and sells it to you at a fixed markup. Widely accepted. Avoid if the markup is not disclosed upfront.
+            - generic [ref=f27e99]:
+              - generic [ref=f27e100]:
+                - heading "Wa'd (unilateral promise)" [level=3] [ref=f27e101]
+                - generic [ref=f27e102]: debated
+              - paragraph [ref=f27e103]: "A promise, not a contract, to buy currency at a future date. Scholarly debate exists: some scholars accept it, others see binding wa'd as equivalent to a forward. Check your madhab."
+            - generic [ref=f27e104]:
+              - generic [ref=f27e105]:
+                - heading "Conventional forward" [level=3] [ref=f27e106]
+                - generic [ref=f27e107]: caution
+              - paragraph [ref=f27e108]: A contract to exchange currency at a fixed future rate. Contains an element of gharar (uncertainty). Generally not permissible under Sharia.
+          - generic [ref=f27e109]:
+            - heading "Ask the Islamic finance assistant" [level=2] [ref=f27e110]
+            - paragraph [ref=f27e111]: Grounded in cited scholarly sources. Never issues a fatwa. Always surfaces scholarly disagreement.
+            - generic [ref=f27e112]:
+              - button "What is the difference between wa'd and a forward contract?" [active] [ref=f27e113]
+              - button "Is murabaha available for FX in Canada?" [ref=f27e114]
+              - button "How can I use a natural hedge for EUR-CAD?" [ref=f27e115]
+              - button "What do AAOIFI standards say about FX hedging?" [ref=f27e116]
+            - generic [ref=f27e117]:
+              - generic [ref=f27e118]: Question for Islamic finance assistant
+              - textbox "Question for Islamic finance assistant" [ref=f27e119]:
+                - /placeholder: Ask a question about Islamic finance & FX…
+                - text: What is the difference between wa'd and a forward contract?
+              - button "Ask" [ref=f27e120]
+            - status [ref=f27e183]:
+              - generic [ref=f27e184]:
+                - generic [ref=f27e185]:
+                  - paragraph [ref=f27e186]:
+                    - text: In conventional finance, a
+                    - strong [ref=f27e187]: forward contract
+                    - text: is a binding, bilateral agreement where two parties commit today to exchange currencies at a future date at a fixed rate. However, under Islamic jurisprudence, currency exchange is governed by the rules of
+                    - emphasis [ref=f27e188]: sarf
+                    - text: (money exchange). According to the
+                    - strong [ref=f27e189]: Shariyah Review Bureau
+                    - text: ","
+                    - emphasis [ref=f27e190]: sarf
+                    - text: requires that when two currencies are exchanged, they must be handed over on the spot rather than deferred. Because conventional forwards defer both the delivery of currencies and the settlement, they fall foul of these rules and are generally considered non-compliant due to
+                    - emphasis [ref=f27e191]: riba
+                    - text: (unjust excess) and
+                    - emphasis [ref=f27e192]: gharar
+                    - text: (excessive uncertainty).
+                  - paragraph [ref=f27e193]:
+                    - text: In contrast, a
+                    - strong [ref=f27e194]: wa'd
+                    - text: translates to a unilateral "promise." In Sharia-compliant hedging structures, only
+                    - emphasis [ref=f27e195]: one
+                    - text: party makes a binding promise to purchase a currency at a specified future rate, rather than both parties entering into a bilateral deferred exchange contract today. According to
+                    - strong [ref=f27e196]: HalalWallet
+                    - text: ","
+                    - strong [ref=f27e197]: AAOIFI Sharia Standard No. 65
+                    - text: permits a single
+                    - emphasis [ref=f27e198]: wa'd
+                    - text: as legally and religiously binding on the promisor, while leaving the promisee uncommitted until the spot exchange actually occurs at maturity.
+                  - paragraph [ref=f27e199]:
+                    - text: However, there is legitimate scholarly disagreement surrounding this mechanism. While
+                    - strong [ref=f27e200]: AAOIFI
+                    - text: permits a single binding
+                    - emphasis [ref=f27e201]: wa'd
+                    - text: ", some scholars argue that using complex setups—such as two parallel promises ("
+                    - emphasis [ref=f27e202]: parallel wa'd
+                    - text: )—effectively mimics a conventional forward contract and constitutes
+                    - emphasis [ref=f27e203]: muwa'adah
+                    - text: (a bilateral mutual promise), which is prohibited. The
+                    - strong [ref=f27e204]: International Islamic Fiqh Academy
+                    - text: has historically taken a more cautious stance on using binding promises to lock in future currency exchanges.
+                  - paragraph [ref=f27e205]:
+                    - strong [ref=f27e206]: "Practical Precaution for Your Deal:"
+                    - text: When managing a live exposure like your 45,000 GBP-USD payment with margin at risk, be aware that structured
+                    - emphasis [ref=f27e207]: wa'd
+                    - text: products are typically institutional bank-treasury instruments reserved for larger corporate clients. If you attempt to access an Islamic hedge through a bank, always demand the underlying contract in writing to ensure it relies on an approved unilateral
+                    - emphasis [ref=f27e208]: wa'd
+                    - text: or a commodity murabaha structure, rather than a re-labeled conventional forward. Alternatively, small importers often look into "natural hedging" (holding a USD balance in advance) to eliminate conversion risk without entering deferred derivatives.
+                  - separator [ref=f27e209]
+                  - paragraph [ref=f27e210]:
+                    - emphasis [ref=f27e211]: This is general education, not a fatwa or financial advice. Scholars legitimately disagree on some of these structures. Before acting on any international payment, consult a qualified Sharia advisor and a regulated financial professional — and verify the actual structure your bank uses in writing.
+                - paragraph [ref=f27e212]: This is general education, not a fatwa or financial advice. Consult a qualified scholar for a ruling specific to your situation.
+      - button "Ask HalalFlow" [ref=f27e121]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - generic [ref=f27e126] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f27e127]
+    - generic [ref=f27e213]:
+      - button "Open issues overlay" [ref=f27e214]:
+        - generic [ref=f27e215]:
+          - generic [aria-hidden] [ref=f27e216]: "0"
+          - generic [ref=f27e217]: "1"
+        - generic [ref=f27e218]: Issue
+      - button "Collapse issues badge" [ref=f27e219]
+  - alert [ref=f27e222]

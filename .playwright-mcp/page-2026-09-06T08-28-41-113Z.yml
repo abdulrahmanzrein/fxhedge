@@ -1,0 +1,94 @@
+- generic [active] [ref=f27e1]:
+  - generic [ref=f27e2]:
+    - link "Skip to content" [ref=f27e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f27e4]:
+      - generic [ref=f27e5]:
+        - link "HalalFlow" [ref=f27e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f27e12]:
+          - navigation "Workspace" [ref=f27e13]:
+            - paragraph [aria-hidden] [ref=f27e14]: Workspace
+            - generic [ref=f27e15]:
+              - link "Dashboard" [ref=f27e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f27e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f27e26] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f27e30] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f27e35]:
+            - paragraph [aria-hidden] [ref=f27e36]: Faith & finance
+            - generic [ref=f27e37]:
+              - link "Sharia options" [ref=f27e38] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f27e41] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f27e44] [cursor=pointer]:
+                - /url: /reflect
+        - button "Sign out" [ref=f27e52]
+    - generic [ref=f27e56]:
+      - generic [ref=f27e57]:
+        - generic [ref=f27e58]: Market closed
+        - button "Scroll rates left" [ref=f27e60]
+        - button "Scroll rates right" [ref=f27e79]
+      - main [ref=f27e82]:
+        - generic [ref=f27e84]:
+          - generic [ref=f27e85]:
+            - heading "Sharia options" [level=1] [ref=f27e86]
+            - paragraph [ref=f27e87]: Islamic finance alternatives to conventional FX hedging · grounded in cited sources
+          - generic [ref=f27e88]:
+            - generic [ref=f27e89]:
+              - generic [ref=f27e90]:
+                - heading "Natural hedge" [level=3] [ref=f27e91]
+                - generic [ref=f27e92]: halal
+              - paragraph [ref=f27e93]: Match your income and expenses in the same currency. Zero cost, zero riba exposure. Best if you already earn in your supplier's currency.
+            - generic [ref=f27e94]:
+              - generic [ref=f27e95]:
+                - heading "Murabaha (cost-plus sale)" [level=3] [ref=f27e96]
+                - generic [ref=f27e97]: halal
+              - paragraph [ref=f27e98]: Bank buys the currency at today's rate and sells it to you at a fixed markup. Widely accepted. Avoid if the markup is not disclosed upfront.
+            - generic [ref=f27e99]:
+              - generic [ref=f27e100]:
+                - heading "Wa'd (unilateral promise)" [level=3] [ref=f27e101]
+                - generic [ref=f27e102]: debated
+              - paragraph [ref=f27e103]: "A promise, not a contract, to buy currency at a future date. Scholarly debate exists: some scholars accept it, others see binding wa'd as equivalent to a forward. Check your madhab."
+            - generic [ref=f27e104]:
+              - generic [ref=f27e105]:
+                - heading "Conventional forward" [level=3] [ref=f27e106]
+                - generic [ref=f27e107]: caution
+              - paragraph [ref=f27e108]: A contract to exchange currency at a fixed future rate. Contains an element of gharar (uncertainty). Generally not permissible under Sharia.
+          - generic [ref=f27e109]:
+            - heading "Ask the Islamic finance assistant" [level=2] [ref=f27e110]
+            - paragraph [ref=f27e111]: Grounded in cited scholarly sources. Never issues a fatwa. Always surfaces scholarly disagreement.
+            - generic [ref=f27e112]:
+              - button "What is the difference between wa'd and a forward contract?" [ref=f27e113]
+              - button "Is murabaha available for FX in Canada?" [ref=f27e114]
+              - button "How can I use a natural hedge for EUR-CAD?" [ref=f27e115]
+              - button "What do AAOIFI standards say about FX hedging?" [ref=f27e116]
+            - generic [ref=f27e117]:
+              - generic [ref=f27e118]: Question for Islamic finance assistant
+              - textbox "Question for Islamic finance assistant" [ref=f27e119]:
+                - /placeholder: Ask a question about Islamic finance & FX…
+              - button "Ask" [disabled] [ref=f27e120]
+            - status
+      - button "Ask HalalFlow" [ref=f27e121]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - button "Open Next.js Dev Tools" [ref=f27e127] [cursor=pointer]

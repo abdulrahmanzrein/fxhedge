@@ -1,0 +1,119 @@
+- generic [active] [ref=f31e1]:
+  - generic [ref=f31e2]:
+    - link "Skip to content" [ref=f31e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f31e4]:
+      - generic [ref=f31e5]:
+        - link "HalalFlow" [ref=f31e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f31e12]:
+          - navigation "Workspace" [ref=f31e13]:
+            - paragraph [aria-hidden] [ref=f31e14]: Workspace
+            - generic [ref=f31e15]:
+              - link "Dashboard" [ref=f31e16] [cursor=pointer]:
+                - /url: /dashboard
+              - link "New transfer" [ref=f31e22] [cursor=pointer]:
+                - /url: /transfer
+              - link "Risk explorer" [ref=f31e26] [cursor=pointer]:
+                - /url: /risk
+              - link "Breakeven & hedge" [ref=f31e30] [cursor=pointer]:
+                - /url: /breakeven
+          - navigation "Faith and finance" [ref=f31e35]:
+            - paragraph [aria-hidden] [ref=f31e36]: Faith & finance
+            - generic [ref=f31e37]:
+              - link "Sharia options" [ref=f31e38] [cursor=pointer]:
+                - /url: /sharia
+              - link "Zakat calculator" [ref=f31e41] [cursor=pointer]:
+                - /url: /zakat
+              - link "The weight of riba" [ref=f31e44] [cursor=pointer]:
+                - /url: /reflect
+        - generic [ref=f31e49]:
+          - button "Switch to light mode" [ref=f31e50]
+          - button "Sign out" [ref=f31e61]
+    - generic [ref=f31e65]:
+      - generic [ref=f31e66]:
+        - generic [ref=f31e67]: Market closed
+        - button "Scroll rates left" [ref=f31e69]
+        - generic [ref=f31e72]:
+          - generic "EUR/CAD 1.6038 — 30-day change" [ref=f31e148]:
+            - generic [ref=f31e149]: EUR/CAD
+            - generic [ref=f31e150]: "1.6038"
+            - generic [ref=f31e153]: "-0.75%"
+          - generic "USD/CAD 1.3800 — 30-day change" [ref=f31e154]:
+            - generic [ref=f31e155]: USD/CAD
+            - generic [ref=f31e156]: "1.3800"
+            - generic [ref=f31e159]: "-1.50%"
+          - generic "GBP/CAD 1.8671 — 30-day change" [ref=f31e160]:
+            - generic [ref=f31e161]: GBP/CAD
+            - generic [ref=f31e162]: "1.8671"
+            - generic [ref=f31e165]: "-0.91%"
+          - generic "EUR/USD 1.1622 — 30-day change" [ref=f31e166]:
+            - generic [ref=f31e167]: EUR/USD
+            - generic [ref=f31e168]: "1.1622"
+            - generic [ref=f31e171]: +0.75%
+          - generic "GBP/EUR 1.1642 — 30-day change" [ref=f31e172]:
+            - generic [ref=f31e173]: GBP/EUR
+            - generic [ref=f31e174]: "1.1642"
+            - generic [ref=f31e177]: "-0.15%"
+          - generic "AUD/CAD 0.9940 — 30-day change" [ref=f31e178]:
+            - generic [ref=f31e179]: AUD/CAD
+            - generic [ref=f31e180]: "0.9940"
+            - generic [ref=f31e183]: +0.78%
+          - generic "CHF/CAD 1.7053 — 30-day change" [ref=f31e184]:
+            - generic [ref=f31e185]: CHF/CAD
+            - generic [ref=f31e186]: "1.7053"
+            - generic [ref=f31e189]: "-1.37%"
+        - button "Scroll rates right" [ref=f31e88]
+      - main [ref=f31e91]:
+        - generic [ref=f31e93]:
+          - complementary [ref=f31e94]:
+            - button "New conversation" [ref=f31e96]
+            - generic [ref=f31e190]:
+              - paragraph [ref=f31e191]: Today
+              - list [ref=f31e192]:
+                - listitem [ref=f31e193]:
+                  - button "What is murabaha and can I use it to hedge my invoice?" [ref=f31e194]
+                  - 'button "Delete conversation: What is murabaha and can I use it to hedge my invoice?" [ref=f31e195]'
+          - generic [ref=f31e100]:
+            - generic [ref=f31e101]:
+              - button "Hide history" [expanded] [ref=f31e102]
+              - generic [ref=f31e105]:
+                - heading "What is murabaha and can I use it to hedge my invoice?" [level=1] [ref=f31e199]
+                - paragraph [ref=f31e107]: Islamic finance questions about your GBP/USD payment · general education, never a fatwa
+            - generic [ref=f31e108]:
+              - paragraph [ref=f31e201]: What is murabaha and can I use it to hedge my invoice?
+              - generic [ref=f31e120]:
+                - generic [ref=f31e121]:
+                  - generic [ref=f31e122]: Your question
+                  - textbox "Your question" [ref=f31e123]:
+                    - /placeholder: Ask about murabaha, wa'd, riba…
+                  - button "Send question" [disabled] [ref=f31e124]
+                - paragraph [ref=f31e127]: Enter to send · Shift+Enter for a new line · history is saved on this device only
+      - button "Ask HalalFlow" [ref=f31e128]
+      - dialog "Ask HalalFlow":
+        - generic:
+          - generic:
+            - paragraph: Ask HalalFlow
+            - paragraph: Islamic finance · general education only
+        - generic:
+          - generic:
+            - paragraph: Try asking
+            - button "What is murabaha?"
+            - button "Is a forward contract halal?"
+            - button "Halal alternatives to a currency swap?"
+            - button "How does wa'd-based FX work?"
+        - generic:
+          - generic:
+            - textbox "Ask a question…"
+            - button "Send" [disabled]
+          - paragraph: Not a fatwa · Not financial advice
+  - generic [ref=f31e133] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f31e134]
+    - generic [ref=f31e138]:
+      - button "Open issues overlay" [ref=f31e139]:
+        - generic [ref=f31e140]:
+          - generic [aria-hidden] [ref=f31e141]: "0"
+          - generic [ref=f31e142]: "1"
+        - generic [ref=f31e143]: Issue
+      - button "Collapse issues badge" [ref=f31e144]
+  - alert [ref=f31e147]
