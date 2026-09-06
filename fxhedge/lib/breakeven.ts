@@ -28,10 +28,11 @@ export function computeBreakEven(input: BreakEvenInput): BreakEvenResult {
   if (!(revenue > 0)) throw new Error("revenue must be > 0");
 
   const break_even_rate = revenue / invoiceAmount;
-  // How much the rate can move against the owner before profit hits zero,
-  // as a % of today's rate.
-  const cushion_pct = ((todayRate - break_even_rate) / todayRate) * 100;
-  const cushion_abs = todayRate - break_even_rate;
+  // For importer flows quoted as FROM/TO (e.g. EUR/CAD), a move "against"
+  // the buyer is a higher rate (it costs more TO-currency per FROM unit).
+  // Room is therefore the upside distance from today's rate to break-even.
+  const cushion_pct = ((break_even_rate - todayRate) / todayRate) * 100;
+  const cushion_abs = break_even_rate - todayRate;
 
   let verdict: BreakEvenResult["verdict"];
   let verdict_reason: string;
