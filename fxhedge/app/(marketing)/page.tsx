@@ -279,6 +279,57 @@ export default function LandingPage() {
         </div>
       </div>
 
+      {/* ── How it works ─────────────────────────────────────────── */}
+      <section id="how" className="py-[88px]">
+        <div className="mx-auto max-w-[1100px] px-6">
+          <h2
+            className="sr-fade font-serif font-normal m-0 text-[var(--color-fg)]"
+            style={{ fontSize: "clamp(1.8rem, 4vw, 2.4rem)" }}
+          >
+            How it works
+          </h2>
+          <p className="sr-fade mt-3.5 max-w-lg text-[15px] text-[var(--color-muted-fg)]">
+            Three steps, about a minute. We never touch your money — you still pay
+            through whichever provider you choose.
+          </p>
+
+          <ol className="mt-10 grid gap-6 sm:grid-cols-3">
+            {[
+              {
+                n: "1",
+                title: "Enter the invoice",
+                body: "Amount, the currency your supplier bills in, and when it is due. Nothing else.",
+              },
+              {
+                n: "2",
+                title: "See the real cost",
+                body: "We price it at the ECB reference rate, then show what each provider would actually deliver — including the markup they bury in the rate.",
+              },
+              {
+                n: "3",
+                title: "Decide with the range",
+                body: "We show how far the rate has moved in stretches like yours, priced against your bill, plus the halal alternatives to a conventional forward.",
+              },
+            ].map((s) => (
+              <li
+                key={s.n}
+                className="sr-fade rounded-[18px] border p-6"
+                style={{ borderColor: "var(--color-border)", background: "var(--color-card)" }}
+              >
+                <span
+                  className="grid h-9 w-9 place-items-center rounded-full text-[15px] font-bold"
+                  style={{ background: "var(--color-primary)", color: "#04120A" }}
+                >
+                  {s.n}
+                </span>
+                <h3 className="mt-4 text-[16px] font-semibold text-[var(--color-fg)]">{s.title}</h3>
+                <p className="mt-2 text-[14px] leading-relaxed text-[var(--color-muted-fg)]">{s.body}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
       {/* ── Features ───────────────────────────────────────────── */}
       <section id="features" className="py-[88px]">
         <div className="mx-auto max-w-[1180px] px-6">
