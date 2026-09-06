@@ -4,10 +4,12 @@ import { ASSISTANT_SYSTEM_PROMPT } from "./prompt";
 /**
  * lib/assistant/ask.ts — server-side LLM call (PRD FR-6).
  * The API key NEVER reaches the client. Guardrails live in the prompt.
+ * Provider priority is Groq -> Anthropic -> Gemini.
  */
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-5";
+const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
 
 /**
  * maxOutputTokens covers reasoning AND the reply, so an unbounded think can eat
@@ -44,13 +46,24 @@ interface AnthropicResponse {
   error?: { type?: string; message?: string };
 }
 
+interface GroqResponse {
+  model?: string;
+  choices?: Array<{ message?: { content?: string } }>;
+  error?: { message?: string; type?: string };
+}
+
 export async function askAssistant(
   question: string,
   context?: AskContext,
 ): Promise<AskResult> {
+  const groqApiKey = process.env.GROQ_API_KEY;
   const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
   const geminiApiKey = process.env.GEMINI_API_KEY;
-  if ((!anthropicApiKey || anthropicApiKey.startsWith("PASTE")) && (!geminiApiKey || geminiApiKey.startsWith("PASTE"))) {
+  if (
+    (!groqApiKey || groqApiKey.startsWith("PASTE")) &&
+    (!anthropicApiKey || anthropicApiKey.startsWith("PASTE")) &&
+    (!geminiApiKey || geminiApiKey.startsWith("PASTE"))
+  ) {
     // FR-6 honest fallback: never appear broken, never fake an answer.
     throw new AssistantUnavailableError(
       "The assistant is unavailable right now. For Islamic-finance questions about your payment, please consult a qualified Sharia advisor.",
@@ -60,6 +73,51 @@ export async function askAssistant(
   const contextBlock = context?.amount
     ? `\n\n[The user's current deal: ${context.pair ?? "currency pair"} payment of ${context.amount}, margin at risk ${context.margin_at_risk ?? "n/a"}. You may reference it if relevant.]`
     : "";
+
+  if (groqApiKey && !groqApiKey.startsWith("PASTE")) {
+    const body = JSON.stringify({
+      model: GROQ_MODEL,
+      max_tokens: MAX_TOKENS,
+      messages: [
+        { role: "system", content: ASSISTANT_SYSTEM_PROMPT },
+        { role: "user", content: question + contextBlock },
+      ],
+    });
+
+    const call = () =>
+      fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${groqApiKey}`,
+        },
+        body,
+      });
+
+    let res = await call();
+    for (let attempt = 0; attempt < 2 && (res.status === 429 || res.status === 503); attempt++) {
+      await new Promise((r) => setTimeout(r, 1200 * (attempt + 1)));
+      res = await call();
+    }
+
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      console.error("[askAssistant] Groq error", res.status, detail.slice(0, 400));
+      throw new AssistantUnavailableError(
+        "The assistant could not be reached. For Islamic-finance questions about your payment, please consult a qualified Sharia advisor.",
+      );
+    }
+
+    const json = (await res.json()) as GroqResponse;
+    const answer = json.choices?.[0]?.message?.content?.trim() ?? "";
+    if (!answer) {
+      throw new AssistantUnavailableError(
+        "The assistant returned an empty response. Please consult a qualified Sharia advisor.",
+      );
+    }
+
+    return { answer, model: json.model ?? GROQ_MODEL };
+  }
 
   if (anthropicApiKey && !anthropicApiKey.startsWith("PASTE")) {
     const body = JSON.stringify({
