@@ -3,60 +3,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { Trash2 } from "lucide-react";
 import type { ZakatHolding, ZakatResult, MadhhabMethod } from "@/types/zakat";
+import { computeZakat, NISAB_GOLD_GRAMS } from "@/lib/zakat";
+import { useAppData } from "@/hooks/use-app-data";
 
-/* ------------------------------------------------------------------ *
- * Illustrative FX + nisab + compute — swap for real engine later.
- * ------------------------------------------------------------------ */
-const HOME = "CAD";
-const NISAB = 850;
-const RATES: Record<string, number> = { CAD: 1, USD: 1.37, EUR: 1.49, GBP: 1.74, AED: 0.37, TRY: 0.042 };
+const STORAGE_KEY = "halalflow:zakat";
 
-function computeZakat(holdings: ZakatHolding[], method: MadhhabMethod): ZakatResult {
-  const rows = holdings.map((h) => {
-    const rate = RATES[h.currency] ?? 1;
-    const value_home = h.amount * rate;
-    const isLiab = h.kind === "liability";
-    let zakatable = !isLiab;
-    let excluded_reason: string | undefined;
-    if (h.kind === "receivable" && h.doubtful && method === "aaoifi") {
-      zakatable = false;
-      excluded_reason = "doubtful, excluded under AAOIFI";
-    }
-    if (isLiab) excluded_reason = "deducted from pool";
-    return {
-      ...h,
-      rate_used: h.currency === HOME ? 1 : Number(rate.toFixed(4)),
-      rate_source: h.currency === HOME ? "home currency" : "live",
-      value_home,
-      zakatable,
-      excluded_reason,
-    };
-  });
-  const zakatable_total = Math.max(
-    0,
-    rows.reduce((s, r) => s + (r.kind === "liability" ? -r.value_home : r.zakatable ? r.value_home : 0), 0),
-  );
-  const nisab_met = zakatable_total >= NISAB;
-  return {
-    method,
-    zakat_due: nisab_met ? zakatable_total * 0.025 : 0,
-    nisab_met,
-    nisab_threshold: NISAB,
-    zakatable_total,
-    rate_date: new Date().toISOString().slice(0, 10),
-    computed_at: new Date().toISOString(),
-    holdings: rows,
-  };
+/** Sample rows so the page opens with something to look at, in the user's own currencies. */
+function initialHoldings(home: string, foreign: string): ZakatHolding[] {
+  return [
+    { id: "h1", kind: "cash_home",    label: "Operating account", amount: 18500, currency: home },
+    { id: "h2", kind: "receivable",   label: "Customer invoice",  amount: 12000, currency: foreign, due_days: 20 },
+    { id: "h3", kind: "inventory",    label: "Resale stock",      amount: 6000,  currency: home },
+    { id: "h4", kind: "liability",    label: "Supplier loan",     amount: 9000,  currency: home },
+  ];
 }
-
-const INITIAL: ZakatHolding[] = [
-  { id: "h1", kind: "cash_home",    label: "Operating account",    amount: 18500, currency: "CAD" },
-  { id: "h2", kind: "receivable",   label: "EUR customer invoice", amount: 12000, currency: "EUR", due_days: 20 },
-  { id: "h3", kind: "cash_foreign", label: "USD reserve",          amount: 4200,  currency: "USD" },
-  { id: "h4", kind: "inventory",    label: "Resale stock",         amount: 6000,  currency: "CAD" },
-  { id: "h5", kind: "receivable",   label: "Late AED account",     amount: 3000,  currency: "AED", due_days: 120, doubtful: true },
-  { id: "h6", kind: "liability",    label: "Supplier loan",        amount: 9000,  currency: "CAD" },
-];
 
 const KINDS: { value: ZakatHolding["kind"]; label: string; color: string }[] = [
   { value: "cash_home",    label: "Cash (home)",         color: "#3DD68C" },
@@ -74,8 +34,8 @@ const METHOD_LABEL: Record<MadhhabMethod, string> = {
   hanafi: "Hanafi view",
 };
 
-const money = (n: number, dp = 0) =>
-  new Intl.NumberFormat("en-CA", { style: "currency", currency: HOME, maximumFractionDigits: dp }).format(n);
+const money = (n: number, currency: string, dp = 0) =>
+  new Intl.NumberFormat("en-CA", { style: "currency", currency, maximumFractionDigits: dp }).format(n);
 const hexA = (hex: string, a: number) => {
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
@@ -110,12 +70,84 @@ function newId() {
 /* ================================================================== */
 
 export default function ZakatPage() {
-  const [holdings, setHoldings] = useState<ZakatHolding[]>(INITIAL);
+  const d = useAppData();
+  const home = d.toCurrency;
+
+  const [holdings, setHoldings] = useState<ZakatHolding[]>([]);
+  const [goldPrice, setGoldPrice] = useState("");
   const [method, setMethod] = useState<MadhhabMethod>("aaoifi");
   const [view, setView] = useState<"input" | "result">("input");
   const [runId, setRunId] = useState(0);
+  const [hydrated, setHydrated] = useState(false);
 
-  const result = useMemo(() => computeZakat(holdings, method), [holdings, method]);
+  const [rates, setRates] = useState<Record<string, number> | null>(null);
+  const [rateDate, setRateDate] = useState<string | null>(null);
+  const [ratesError, setRatesError] = useState(false);
+
+  // Restore a previous session; otherwise seed from the user's own currencies.
+  useEffect(() => {
+    if (d.loading || hydrated) return;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw) as { holdings?: ZakatHolding[]; goldPrice?: string };
+        if (saved.holdings?.length) setHoldings(saved.holdings);
+        else setHoldings(initialHoldings(home, d.fromCurrency));
+        if (saved.goldPrice) setGoldPrice(saved.goldPrice);
+      } else {
+        setHoldings(initialHoldings(home, d.fromCurrency));
+      }
+    } catch {
+      setHoldings(initialHoldings(home, d.fromCurrency));
+    }
+    setHydrated(true);
+  }, [d.loading, d.fromCurrency, home, hydrated]);
+
+  // Persist so a half-finished return isn't lost on reload.
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ holdings, goldPrice }));
+    } catch {
+      // storage full or blocked — the calculator still works in-memory
+    }
+  }, [holdings, goldPrice, hydrated]);
+
+  // Zakat is due on today's VALUE, so foreign holdings need live rates.
+  const foreign = useMemo(
+    () => [...new Set(holdings.map((h) => h.currency).filter((c) => c !== home))].sort(),
+    [holdings, home],
+  );
+  const foreignKey = foreign.join(",");
+
+  useEffect(() => {
+    if (!hydrated) return;
+    let alive = true;
+    fetch(`/api/zakat/rates?home=${home}&currencies=${foreignKey}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("rates"))))
+      .then((data: { rates: Record<string, number>; rate_date: string }) => {
+        if (!alive) return;
+        setRates(data.rates);
+        setRateDate(data.rate_date);
+        setRatesError(false);
+      })
+      .catch(() => { if (alive) setRatesError(true); });
+    return () => { alive = false; };
+  }, [foreignKey, home, hydrated]);
+
+  const gold = Number(goldPrice);
+  const goldValid = Number.isFinite(gold) && gold > 0;
+  const missingRates = foreign.filter((c) => !rates?.[c]);
+  const canCompute = goldValid && rates !== null && missingRates.length === 0;
+
+  const result = useMemo(() => {
+    if (!canCompute || !rates) return null;
+    try {
+      return computeZakat(holdings, method, rates, gold, home);
+    } catch {
+      return null;
+    }
+  }, [holdings, method, rates, gold, home, canCompute]);
 
   const update = (id: string, patch: Partial<ZakatHolding>) =>
     setHoldings((hs) => hs.map((h) => (h.id === id ? { ...h, ...patch } : h)));
@@ -124,14 +156,14 @@ export default function ZakatPage() {
   const addRow = () =>
     setHoldings((hs) => [
       ...hs,
-      { id: newId(), kind: "cash_home", label: "", amount: 0, currency: HOME },
+      { id: newId(), kind: "cash_home", label: "", amount: 0, currency: home },
     ]);
 
   const showResult = () => { setRunId((n) => n + 1); setView("result"); };
   const showInput  = () => setView("input");
 
   return (
-    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-2rem)]">
+    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-4.75rem)]">
 
       {/* Header + method toggle */}
       <header className="flex flex-wrap items-end justify-between gap-4 shrink-0">
@@ -186,7 +218,7 @@ export default function ZakatPage() {
             <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-4 flex flex-col gap-3.5">
               {holdings.map((h) => {
                 const k = KMAP[h.kind];
-                const curList = [HOME, ...CURRENCIES.filter((c) => c !== HOME)];
+                const curList = [home, ...CURRENCIES.filter((c) => c !== home)];
                 const isReceivable = h.kind === "receivable";
                 return (
                   <div
@@ -292,16 +324,63 @@ export default function ZakatPage() {
               </button>
             </div>
 
+            {/* Nisab needs a gold price, and no keyless feed publishes one — so it is asked for, and labelled as such. */}
+            <div className="px-6 pb-4 shrink-0">
+              <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)] p-4">
+                <FieldLabel label={`Gold price per gram (${home}) — you enter this`}>
+                  <input
+                    aria-label={`Gold price per gram in ${home}`}
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    placeholder="e.g. 105.40"
+                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2 text-sm text-right tabular text-[var(--color-fg)] outline-none focus:border-[var(--color-primary)] transition-colors"
+                    value={goldPrice}
+                    onChange={(e) => setGoldPrice(e.target.value)}
+                  />
+                </FieldLabel>
+                <p className="mt-2 text-[11.5px] leading-relaxed text-[var(--color-muted-fg)]">
+                  Nisab is the value of {NISAB_GOLD_GRAMS}g of gold — below it, no zakat is due.
+                  Check today&apos;s price with your local dealer.
+                  {goldValid && (
+                    <> Yours works out to{" "}
+                      <span className="tabular font-semibold text-[var(--color-fg)]">
+                        {money(NISAB_GOLD_GRAMS * gold, home)}
+                      </span>.
+                    </>
+                  )}
+                </p>
+              </div>
+
+              {ratesError && (
+                <p className="mt-3 text-xs" style={{ color: "var(--color-negative)" }}>
+                  Could not load today&apos;s exchange rates. Foreign holdings cannot be valued until
+                  they load — check your connection and refresh.
+                </p>
+              )}
+              {!ratesError && missingRates.length > 0 && rates !== null && (
+                <p className="mt-3 text-xs" style={{ color: "var(--color-negative)" }}>
+                  No rate available for {missingRates.join(", ")}. Remove those holdings or pick a
+                  different currency.
+                </p>
+              )}
+            </div>
+
             <div className="flex items-center justify-between gap-4 px-6 py-4 border-t border-[var(--color-border)] shrink-0">
               <span className="text-sm text-[var(--color-muted-fg)] tabular">
-                {holdings.length} holding{holdings.length === 1 ? "" : "s"} entered
+                {holdings.length} holding{holdings.length === 1 ? "" : "s"}
+                {rateDate && !ratesError && (
+                  <span className="text-[var(--color-dim)]"> · rates {rateDate}</span>
+                )}
               </span>
               <button
                 onClick={showResult}
-                className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-[opacity,scale] duration-200 active:scale-[0.96] hover:opacity-90"
+                disabled={!canCompute}
+                title={!goldValid ? "Enter a gold price to set the nisab threshold" : undefined}
+                className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-[opacity,scale] duration-200 active:scale-[0.96] hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{ background: `linear-gradient(135deg,#16A34A,${ACCENT})`, color: "#04120a" }}
               >
-                Calculate zakat →
+                {goldValid ? "Calculate zakat →" : "Enter gold price first"}
               </button>
             </div>
           </div>
@@ -310,7 +389,7 @@ export default function ZakatPage() {
         {/* STEP 2 — result */}
         <View active={view === "result"} from="right">
           <div className="mx-auto w-full max-w-[720px] h-full">
-            <ZakatDue result={result} runId={runId} />
+            {result && <ZakatDue result={result} runId={runId} home={home} />}
           </div>
         </View>
       </div>
@@ -354,7 +433,9 @@ function View({
 }
 
 /* ------------------ Zakat due panel ------------------ */
-function ZakatDue({ result, runId }: { result: ZakatResult; runId: number }) {
+function ZakatDue({
+  result, runId, home,
+}: { result: ZakatResult; runId: number; home: string }) {
   const due = useAnimatedNumber(result.zakat_due, runId);
   const pool = useAnimatedNumber(result.zakatable_total, runId);
 
@@ -390,7 +471,7 @@ function ZakatDue({ result, runId }: { result: ZakatResult; runId: number }) {
         className="relative text-4xl font-semibold tabular leading-none mt-2"
         style={{ color: ACCENT }}
       >
-        {money(due, 2)}
+        {money(due, home, 2)}
       </p>
       <span
         className="mt-3.5 inline-flex w-fit items-center gap-2 rounded-full px-3 py-1.5 text-[12.5px] font-semibold"
@@ -403,8 +484,8 @@ function ZakatDue({ result, runId }: { result: ZakatResult; runId: number }) {
       </span>
       <p className="text-xs text-[var(--color-muted-fg)] mt-2.5">
         {result.nisab_met
-          ? `2.5% of your zakatable pool. Threshold ${money(result.nisab_threshold)}.`
-          : `Pool is under the nisab threshold (${money(result.nisab_threshold)}). Nothing due this year.`}
+          ? `2.5% of your zakatable pool. Threshold ${money(result.nisab_threshold, home)}.`
+          : `Pool is under the nisab threshold (${money(result.nisab_threshold, home)}). Nothing due this year.`}
       </p>
 
       <div className="mt-4 pt-4 border-t border-[var(--color-border)] flex flex-col gap-3 min-h-0 overflow-y-auto">
@@ -419,7 +500,7 @@ function ZakatDue({ result, runId }: { result: ZakatResult; runId: number }) {
                   {name}
                 </span>
                 <span className="tabular" style={{ color: neg && val > 0 ? "#f87171" : undefined }}>
-                  {neg && val > 0 ? "−" : ""}{money(val)}
+                  {neg && val > 0 ? "−" : ""}{money(val, home)}
                 </span>
               </div>
               <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,.05)" }}>
@@ -440,7 +521,7 @@ function ZakatDue({ result, runId }: { result: ZakatResult; runId: number }) {
 
       <div className="mt-auto pt-4 border-t border-[var(--color-border)] flex items-baseline justify-between text-[13px]">
         <span className="text-[var(--color-muted-fg)]">Zakatable pool</span>
-        <span className="tabular font-semibold text-[17px] text-[var(--color-fg)]">{money(pool)}</span>
+        <span className="tabular font-semibold text-[17px] text-[var(--color-fg)]">{money(pool, home)}</span>
       </div>
       <p className="text-[11px] text-[var(--color-muted-fg)] opacity-60 mt-3 text-right">
         Rates as of {result.rate_date} · live ECB reference

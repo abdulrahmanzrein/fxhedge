@@ -155,7 +155,7 @@ export default function TransferPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 lg:h-[calc(100dvh-2rem)]">
+    <div className="flex flex-col gap-6 lg:h-[calc(100dvh-4.75rem)]">
       {/* Header */}
       <div style={fade(0)}>
         <div
