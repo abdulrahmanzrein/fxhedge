@@ -1,163 +1,175 @@
 "use client";
-import { useState, useEffect } from "react";
-import { SAMPLE } from "@/lib/fixtures";
-import { Badge } from "@/components/ui/badge";
+
+import { useEffect, useMemo, useState } from "react";
 import {
-  AreaChart, Area, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, ReferenceLine, ReferenceDot, CartesianGrid,
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ReferenceDot,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
+import { SAMPLE } from "@/lib/fixtures";
+import { Panel } from "@/components/ui/panel";
+import { Kpi } from "@/components/ui/kpi";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { X } from "lucide-react";
+import { clsx } from "clsx";
 
-const decisionConfig = {
-  pay_now:  { label: "Pay now",   variant: "success" as const },
-  wait:     { label: "Wait",      variant: "warning" as const },
-  marginal: { label: "Marginal",  variant: "muted"   as const },
+type RatePoint = { date: string; rate: number };
+type SelectedPoint = RatePoint & { cost: number; diff: number };
+
+const decisionChip = {
+  pay_now: "bg-positive-soft text-positive",
+  wait: "bg-negative-soft text-negative",
+  marginal: "bg-warning-soft text-warning",
+} as const;
+
+const DECISION_LABEL: Record<string, string> = {
+  pay_now: "Pay now",
+  wait: "Wait",
+  marginal: "Marginal",
 };
 
-// Hardcoded for SVG — CSS vars don't resolve inside SVG attribute strings
-const LINE_COLOR = "#f87171";
-
-type RatePoint = {
-  date: string;   // "2024-09-05"
-  rate: number;   // 1.4852
-};
-
-type SelectedPoint = RatePoint & {
-  cost: number;
-  diff: number;
-};
-
+/**
+ * Risk explorer — EUR/CAD over the past 12 months. Click any point to see
+ * what the invoice would have cost at that rate. Magnitudes, never
+ * predictions: the data line stays white; brass is reserved for UI accent.
+ */
 export default function RiskPage() {
-  const d = decisionConfig[SAMPLE.decision];
-  const [rateData, setRateData]   = useState<RatePoint[]>([]);
-  const [loading, setLoading]     = useState(true);
+  const [rateData, setRateData] = useState<RatePoint[]>([]);
+  const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
-  const [selected, setSelected]   = useState<SelectedPoint | null>(null);
+  const [selected, setSelected] = useState<SelectedPoint | null>(null);
 
   useEffect(() => {
-    const end   = new Date().toISOString().split("T")[0];
-    const start = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
-      .toISOString().split("T")[0];
-
-    fetch(`https://api.frankfurter.app/${start}..${end}?from=EUR&to=CAD`)
+    let alive = true;
+    fetch("/api/history?pair=EUR-CAD&years=1")
       .then((r) => {
-        if (!r.ok) throw new Error("fetch failed");
-        return r.json();
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json() as Promise<{ rates: Record<string, number> }>;
       })
-      .then((data: { rates: Record<string, { CAD: number }> }) => {
-        const points: RatePoint[] = Object.entries(data.rates)
-          .sort(([a], [b]) => a.localeCompare(b))
-          .map(([date, rates]) => ({ date, rate: rates.CAD }));
+      .then((data) => {
+        if (!alive) return;
+        const points = Object.entries(data.rates)
+          .map(([date, rate]) => ({ date, rate }))
+          .sort((a, b) => a.date.localeCompare(b.date));
         setRateData(points);
       })
-      .catch(() => setFetchError(true))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (alive) setFetchError(true);
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, []);
 
-  function handleChartClick(state: any) {
-    const payload = state?.activePayload?.[0]?.payload as RatePoint | undefined;
+  function handleChartClick(state: unknown) {
+    const payload = (state as { activePayload?: { payload?: RatePoint }[] } | null)
+      ?.activePayload?.[0]?.payload;
     if (!payload) return;
     const cost = Math.round(SAMPLE.invoiceAmount * payload.rate);
     const diff = cost - SAMPLE.trueCostToday;
     setSelected({ ...payload, cost, diff });
   }
 
-  const firstPoint   = rateData[0];
+  const firstPoint = rateData[0];
   const currentPoint = rateData[rateData.length - 1];
 
   const yearChangePct =
     firstPoint && currentPoint
-      ? (((currentPoint.rate - firstPoint.rate) / firstPoint.rate) * 100).toFixed(2)
+      ? ((currentPoint.rate - firstPoint.rate) / firstPoint.rate) * 100
       : null;
 
-  const rates  = rateData.map((p) => p.rate);
-  const minRate = rates.length ? Math.min(...rates) * 0.997 : 1.4;
-  const maxRate = rates.length ? Math.max(...rates) * 1.003 : 1.6;
-
-  const xInterval = Math.max(1, Math.floor(rateData.length / 6));
+  const [minRate, maxRate] = useMemo(() => {
+    const rates = rateData.map((p) => p.rate);
+    if (!rates.length) return [1.4, 1.6] as const;
+    return [Math.min(...rates) * 0.997, Math.max(...rates) * 1.003] as const;
+  }, [rateData]);
 
   function fmtDate(iso: string) {
-    return new Date(iso + "T00:00:00").toLocaleDateString("en-CA", {
+    return new Date(iso + "T00:00:00").toLocaleDateString("en-US", {
       month: "short",
-      day:   "numeric",
+      day: "numeric",
     });
   }
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-serif text-3xl font-semibold text-[var(--color-fg)]">Risk explorer</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-fg)]">
-          EUR/CAD live rate · past 12 months · ECB reference data
+      <header>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-primary">
+          Risk explorer
+        </h1>
+        <p className="mt-1 text-sm text-muted">
+          EUR/CAD over the past 12 months · ECB reference data
         </p>
-      </div>
+      </header>
 
       {/* Stat cards */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-          <p className="text-xs uppercase tracking-widest text-[var(--color-muted-fg)] mb-2">Current rate</p>
-          <p className="font-money text-[30px] font-bold text-[var(--color-fg)]">
-            {currentPoint ? currentPoint.rate.toFixed(4) : SAMPLE.ecbRateToday}
-          </p>
-          <p className="text-xs text-[var(--color-muted-fg)] mt-1">EUR/CAD mid-market</p>
-        </div>
-
-        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-          <p className="text-xs uppercase tracking-widest text-[var(--color-muted-fg)] mb-2">Drift today</p>
-          <p className="font-money text-[30px] font-bold text-[var(--color-fg)]">{SAMPLE.driftTodayPct}%</p>
-          <p className="text-xs text-[var(--color-muted-fg)] mt-1">Slightly in your favor</p>
-        </div>
-
-        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-          <p className="text-xs uppercase tracking-widest text-[var(--color-muted-fg)] mb-2">12-month change</p>
-          <p
-            className="font-money text-[30px] font-bold"
-            style={{
-              color:
-                yearChangePct === null
-                  ? "var(--color-fg)"
-                  : parseFloat(yearChangePct) > 0
-                  ? LINE_COLOR
-                  : "var(--color-positive)",
-            }}
-          >
-            {yearChangePct
-              ? `${parseFloat(yearChangePct) > 0 ? "+" : ""}${yearChangePct}%`
-              : "—"}
-          </p>
-          <p className="text-xs text-[var(--color-muted-fg)] mt-1">
-            Since {firstPoint ? fmtDate(firstPoint.date) : "last year"}
-          </p>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <Panel className="p-5">
+          <Kpi
+            label="Current rate"
+            value={currentPoint ? currentPoint.rate.toFixed(4) : SAMPLE.ecbRateToday}
+            sub="EUR/CAD mid-market"
+          />
+        </Panel>
+        <Panel className="p-5">
+          <Kpi
+            label="Drift today"
+            value={`${SAMPLE.driftTodayPct}%`}
+            sub="Slightly in your favor"
+          />
+        </Panel>
+        <Panel className="p-5">
+          <Kpi
+            label="12-month change"
+            tone={
+              yearChangePct === null ? "neutral" : yearChangePct > 0 ? "negative" : "positive"
+            }
+            value={
+              yearChangePct === null
+                ? "—"
+                : `${yearChangePct > 0 ? "+" : ""}${yearChangePct.toFixed(2)}%`
+            }
+            sub={firstPoint ? `Since ${fmtDate(firstPoint.date)}` : "Since last year"}
+          />
+        </Panel>
       </div>
 
       {/* Chart */}
-      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-        <figure>
-          <h2 className="font-semibold text-[var(--color-fg)] mb-1">EUR/CAD exchange rate</h2>
-          <p className="text-xs text-[var(--color-muted-fg)] mb-4">
+      <Panel className="p-5">
+        <figure className="m-0">
+          <h2 className="font-semibold text-primary">EUR/CAD exchange rate</h2>
+          <p className="mb-4 text-xs text-muted">
             Click any point to see what your invoice would cost at that rate.
           </p>
 
           <figcaption className="sr-only">
-            Area chart of EUR/CAD exchange rate over the past 12 months sourced from the ECB via
-            Frankfurter. Click any point for an invoice cost scenario at that historical rate.
+            Area chart of EUR/CAD over the past 12 months, sourced from the ECB.
+            Click any point for an invoice cost scenario at that historical rate.
           </figcaption>
 
           <div className="h-72" aria-hidden="true">
             {loading && (
-              <div className="h-full flex items-center justify-center">
-                <p className="text-sm text-[var(--color-muted-fg)]">Loading rate data…</p>
+              <div className="flex h-full items-center justify-center">
+                <p className="text-sm text-muted">Loading rate data…</p>
               </div>
             )}
-
             {!loading && fetchError && (
-              <div className="h-full flex items-center justify-center">
-                <p className="text-sm text-[var(--color-muted-fg)]">
+              <div className="flex h-full items-center justify-center">
+                <p className="text-sm text-muted">
                   Could not load live rates. Check your connection and refresh.
                 </p>
               </div>
             )}
-
             {!loading && !fetchError && (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
@@ -166,83 +178,84 @@ export default function RiskPage() {
                   onClick={handleChartClick}
                   style={{ cursor: "crosshair" }}
                 >
-                  <defs>
-                    <linearGradient id="rateGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor={LINE_COLOR} stopOpacity={0.32} />
-                      <stop offset="95%" stopColor={LINE_COLOR} stopOpacity={0}    />
-                    </linearGradient>
-                  </defs>
-
-                  <CartesianGrid
-                    strokeDasharray="4 4"
-                    stroke="var(--color-border)"
-                    vertical={false}
-                  />
-
+                  <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                   <XAxis
                     dataKey="date"
-                    tick={{ fontSize: 11, fill: "var(--color-muted-fg)" }}
-                    axisLine={{ stroke: "var(--color-border)" }}
-                    tickLine={false}
-                    interval={xInterval}
-                    tickFormatter={(d) =>
-                      new Date(d + "T00:00:00").toLocaleDateString("en-CA", { month: "short" })
-                    }
-                  />
-
-                  <YAxis
-                    width={52}
-                    domain={[minRate, maxRate]}
-                    tick={{ fontSize: 11, fill: "var(--color-muted-fg)" }}
+                    tick={{ fontSize: 11, fill: "var(--text-muted)" }}
                     axisLine={false}
                     tickLine={false}
-                    tickFormatter={(v) => v.toFixed(3)}
-                  />
-
-                  <Tooltip
-                    contentStyle={{
-                      background:   "var(--color-card)",
-                      border:       "1px solid var(--color-border)",
-                      borderRadius: 8,
-                      fontSize:     12,
-                      color:        "var(--color-fg)",
-                    }}
-                    formatter={(v: number) => [v.toFixed(4), "EUR/CAD"]}
-                    labelFormatter={(d) =>
-                      new Date(d + "T00:00:00").toLocaleDateString("en-CA", {
-                        year: "numeric", month: "short", day: "numeric",
+                    minTickGap={48}
+                    tickFormatter={(d: string) =>
+                      new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+                        month: "short",
                       })
                     }
                   />
-
-                  {/* Vertical line + dot at selected point */}
+                  <YAxis
+                    width={52}
+                    domain={[minRate, maxRate]}
+                    tick={{ fontSize: 11, fill: "var(--text-muted)" }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v: number) => v.toFixed(3)}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "var(--surface-offset)",
+                      border: "1px solid var(--line)",
+                      borderRadius: 12,
+                      fontSize: 12,
+                      color: "var(--text-primary)",
+                    }}
+                    formatter={(value) => [
+                      <span key="v" className="tnum">
+                        {Number(value).toFixed(4)}
+                      </span>,
+                      "EUR/CAD",
+                    ]}
+                    labelFormatter={(d) =>
+                      new Date(String(d) + "T00:00:00").toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })
+                    }
+                  />
+                  {/* Vertical line + dot at the selected point */}
                   {selected && (
                     <>
                       <ReferenceLine
                         x={selected.date}
-                        stroke="var(--color-muted-fg)"
+                        stroke="var(--text-muted)"
                         strokeDasharray="4 2"
                         strokeOpacity={0.7}
                       />
                       <ReferenceDot
                         x={selected.date}
                         y={selected.rate}
-                        r={6}
-                        fill={LINE_COLOR}
-                        stroke="var(--color-card)"
+                        r={5}
+                        fill="var(--text-primary)"
+                        stroke="var(--surface)"
                         strokeWidth={2}
                       />
                     </>
                   )}
-
                   <Area
+                    type="monotone"
                     dataKey="rate"
-                    stroke={LINE_COLOR}
-                    strokeWidth={2}
-                    fill="url(#rateGrad)"
+                    stroke="var(--text-primary)"
+                    strokeWidth={1.5}
+                    fill="rgba(255,255,255,0.04)"
                     dot={false}
-                    activeDot={{ r: 5, fill: LINE_COLOR, stroke: "var(--color-card)", strokeWidth: 2 }}
-                    isAnimationActive={false}
+                    activeDot={{
+                      r: 4,
+                      fill: "var(--text-primary)",
+                      stroke: "var(--surface)",
+                      strokeWidth: 2,
+                    }}
+                    isAnimationActive
+                    animationDuration={700}
+                    animationEasing="ease-out"
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -251,85 +264,93 @@ export default function RiskPage() {
 
           {/* Scenario panel */}
           {selected && (
-            <div
-              className="mt-5 rounded-lg border border-[var(--color-border)] p-4"
-              role="region"
+            <Panel
+              className="mt-5 p-4"
+              as="section"
               aria-label={`Scenario: ${fmtDate(selected.date)}`}
             >
-              <div className="flex items-start justify-between gap-4 mb-3">
+              <div className="mb-3 flex items-start justify-between gap-4">
                 <div>
-                  <p className="font-semibold text-sm text-[var(--color-fg)]">
+                  <p className="tnum text-sm font-semibold text-primary">
                     {fmtDate(selected.date)} · rate {selected.rate.toFixed(4)}
                   </p>
-                  <p className="text-xs mt-0.5 text-[var(--color-muted-fg)]">EUR/CAD on this date</p>
+                  <p className="mt-0.5 text-xs text-muted">EUR/CAD on this date</p>
                 </div>
-                <button
+                <Button
+                  variant="ghost"
                   onClick={() => setSelected(null)}
-                  className="text-xs text-[var(--color-muted-fg)] hover:text-[var(--color-fg)] shrink-0 transition-colors"
                   aria-label="Close scenario"
+                  className="px-2 py-2"
                 >
-                  ✕
-                </button>
+                  <Icon icon={X} size={14} />
+                </Button>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-3 text-sm">
+              <div className="mb-3 grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-xs text-[var(--color-muted-fg)] mb-0.5">Invoice cost</p>
-                  <p className="font-money font-bold text-[var(--color-fg)]">
+                  <p className="mb-0.5 text-xs text-muted">Invoice cost</p>
+                  <p className="tnum font-semibold text-primary">
                     CA${selected.cost.toLocaleString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-[var(--color-muted-fg)] mb-0.5">vs today</p>
+                  <p className="mb-0.5 text-xs text-muted">vs today</p>
                   <p
-                    className="font-money font-bold text-sm"
-                    style={{
-                      color:
-                        selected.diff > 0
-                          ? LINE_COLOR
-                          : selected.diff < 0
-                          ? "var(--color-positive)"
-                          : "var(--color-muted-fg)",
-                    }}
+                    className={clsx(
+                      "tnum text-sm font-semibold",
+                      selected.diff > 0
+                        ? "text-negative"
+                        : selected.diff < 0
+                          ? "text-positive"
+                          : "text-muted",
+                    )}
                   >
                     {selected.diff > 0
                       ? `+CA$${selected.diff.toLocaleString()} more`
                       : selected.diff < 0
-                      ? `−CA$${Math.abs(selected.diff).toLocaleString()} less`
-                      : "No difference"}
+                        ? `−CA$${Math.abs(selected.diff).toLocaleString()} less`
+                        : "No difference"}
                   </p>
                 </div>
               </div>
 
-              <p className="text-xs text-[var(--color-fg)] leading-relaxed border-t border-[var(--color-border)] pt-3 mt-2">
+              <p className="mt-2 border-t border-line pt-3 text-xs leading-relaxed text-muted">
                 {selected.diff > 0
                   ? "The rate was higher on this date — your invoice would have cost more CAD. If the rate climbs back here, locking in today could save you money."
                   : selected.diff < 0
-                  ? "The rate was lower on this date — your invoice would have been cheaper. This shows the downside range you're exposed to if EUR strengthens."
-                  : "The rate on this date matches today's rate exactly."}
+                    ? "The rate was lower on this date — your invoice would have been cheaper. This is the downside range you're exposed to if EUR strengthens."
+                    : "The rate on this date matches today's rate exactly."}
               </p>
-            </div>
+            </Panel>
           )}
 
           {!selected && !loading && !fetchError && (
-            <p className="mt-4 text-xs text-center text-[var(--color-muted-fg)]">
-              ↑ Click any point on the chart to see the invoice cost at that rate
+            <p className="mt-4 text-center text-xs text-muted">
+              Click any point on the chart to see the invoice cost at that rate
             </p>
           )}
         </figure>
-      </div>
+      </Panel>
 
       {/* Decision */}
-      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-        <div className="flex items-center gap-3 mb-3">
-          <h2 className="font-semibold text-[var(--color-fg)]">Pay-now vs wait</h2>
-          <Badge variant={d.variant}>{d.label}</Badge>
+      <Panel className="p-5">
+        <div className="mb-3 flex items-center gap-3">
+          <h2 className="font-semibold text-primary">Pay now vs wait</h2>
+          <span
+            className={clsx(
+              "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+              decisionChip[SAMPLE.decision],
+            )}
+          >
+            {DECISION_LABEL[SAMPLE.decision] ?? SAMPLE.decision}
+          </span>
         </div>
-        <p className="text-sm text-[var(--color-muted-fg)]">{SAMPLE.decisionReason}</p>
-        <p className="mt-3 text-xs text-[var(--color-muted-fg)]">
-          This is volatility analysis, not a prediction. Hedged never predicts exchange rates.
+        <p className="text-sm text-muted">{SAMPLE.decisionReason}</p>
+        <p className="mt-3 text-xs text-muted">
+          This is volatility analysis, not a prediction. Hedged never predicts
+          exchange rates.
         </p>
-      </div>
+      </Panel>
     </div>
   );
 }

@@ -1,6 +1,11 @@
 "use client";
+
 import { useState } from "react";
 import { Markdown } from "@/components/markdown";
+import { Panel } from "@/components/ui/panel";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { clsx } from "clsx";
 
 const options = [
   {
@@ -30,10 +35,10 @@ const options = [
 ];
 
 const statusStyle = {
-  halal:   "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  debated: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-  caution: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
-};
+  halal: "bg-positive-soft text-positive",
+  debated: "bg-warning-soft text-warning",
+  caution: "bg-negative-soft text-negative",
+} as const;
 
 const suggestedQuestions = [
   "What is the difference between wa'd and a forward contract?",
@@ -42,111 +47,145 @@ const suggestedQuestions = [
   "What do AAOIFI standards say about FX hedging?",
 ];
 
-const PLACEHOLDER_ANSWER = `**Natural hedging** is the most straightforward halal approach. If your business earns revenue in EUR, you already hold EUR to pay your supplier — no currency exchange needed, and no riba exposure.
-
-For businesses that must convert, **murabaha** is widely accepted by Islamic scholars and available through some Islamic banks in Canada and the UK. The bank buys at spot and sells to you at a disclosed mark-up — no interest involved.
-
-**Wa'd** is more nuanced. A *unilateral* promise (one party promises, the other is not bound) is generally acceptable. A *bilateral* binding wa'd starts to resemble a conventional forward and is contested.
-
-> This is general education grounded in cited scholarly sources, not a fatwa. Consult a qualified Islamic finance scholar for a ruling specific to your situation.`;
-
+/**
+ * Sharia options + the Islamic finance assistant, grounded in the real
+ * /api/ask endpoint (server-side Claude, cited sources, never a fatwa).
+ */
 export default function ShariaPage() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function ask(q: string) {
     setQuestion(q);
     setLoading(true);
+    setError(null);
     setAnswer(null);
-    await new Promise(r => setTimeout(r, 900));
-    setLoading(false);
-    setAnswer(PLACEHOLDER_ANSWER);
+    try {
+      const res = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q }),
+      });
+      const body = (await res.json()) as { answer?: string; error?: boolean };
+      if (!res.ok || body.error || !body.answer) {
+        setError("The assistant is unavailable right now. Try again shortly.");
+      } else {
+        setAnswer(body.answer);
+      }
+    } catch {
+      setError("Could not reach the server. Check your connection.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-serif text-3xl font-semibold text-[var(--color-fg)]">Sharia options</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-fg)]">
-          Islamic finance alternatives to conventional FX hedging · grounded in cited sources
+      <header>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-primary">
+          Sharia options
+        </h1>
+        <p className="mt-1 text-sm text-muted">
+          Islamic finance alternatives to conventional FX hedging · grounded in
+          cited sources
         </p>
-      </div>
+      </header>
 
-      {/* Options panel */}
+      {/* Options */}
       <div className="grid gap-4 sm:grid-cols-2">
-        {options.map(opt => (
-          <div key={opt.id} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-            <div className="flex items-start justify-between gap-2 mb-2">
-              <h3 className="font-semibold text-[var(--color-fg)]">{opt.title}</h3>
-              <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium capitalize ${statusStyle[opt.status]}`}>
+        {options.map((opt) => (
+          <Panel key={opt.id} className="p-5" as="article">
+            <div className="mb-2 flex items-start justify-between gap-2">
+              <h3 className="font-semibold text-primary">{opt.title}</h3>
+              <span
+                className={clsx(
+                  "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize",
+                  statusStyle[opt.status],
+                )}
+              >
                 {opt.status}
               </span>
             </div>
-            <p className="text-sm text-[var(--color-muted-fg)]">{opt.desc}</p>
-          </div>
+            <p className="text-sm leading-relaxed text-muted">{opt.desc}</p>
+          </Panel>
         ))}
       </div>
 
-      {/* Chatbot */}
-      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-        <h2 className="font-semibold text-[var(--color-fg)] mb-1">Ask the Islamic finance assistant</h2>
-        <p className="text-xs text-[var(--color-muted-fg)] mb-4">
-          Grounded in cited scholarly sources. Never issues a fatwa. Always surfaces scholarly disagreement.
+      {/* Assistant */}
+      <Panel className="p-5">
+        <h2 className="font-semibold text-primary">
+          Ask the Islamic finance assistant
+        </h2>
+        <p className="mb-4 text-xs text-muted">
+          Grounded in cited scholarly sources. Never issues a fatwa. Always
+          surfaces scholarly disagreement.
         </p>
 
         {/* Suggested questions */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {suggestedQuestions.map(q => (
-            <button
+        <div className="mb-4 flex flex-wrap gap-2">
+          {suggestedQuestions.map((q) => (
+            <Button
               key={q}
+              variant="secondary"
+              className="rounded-full px-3 py-1 text-xs"
               onClick={() => ask(q)}
-              className="rounded-lg border border-[var(--color-border)] bg-[var(--color-muted)] px-3 py-1 text-xs text-[var(--color-fg)] hover:bg-[var(--color-primary)] hover:text-white hover:border-transparent transition-colors"
             >
               {q}
-            </button>
+            </Button>
           ))}
         </div>
 
         {/* Input */}
-        <div className="flex gap-2">
-          <label htmlFor="sharia-question" className="sr-only">Question for Islamic finance assistant</label>
-          <input
+        <form
+          className="flex gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (question.trim()) ask(question.trim());
+          }}
+        >
+          <label htmlFor="sharia-question" className="sr-only">
+            Question for Islamic finance assistant
+          </label>
+          <Input
             id="sharia-question"
             value={question}
-            onChange={e => setQuestion(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && question.trim() && ask(question.trim())}
+            onChange={(e) => setQuestion(e.target.value)}
             placeholder="Ask a question about Islamic finance & FX…"
-            className="flex-1 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-fg)] placeholder:text-[var(--color-muted-fg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
-          <button
-            onClick={() => question.trim() && ask(question.trim())}
-            disabled={loading || !question.trim()}
-            className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
-          >
+          <Button type="submit" disabled={loading || !question.trim()}>
             {loading ? "…" : "Ask"}
-          </button>
-        </div>
+          </Button>
+        </form>
+
+        {error && (
+          <p role="alert" className="mt-3 text-xs text-negative">
+            {error}
+          </p>
+        )}
 
         {/* Answer — live region always in DOM so screen readers pick up changes */}
         <div role="status" aria-live="polite" aria-atomic="true">
           {loading && (
             <div className="mt-4 space-y-2" aria-label="Loading answer…">
-              <div className="h-3 w-3/4 animate-pulse rounded bg-[var(--color-muted)]" />
-              <div className="h-3 w-full animate-pulse rounded bg-[var(--color-muted)]" />
-              <div className="h-3 w-2/3 animate-pulse rounded bg-[var(--color-muted)]" />
+              <div className="h-3 w-3/4 animate-pulse rounded bg-surface-offset" />
+              <div className="h-3 w-full animate-pulse rounded bg-surface-offset" />
+              <div className="h-3 w-2/3 animate-pulse rounded bg-surface-offset" />
             </div>
           )}
           {answer && !loading && (
-            <div className="mt-4 border-t border-[var(--color-border)] pt-4">
+            <div className="mt-4 border-t border-line pt-4">
               <Markdown>{answer}</Markdown>
-              <p className="mt-3 text-[10px] text-[var(--color-muted-fg)]">
-                This is general education, not a fatwa or financial advice. Consult a qualified scholar for a ruling specific to your situation.
+              <p className="mt-3 text-[10px] text-muted">
+                This is general education, not a fatwa or financial advice.
+                Consult a qualified scholar for a ruling specific to your
+                situation.
               </p>
             </div>
           )}
         </div>
-      </div>
+      </Panel>
     </div>
   );
 }

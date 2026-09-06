@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Panel } from "@/components/ui/panel";
 
 const verses = [
   {
@@ -65,91 +66,125 @@ const redditStories = [
 export default function ReflectPage() {
   return (
     <div className="space-y-12">
-      <div>
-        <h1 className="font-serif text-3xl font-semibold text-[var(--color-fg)]">The weight of riba</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-fg)]">
-          Understanding interest and hidden costs through Islamic scholarship and lived experience
+      <header>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-primary">
+          The weight of riba
+        </h1>
+        <p className="mt-1 text-sm text-muted">
+          Understanding interest and hidden costs through Islamic scholarship
+          and lived experience
         </p>
-      </div>
+      </header>
 
       {/* Quran verses */}
       <section>
-        <h2 className="font-serif text-xl font-semibold text-[var(--color-fg)] mb-4">Quran</h2>
+        <h2 className="mb-4 font-display text-xl font-semibold text-primary">
+          Quran
+        </h2>
         <div className="space-y-4">
-          {verses.map(v => (
-            <div key={v.ref} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-              <p className="text-xs uppercase tracking-widest text-[var(--color-muted-fg)] mb-2">{v.ref}</p>
-              <p className="text-sm italic leading-relaxed text-[var(--color-fg)]">&ldquo;{v.text}&rdquo;</p>
-            </div>
+          {verses.map((v) => (
+            <Panel key={v.ref} className="p-5">
+              <p className="tnum mb-2 text-xs uppercase tracking-widest text-muted">
+                {v.ref}
+              </p>
+              <p className="text-sm italic leading-relaxed text-primary">
+                &ldquo;{v.text}&rdquo;
+              </p>
+            </Panel>
           ))}
         </div>
       </section>
 
       {/* Hadith */}
       <section>
-        <h2 className="font-serif text-xl font-semibold text-[var(--color-fg)] mb-4">Hadith</h2>
+        <h2 className="mb-4 font-display text-xl font-semibold text-primary">
+          Hadith
+        </h2>
         <div className="space-y-4">
-          {hadith.map(h => (
-            <div key={h.source} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-              <p className="text-xs uppercase tracking-widest text-[var(--color-muted-fg)] mb-2">{h.source}</p>
-              <p className="text-sm italic leading-relaxed text-[var(--color-fg)]">&ldquo;{h.text}&rdquo;</p>
-            </div>
+          {hadith.map((h) => (
+            <Panel key={h.source} className="p-5">
+              <p className="mb-2 text-xs uppercase tracking-widest text-muted">
+                {h.source}
+              </p>
+              <p className="text-sm italic leading-relaxed text-primary">
+                &ldquo;{h.text}&rdquo;
+              </p>
+            </Panel>
           ))}
         </div>
       </section>
 
-      {/* Reddit stories */}
+      {/* Real stories */}
       <section>
-        <h2 className="font-serif text-xl font-semibold text-[var(--color-fg)] mb-1">Real stories</h2>
-        <p className="text-sm text-[var(--color-muted-fg)] mb-4">
-          Direct quotes from traders and importers sharing their experience with hidden FX costs.
+        <h2 className="mb-1 font-display text-xl font-semibold text-primary">
+          Real stories
+        </h2>
+        <p className="mb-4 text-sm text-muted">
+          Direct quotes from traders and importers sharing their experience
+          with hidden FX costs.
         </p>
         <div className="space-y-4">
-          {redditStories.map(s => (
-            <div key={s.user} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-              <p className="text-xs text-[var(--color-muted-fg)] mb-2">
-                <span className="font-medium text-[var(--color-fg)]">{s.user}</span> · {s.subreddit}
+          {redditStories.map((s) => (
+            <Panel key={s.user} className="p-5">
+              <p className="mb-2 text-xs text-muted">
+                <span className="font-medium text-primary">{s.user}</span> ·{" "}
+                {s.subreddit}
               </p>
-              <p className="text-sm leading-relaxed text-[var(--color-fg)] mb-3">&ldquo;{s.quote}&rdquo;</p>
+              <p className="mb-3 text-sm leading-relaxed text-primary">
+                &ldquo;{s.quote}&rdquo;
+              </p>
               <a
                 href={s.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Read ${s.user}'s post on ${s.subreddit} (opens in new tab)`}
-                className="text-xs text-[var(--color-primary)] hover:underline"
+                className="text-xs text-accent hover:underline"
               >
                 Read the full post →
               </a>
-            </div>
+            </Panel>
           ))}
         </div>
       </section>
 
       {/* CTA */}
-      <div className="rounded-xl border border-[var(--color-primary)] bg-[var(--color-card)] p-6 text-center">
-        <h2 className="font-serif text-xl font-semibold text-[var(--color-fg)] mb-2">
+      <Panel className="border-accent p-6 text-center">
+        <h2 className="mb-2 font-display text-xl font-semibold text-primary">
           Explore halal alternatives
         </h2>
-        <p className="text-sm text-[var(--color-muted-fg)] mb-4">
-          Natural hedge, wa'd, murabaha — see which option works for your business.
+        <p className="mb-4 text-sm text-muted">
+          Natural hedge, wa'd, murabaha — see which option works for your
+          business.
         </p>
         <Link
           href="/sharia"
-          className="inline-block rounded-md bg-[var(--color-primary)] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+          className="inline-block rounded-[10px] bg-accent px-6 py-2.5 text-sm font-medium text-canvas transition-[background-color,transform] duration-150 hover:bg-accent-strong active:scale-[0.98]"
         >
           View Sharia options →
         </Link>
-      </div>
+      </Panel>
 
       {/* Crisis + disclaimer */}
-      <div className="space-y-3 text-xs text-[var(--color-muted-fg)]">
+      <div className="space-y-3 text-xs text-muted">
         <p>
-          <strong className="text-[var(--color-fg)]">If you&apos;re struggling:</strong>{" "}
-          Canada / US: <strong>9-8-8</strong> · UK: <strong>116 123</strong> (Samaritans) ·{" "}
-          International: <a href="https://findahelpline.com" target="_blank" rel="noopener noreferrer" aria-label="Find a helpline (opens in new tab)" className="text-[var(--color-primary)] hover:underline">findahelpline.com</a>
+          <strong className="text-primary">If you&apos;re struggling:</strong>{" "}
+          Canada / US: <strong>9-8-8</strong> · UK: <strong>116 123</strong>{" "}
+          (Samaritans) · International:{" "}
+          <a
+            href="https://findahelpline.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Find a helpline (opens in new tab)"
+            className="text-accent hover:underline"
+          >
+            findahelpline.com
+          </a>
         </p>
         <p>
-          This page is general education, not a fatwa or financial advice. Consult a qualified Islamic finance scholar for a ruling specific to your situation. Hedged never moves money and never predicts exchange rates.
+          This page is general education, not a fatwa or financial advice.
+          Consult a qualified Islamic finance scholar for a ruling specific to
+          your situation. Hedged never moves money and never predicts exchange
+          rates.
         </p>
       </div>
     </div>
