@@ -4,42 +4,44 @@
 /* Dark mode targets [data-theme="dark"] on <html> */
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* LIGHT: beige surface · white cards · black text · green accent */
 @theme {
-  --color-surface: #EEF2F8;
-  --color-primary: #1D4ED8;
-  --color-fg: #0A0E1A;
+  --color-surface: #F5EFE4;
+  --color-primary: #16A34A;
+  --color-fg: #0A0A0A;
   --color-card: #FFFFFF;
-  --color-border: #D1D9E6;
-  --color-muted: #E5EAF2;
-  --color-muted-fg: #6B7280;
-  --color-destructive: #EF4444;
+  --color-border: #E5DACA;
+  --color-muted: #ECE3D2;
+  --color-muted-fg: #6B6255;
+  --color-destructive: #DC2626;
   --color-destructive-muted: #FEE2E2;
   --color-negative: #DC2626;
-  --color-positive: #15803D;
+  --color-positive: #16A34A;
   --color-positive-muted: #DCFCE7;
-  --color-warning: #A16207;
-  --color-warning-muted: #FEF9C3;
+  --color-warning: #B45309;
+  --color-warning-muted: #FEF3C7;
 
   --font-serif: 'Fraunces', Georgia, serif;
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
+/* DARK: black surface · near-black cards · white text · green accent · red negative */
 [data-theme="dark"] {
-  --color-surface: #06060A;
-  --color-primary: #3B82F6;
-  --color-fg: #F0F0FF;
-  --color-card: #0E0E14;
-  --color-border: #1E1E2A;
-  --color-muted: #141420;
-  --color-muted-fg: #7070A0;
-  --color-destructive: #F87171;
-  --color-destructive-muted: #40211A;
-  --color-negative: #F87171;
-  --color-positive: #3B82F6;
-  --color-positive-muted: #1A2A40;
+  --color-surface: #050505;
+  --color-primary: #22C55E;
+  --color-fg: #FFFFFF;
+  --color-card: #101010;
+  --color-border: #1F1F1F;
+  --color-muted: #161616;
+  --color-muted-fg: #8A8A8A;
+  --color-destructive: #EF4444;
+  --color-destructive-muted: #2A1414;
+  --color-negative: #EF4444;
+  --color-positive: #22C55E;
+  --color-positive-muted: #0F2A18;
   --color-warning: #FACC15;
-  --color-warning-muted: #3C2B17;
+  --color-warning-muted: #2A2410;
 }
 
 @media print {

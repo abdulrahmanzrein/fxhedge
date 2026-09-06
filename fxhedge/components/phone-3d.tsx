@@ -7,9 +7,62 @@ declare global {
 
 const THREE_CDN = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
 
-export function Phone3D({ onLiveValueChange }: { onLiveValueChange?: (v: string) => void }) {
+type PhoneTheme = "dark" | "light";
+
+interface Palette {
+  bgTop: string; bgBot: string; notch: string;
+  fg: string; fgSoft: string; muted: string; faint: string; hint: string;
+  cardBg: string; cardBorder: string; rowBg: string;
+  avatarInactive: string; homeIndicator: string;
+  bodyColor: number; bodyRoughness: number;
+}
+
+const DARK: Palette = {
+  bgTop: "#0b1024", bgBot: "#05060f", notch: "#000",
+  fg: "#F5F7FF", fgSoft: "rgba(245,247,255,.7)", muted: "rgba(245,247,255,.5)",
+  faint: "rgba(245,247,255,.3)", hint: "rgba(245,247,255,.35)",
+  cardBg: "rgba(255,255,255,.03)", cardBorder: "rgba(255,255,255,.09)",
+  rowBg: "rgba(255,255,255,.02)", avatarInactive: "rgba(255,255,255,.08)",
+  homeIndicator: "rgba(245,247,255,.4)",
+  bodyColor: 0x0d0e11, bodyRoughness: 0.30,
+};
+
+const LIGHT: Palette = {
+  bgTop: "#FDFAF3", bgBot: "#F5EFE4", notch: "#0A0A0A",
+  fg: "#0A0A0A", fgSoft: "rgba(10,10,10,.75)", muted: "rgba(10,10,10,.55)",
+  faint: "rgba(10,10,10,.35)", hint: "rgba(10,10,10,.40)",
+  cardBg: "rgba(0,0,0,.025)", cardBorder: "rgba(0,0,0,.09)",
+  rowBg: "rgba(0,0,0,.02)", avatarInactive: "rgba(0,0,0,.06)",
+  homeIndicator: "rgba(10,10,10,.35)",
+  bodyColor: 0xd6cfc0, bodyRoughness: 0.38,
+};
+
+export function Phone3D({
+  onLiveValueChange,
+  theme = "dark",
+}: {
+  onLiveValueChange?: (v: string) => void;
+  theme?: PhoneTheme;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [failed, setFailed] = useState(false);
+  const themeRef  = useRef<PhoneTheme>(theme);
+  themeRef.current = theme;
+
+  // Ref to the redraw function so we can trigger it on theme change
+  const redrawRef = useRef<(() => void) | null>(null);
+  const bodyMatRef = useRef<any>(null);
+
+  useEffect(() => {
+    // Push new theme into the running scene when it changes
+    redrawRef.current?.();
+    if (bodyMatRef.current) {
+      const p = theme === "light" ? LIGHT : DARK;
+      bodyMatRef.current.color.setHex(p.bodyColor);
+      bodyMatRef.current.roughness = p.bodyRoughness;
+      bodyMatRef.current.needsUpdate = true;
+    }
+  }, [theme]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -75,32 +128,47 @@ export function Phone3D({ onLiveValueChange }: { onLiveValueChange?: (v: string)
       function money(n: number) { return "$" + Math.round(n).toLocaleString(); }
 
       function drawScreen() {
+        const p = themeRef.current === "light" ? LIGHT : DARK;
         const W = sc.width, H = sc.height;
-        g.fillStyle = "#05060f"; rr(g, 0, 0, W, H, 54); g.fill();
+
+        // Background
+        g.fillStyle = p.bgBot; rr(g, 0, 0, W, H, 54); g.fill();
         const bg = g.createLinearGradient(0, 0, 0, H * 0.6);
-        bg.addColorStop(0, "#0b1024"); bg.addColorStop(1, "#05060f");
+        bg.addColorStop(0, p.bgTop); bg.addColorStop(1, p.bgBot);
         g.fillStyle = bg; rr(g, 0, 0, W, H, 54); g.fill();
 
+        // Dynamic Island (always dark for realism)
         g.fillStyle = "#000"; rr(g, W / 2 - 67, 24, 134, 36, 18); g.fill();
-        g.fillStyle = "rgba(245,247,255,.7)"; g.font = "500 22px 'Inter',sans-serif";
+
+        // Status bar
+        g.fillStyle = p.fgSoft; g.font = "500 22px 'Inter',sans-serif";
         g.textBaseline = "alphabetic"; g.textAlign = "left"; g.fillText("9:41", 36, 52);
         g.textAlign = "right"; g.fillText("5G  ▮▮▮", W - 36, 52);
-        g.textAlign = "left"; g.fillStyle = "#F5F7FF"; g.font = "400 34px 'Fraunces',serif"; g.fillText("Hedged", 36, 116);
 
+        // App title
+        g.textAlign = "left"; g.fillStyle = p.fg; g.font = "400 34px 'Fraunces',serif";
+        g.fillText("HalalFlow", 36, 116);
+
+        // Avatar (green orb — brand color, both modes)
         const ag = g.createLinearGradient(W - 72, 92, W - 40, 124);
-        ag.addColorStop(0, "#3B82F6"); ag.addColorStop(1, "#22C55E");
+        ag.addColorStop(0, "#16A34A"); ag.addColorStop(1, "#4ADE80");
         g.fillStyle = ag; g.beginPath(); g.arc(W - 52, 108, 17, 0, 7); g.fill();
 
-        g.fillStyle = "rgba(255,255,255,.03)"; rr(g, 32, 148, W - 64, 168, 26); g.fill();
-        g.strokeStyle = "rgba(255,255,255,.09)"; g.lineWidth = 2; rr(g, 32, 148, W - 64, 168, 26); g.stroke();
-        g.fillStyle = "rgba(245,247,255,.30)"; g.font = "500 21px 'Inter',sans-serif"; g.fillText("Supplier invoice", 54, 186);
-        g.fillStyle = "#F5F7FF"; g.font = "600 52px 'IBM Plex Mono',monospace"; g.fillText("$12,000", 54, 246);
+        // Invoice card
+        g.fillStyle = p.cardBg; rr(g, 32, 148, W - 64, 168, 26); g.fill();
+        g.strokeStyle = p.cardBorder; g.lineWidth = 2; rr(g, 32, 148, W - 64, 168, 26); g.stroke();
+        g.fillStyle = p.faint; g.font = "500 21px 'Inter',sans-serif"; g.fillText("Supplier invoice", 54, 186);
+        g.fillStyle = p.fg; g.font = "600 52px 'IBM Plex Mono',monospace"; g.fillText("$12,000", 54, 246);
         g.font = "500 19px 'Inter',sans-serif";
-        g.fillStyle = "rgba(245,247,255,.5)"; g.fillText("21 days on terms", 54, 294);
-        g.textAlign = "right"; g.fillStyle = "rgba(245,247,255,.3)"; g.font = "500 18px 'Inter',sans-serif"; g.fillText("mid market $11,952", W - 54, 294); g.textAlign = "left";
+        g.fillStyle = p.muted; g.fillText("21 days on terms", 54, 294);
+        g.textAlign = "right"; g.fillStyle = p.faint; g.font = "500 18px 'Inter',sans-serif";
+        g.fillText("mid market $11,952", W - 54, 294); g.textAlign = "left";
 
-        g.fillStyle = "rgba(245,247,255,.3)"; g.font = "500 19px 'Inter',sans-serif"; g.fillText("What your supplier receives", 36, 360);
+        // Section label
+        g.fillStyle = p.faint; g.font = "500 19px 'Inter',sans-serif";
+        g.fillText("What your supplier receives", 36, 360);
 
+        // Provider rows
         const rows: [string, string, boolean][] = [
           ["Wise",            "$11,890", true ],
           ["Instarem",        "$11,742", false],
@@ -114,25 +182,27 @@ export function Phone3D({ onLiveValueChange }: { onLiveValueChange?: (v: string)
             g.fillStyle = "rgba(34,197,94,.14)"; rr(g, 32, y, W - 64, rh, 18); g.fill();
             g.strokeStyle = "rgba(34,197,94,.5)"; g.lineWidth = 2; rr(g, 32, y, W - 64, rh, 18); g.stroke();
           } else {
-            g.fillStyle = "rgba(255,255,255,.02)"; rr(g, 32, y, W - 64, rh, 18); g.fill();
+            g.fillStyle = p.rowBg; rr(g, 32, y, W - 64, rh, 18); g.fill();
           }
-          g.fillStyle = best ? "rgba(34,197,94,.25)" : "rgba(255,255,255,.08)";
+          g.fillStyle = best ? "rgba(34,197,94,.25)" : p.avatarInactive;
           rr(g, 52, y + rh / 2 - 18, 36, 36, 9); g.fill();
-          g.fillStyle = best ? "#4ADE80" : "rgba(245,247,255,.5)";
+          g.fillStyle = best ? "#16A34A" : p.muted;
           g.font = "700 20px 'Inter',sans-serif"; g.textAlign = "center";
           g.fillText(best ? "✓" : rows[i][0].slice(0, 2), 70, y + rh / 2 + 7);
           g.textAlign = "left";
-          g.fillStyle = "#F5F7FF"; g.font = "500 24px 'Inter',sans-serif";
+          g.fillStyle = p.fg; g.font = "500 24px 'Inter',sans-serif";
           g.fillText(rows[i][0], 104, y + (best ? rh / 2 - 2 : rh / 2 + 8));
           if (best) {
-            g.fillStyle = "#4ADE80"; g.font = "500 16px 'Inter',sans-serif"; g.fillText("Best value", 104, y + rh / 2 + 20);
+            g.fillStyle = "#16A34A"; g.font = "500 16px 'Inter',sans-serif";
+            g.fillText("Best value", 104, y + rh / 2 + 20);
           }
-          g.textAlign = "right"; g.fillStyle = best ? "#4ADE80" : "#F5F7FF";
+          g.textAlign = "right"; g.fillStyle = best ? "#16A34A" : p.fg;
           g.font = "600 24px 'IBM Plex Mono',monospace"; g.fillText(rows[i][1], W - 54, y + rh / 2 + 8);
           g.textAlign = "left";
           y += rh + gap;
         }
 
+        // Savings banner (brand green in both modes)
         const sy = y + 6;
         const sg = g.createLinearGradient(32, sy, W - 32, sy);
         sg.addColorStop(0, "#16A34A"); sg.addColorStop(1, "#22C55E");
@@ -142,13 +212,15 @@ export function Phone3D({ onLiveValueChange }: { onLiveValueChange?: (v: string)
         g.textAlign = "right"; g.fillStyle = "#04120a"; g.font = "600 40px 'IBM Plex Mono',monospace";
         g.fillText(money(vals.save), W - 56, sy + 52); g.textAlign = "left";
 
+        // Footer notes
         const my = sy + 112;
-        g.fillStyle = "rgba(245,247,255,.35)"; g.font = "500 18px 'Inter',sans-serif";
-        g.fillText("Read only · Hedged never moves your money", 36, my);
+        g.fillStyle = p.hint; g.font = "500 18px 'Inter',sans-serif";
+        g.fillText("Read only · HalalFlow never moves your money", 36, my);
         g.fillStyle = "rgba(34,197,94,.9)"; g.beginPath(); g.arc(44, my + 34, 5, 0, 7); g.fill();
-        g.fillStyle = "rgba(245,247,255,.55)"; g.fillText("Halal options: murabaha, wa’d", 60, my + 40);
+        g.fillStyle = p.muted; g.fillText("Halal options: murabaha, wa’d", 60, my + 40);
 
-        g.fillStyle = "rgba(245,247,255,.4)"; rr(g, W / 2 - 70, H - 34, 140, 7, 4); g.fill();
+        // Home indicator
+        g.fillStyle = p.homeIndicator; rr(g, W / 2 - 70, H - 34, 140, 7, 4); g.fill();
       }
 
       function composite(glossProgress: number) {
@@ -172,6 +244,8 @@ export function Phone3D({ onLiveValueChange }: { onLiveValueChange?: (v: string)
       }
       drawScreen();
       composite(-1);
+      // Expose redraw so the outer theme-change effect can trigger a refresh
+      redrawRef.current = () => { drawScreen(); composite(-1); };
       if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(() => { drawScreen(); composite(-1); });
       }
@@ -192,7 +266,14 @@ export function Phone3D({ onLiveValueChange }: { onLiveValueChange?: (v: string)
         { depth: 0.5, bevelEnabled: true, bevelThickness: 0.2, bevelSize: 0.2, bevelSegments: 8, steps: 1, curveSegments: 24 },
       );
       bodyGeo.center();
-      const bodyMat = new THREE.MeshStandardMaterial({ color: 0x0d0e11, metalness: 1.0, roughness: 0.30, envMapIntensity: 1.7 });
+      const initPalette = themeRef.current === "light" ? LIGHT : DARK;
+      const bodyMat = new THREE.MeshStandardMaterial({
+        color:            initPalette.bodyColor,
+        metalness:        1.0,
+        roughness:        initPalette.bodyRoughness,
+        envMapIntensity:  1.7,
+      });
+      bodyMatRef.current = bodyMat;
       phone.add(new THREE.Mesh(bodyGeo, bodyMat));
 
       const bezGeo = new THREE.ExtrudeGeometry(roundedRect(5.85, 12.55, 0.85), { depth: 0.05, bevelEnabled: false, curveSegments: 24 });
@@ -217,7 +298,7 @@ export function Phone3D({ onLiveValueChange }: { onLiveValueChange?: (v: string)
       // Y = left/right turn  (negative = shows right edge / power button)
       // Z = clock rotation   (negative = counter-clockwise tilt)
       // Quick reference: 0.1 rad ≈ 5.7°, 0.5 rad ≈ 28.6°, 1.0 rad ≈ 57.3°
-      phone.rotation.set(0.10, -0.10, -0.40);
+      phone.rotation.set(0.08, -0.40, -0.35);
       phone.position.y = -16;
       scene.add(phone);
 
@@ -300,6 +381,8 @@ export function Phone3D({ onLiveValueChange }: { onLiveValueChange?: (v: string)
         window.removeEventListener("mousemove", onMove);
         window.removeEventListener("resize", resize);
         renderer.dispose();
+        redrawRef.current = null;
+        bodyMatRef.current = null;
       };
     }
 

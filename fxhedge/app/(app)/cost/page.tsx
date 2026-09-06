@@ -2,6 +2,7 @@
 import { MOCK_PROFILE, currencySymbol } from "@/lib/fixtures";
 import { useCountUp } from "@/hooks/use-count-up";
 import { useAppData } from "@/hooks/use-app-data";
+import { usePageFade } from "@/components/page-fade";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 function Skeleton({ className }: { className?: string }) {
@@ -47,6 +48,7 @@ function CustomTooltip({ active, payload }: any) {
 export default function CostPage() {
   const sym = currencySymbol(MOCK_PROFILE.home_currency);
   const d   = useAppData();
+  const { fade } = usePageFade();
 
   const totalMarkupTarget = d.providers.reduce(
     (sum, p) => sum + Math.max(0, d.trueCostToday - p.received),
@@ -82,7 +84,7 @@ export default function CostPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="hero-animate">
+      <div style={fade(0)}>
         <div
           className="text-xs font-medium uppercase tracking-wider"
           style={{ color: "var(--color-primary)" }}
@@ -93,7 +95,7 @@ export default function CostPage() {
           Where your money actually goes.
         </h1>
         <p className="text-[var(--color-muted-fg)] mt-2 max-w-2xl">
-          Hover any slice to see the provider&apos;s cut. Bigger slices mean more of your margin lost to FX spread — every dollar in red is money that never reaches your supplier.
+          Hover any slice to see the provider&apos;s cut. Bigger slices mean more of your margin lost to FX spread. Every dollar in red is money that never reaches your supplier.
         </p>
       </div>
 
@@ -101,8 +103,8 @@ export default function CostPage() {
 
         {/* Donut chart */}
         <div
-          className="hero-animate rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 relative"
-          style={{ animationDelay: "0.1s" }}
+          className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 relative"
+          style={fade(1)}
         >
           <div className="text-xs font-medium uppercase tracking-wider text-[var(--color-muted-fg)]">
             Provider spread breakdown
@@ -153,8 +155,8 @@ export default function CostPage() {
 
         {/* Legend + best case */}
         <div
-          className="hero-animate rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 flex flex-col"
-          style={{ animationDelay: "0.18s" }}
+          className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 flex flex-col"
+          style={fade(2)}
         >
           <div className="text-xs font-medium uppercase tracking-wider text-[var(--color-muted-fg)]">
             Best case: {d.bestProvider.name}
@@ -200,14 +202,14 @@ export default function CostPage() {
       </div>
 
       {/* Cost snapshot cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4" style={fade(3)}>
         <SnapshotCard label="Invoice amount" value={`${currencySymbol(MOCK_PROFILE.supplier_currency)}${d.invoiceAmount.toLocaleString()}`} note="your input" />
         <SnapshotCard label="True mid market cost" value={`${sym}${d.trueCostToday.toLocaleString()}`} note={`ECB rate ${d.ecbRateToday.toFixed(4)}`} />
         <SnapshotCard label={`Saving with ${d.bestProvider.name}`} value={`${sym}${d.savingVsWorst.toLocaleString()}`} note={`vs ${d.worstProvider.name}`} positive />
       </div>
 
       <p className="text-xs text-[var(--color-muted-fg)]">
-        FX markup is the difference between the ECB mid market rate and what your supplier actually receives. Hedged never moves money.
+        FX markup is the difference between the ECB mid market rate and what your supplier actually receives. HalalFlow never moves money.
       </p>
     </div>
   );

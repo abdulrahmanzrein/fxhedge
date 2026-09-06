@@ -19,7 +19,7 @@ const verses = [
   },
   {
     ref: "Quran 30:39",
-    text: "And whatever you give for riba to increase within the wealth of people will not increase with Allah. But what you give in zakah, desiring the countenance of Allah — those are the multipliers.",
+    text: "And whatever you give for riba to increase within the wealth of people will not increase with Allah. But what you give in zakah, desiring the countenance of Allah, those are the multipliers.",
   },
 ];
 
@@ -30,7 +30,7 @@ const hadith = [
   },
   {
     source: "Sahih Muslim",
-    text: "The Prophet ﷺ cursed the one who consumes riba, the one who gives it, the one who writes [the contract], and the two witnesses — he said: they are all equal [in sin].",
+    text: "The Prophet ﷺ cursed the one who consumes riba, the one who gives it, the one who writes [the contract], and the two witnesses. He said: they are all equal [in sin].",
   },
   {
     source: "al-Tabarani",
@@ -131,7 +131,7 @@ export default function ReflectPage() {
           Explore halal alternatives
         </h2>
         <p className="text-sm text-[var(--color-muted-fg)] mb-4">
-          Natural hedge, wa'd, murabaha — see which option works for your business.
+          Natural hedge, wa'd, murabaha. See which option works for your business.
         </p>
         <Link
           href="/sharia"
@@ -149,7 +149,7 @@ export default function ReflectPage() {
           International: <a href="https://findahelpline.com" target="_blank" rel="noopener noreferrer" aria-label="Find a helpline (opens in new tab)" className="text-[var(--color-primary)] hover:underline">findahelpline.com</a>
         </p>
         <p>
-          This page is general education, not a fatwa or financial advice. Consult a qualified Islamic finance scholar for a ruling specific to your situation. Hedged never moves money and never predicts exchange rates.
+          This page is general education, not a fatwa or financial advice. Consult a qualified Islamic finance scholar for a ruling specific to your situation. HalalFlow never moves money and never predicts exchange rates.
         </p>
       </div>
     </div>

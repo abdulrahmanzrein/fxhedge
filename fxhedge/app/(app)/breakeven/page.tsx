@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { MOCK_PROFILE, currencySymbol } from "@/lib/fixtures";
+import { usePageFade } from "@/components/page-fade";
 
 interface BreakevenData {
   break_even_rate: number;
@@ -36,6 +37,7 @@ const VERDICT = {
 
 export default function BreakevenPage() {
   const sym = currencySymbol(MOCK_PROFILE.home_currency);
+  const { fade } = usePageFade();
   const [be, setBe]       = useState<BreakevenData | null>(null);
   const [hedge, setHedge] = useState<HedgeData | null>(null);
   const [beErr, setBeErr] = useState(false);
@@ -59,7 +61,7 @@ export default function BreakevenPage() {
 
   return (
     <div className="space-y-8">
-      <div>
+      <div style={fade(0)}>
         <h1 className="font-serif text-3xl font-normal text-[var(--color-fg)]">Breakeven &amp; hedge</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-fg)]">
           How much rate movement can you absorb before this deal loses money?
@@ -68,13 +70,13 @@ export default function BreakevenPage() {
 
       {/* Breakeven cushion */}
       {beErr ? (
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6" style={fade(1)}>
           <p className="text-sm text-[var(--color-muted-fg)]">Could not load breakeven data. Check your connection and refresh.</p>
         </div>
       ) : !be ? (
         <Skeleton className="h-40 rounded-2xl" />
       ) : (
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6" style={fade(1)}>
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-medium text-[var(--color-muted-fg)] mb-2">Breakeven cushion</p>
@@ -114,7 +116,7 @@ export default function BreakevenPage() {
       )}
 
       {/* How to read it */}
-      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6" style={fade(2)}>
         <h2 className="font-semibold text-[var(--color-fg)] mb-3">How to read this</h2>
         <div className="space-y-3 text-sm text-[var(--color-muted-fg)] leading-relaxed">
           <p>
@@ -128,9 +130,9 @@ export default function BreakevenPage() {
               <div key={k} className="flex items-center gap-2">
                 <span className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style={{ color: v.color, background: v.bg }}>{v.label}</span>
                 <span>
-                  {k === "comfortable" && "Cushion exceeds the historical 95th-percentile move — you have real buffer."}
-                  {k === "watch"       && "Cushion is below the worst typical move — monitor before the due date."}
-                  {k === "danger"      && "Cushion is near zero — any adverse move puts the deal in the red."}
+                  {k === "comfortable" && "Cushion exceeds the historical 95th percentile move. You have real buffer."}
+                  {k === "watch"       && "Cushion is below the worst typical move. Monitor before the due date."}
+                  {k === "danger"      && "Cushion is near zero. Any adverse move puts the deal in the red."}
                 </span>
               </div>
             ))}
@@ -140,7 +142,7 @@ export default function BreakevenPage() {
 
       {/* Natural hedge detector */}
       {hedge && hedge.matches.length > 0 && (
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6" style={fade(3)}>
           <h2 className="font-semibold text-[var(--color-fg)] mb-1">Natural hedge detector</h2>
           <p className="text-sm text-[var(--color-muted-fg)] mb-4">{hedge.summary}</p>
           <div className="space-y-3">
@@ -159,7 +161,7 @@ export default function BreakevenPage() {
               <div className="space-y-1">
                 {hedge.unmatched.map((u) => (
                   <p key={u.label} className="text-xs text-[var(--color-muted-fg)]">
-                    {u.label}: <span className="font-money tabular">{u.amount.toLocaleString()} {u.currency}</span> — no offsetting flow found
+                    {u.label}: <span className="font-money tabular">{u.amount.toLocaleString()} {u.currency}</span>. No offsetting flow found.
                   </p>
                 ))}
               </div>
@@ -170,7 +172,7 @@ export default function BreakevenPage() {
       )}
 
       <p className="text-xs text-[var(--color-muted-fg)]">
-        Hedged never moves money and never predicts exchange rates. This is education only, not financial advice.
+        HalalFlow never moves money and never predicts exchange rates. This is education only, not financial advice.
       </p>
     </div>
   );

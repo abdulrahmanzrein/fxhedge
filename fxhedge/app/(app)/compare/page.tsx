@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { MOCK_PROFILE, currencySymbol } from "@/lib/fixtures";
 import { useCountUp } from "@/hooks/use-count-up";
 import { useAppData } from "@/hooks/use-app-data";
+import { usePageFade } from "@/components/page-fade";
 
 function Skeleton({ className }: { className?: string }) {
   return <div className={`animate-pulse rounded-2xl bg-[var(--color-muted)] ${className ?? ""}`} />;
@@ -29,6 +30,7 @@ export default function ComparePage() {
 
   const mid   = d.trueCostToday;
   const midCount = useCountUp(mid, 1400);
+  const { fade } = usePageFade();
 
   if (d.loading) {
     return (
@@ -53,7 +55,7 @@ export default function ComparePage() {
     <div className="flex flex-col gap-6">
 
       {/* Header */}
-      <div className="hero-animate">
+      <div style={fade(0)}>
         <div
           className="text-xs font-medium uppercase tracking-wider"
           style={{ color: "var(--color-primary)" }}
@@ -64,14 +66,14 @@ export default function ComparePage() {
           Ranked by what you actually receive.
         </h1>
         <p className="text-[var(--color-muted-fg)] mt-2 max-w-2xl">
-          The mid market bar is the ECB reference rate — what the money is truly worth today. Every bar below it is a provider taking a cut.
+          The mid market bar is the ECB reference rate. Every bar below it is a provider taking a cut.
         </p>
       </div>
 
       {/* Combined ranking card — ECB reference sits at top, providers below */}
       <div
-        className="hero-animate rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6"
-        style={{ animationDelay: "0.1s" }}
+        className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6"
+        style={fade(1)}
       >
         {/* ECB mid-market reference */}
         <div className="flex items-start justify-between gap-4 pb-5 border-b border-[var(--color-border)]">
@@ -140,7 +142,7 @@ export default function ComparePage() {
                       </span>
                     </>
                   ) : (
-                    <span style={{ color: "#3DD68C" }}>At mid market — no hidden spread.</span>
+                    <span style={{ color: "#3DD68C" }}>At mid market. No hidden spread.</span>
                   )}
                 </div>
               </li>
@@ -150,7 +152,7 @@ export default function ComparePage() {
       </div>
 
       <p className="text-xs text-[var(--color-muted-fg)]">
-        Rates sourced from Wise Comparison API. Rates change frequently — always verify before transacting.
+        Rates sourced from Wise Comparison API. Rates change frequently. Always verify before transacting.
       </p>
     </div>
   );

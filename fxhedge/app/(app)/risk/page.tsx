@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { SAMPLE } from "@/lib/fixtures";
 import { Badge } from "@/components/ui/badge";
+import { usePageFade } from "@/components/page-fade";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip,
   ResponsiveContainer, ReferenceLine, ReferenceDot, CartesianGrid,
@@ -28,6 +29,7 @@ type SelectedPoint = RatePoint & {
 
 export default function RiskPage() {
   const d = decisionConfig[SAMPLE.decision];
+  const { fade } = usePageFade();
   const [rateData, setRateData]   = useState<RatePoint[]>([]);
   const [loading, setLoading]     = useState(true);
   const [fetchError, setFetchError] = useState(false);
@@ -80,54 +82,15 @@ export default function RiskPage() {
 
   return (
     <div className="space-y-8">
-      <div>
+      <div style={fade(0)}>
         <h1 className="font-serif text-3xl font-semibold text-[var(--color-fg)]">Risk explorer</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-fg)]">
           EUR/CAD live rate · past 12 months · ECB reference data
         </p>
       </div>
 
-      {/* Stat cards */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-          <p className="text-xs uppercase tracking-widest text-[var(--color-muted-fg)] mb-2">Current rate</p>
-          <p className="font-money text-[30px] font-bold text-[var(--color-fg)]">
-            {currentPoint ? currentPoint.rate.toFixed(4) : SAMPLE.ecbRateToday}
-          </p>
-          <p className="text-xs text-[var(--color-muted-fg)] mt-1">EUR/CAD mid-market</p>
-        </div>
-
-        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-          <p className="text-xs uppercase tracking-widest text-[var(--color-muted-fg)] mb-2">Drift today</p>
-          <p className="font-money text-[30px] font-bold text-[var(--color-fg)]">{SAMPLE.driftTodayPct}%</p>
-          <p className="text-xs text-[var(--color-muted-fg)] mt-1">Slightly in your favor</p>
-        </div>
-
-        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-          <p className="text-xs uppercase tracking-widest text-[var(--color-muted-fg)] mb-2">12-month change</p>
-          <p
-            className="font-money text-[30px] font-bold"
-            style={{
-              color:
-                yearChangePct === null
-                  ? "var(--color-fg)"
-                  : parseFloat(yearChangePct) > 0
-                  ? LINE_COLOR
-                  : "var(--color-positive)",
-            }}
-          >
-            {yearChangePct
-              ? `${parseFloat(yearChangePct) > 0 ? "+" : ""}${yearChangePct}%`
-              : "—"}
-          </p>
-          <p className="text-xs text-[var(--color-muted-fg)] mt-1">
-            Since {firstPoint ? fmtDate(firstPoint.date) : "last year"}
-          </p>
-        </div>
-      </div>
-
-      {/* Chart */}
-      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
+      {/* Chart (now above stats) */}
+      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5" style={fade(1)}>
         <figure>
           <h2 className="font-semibold text-[var(--color-fg)] mb-1">EUR/CAD exchange rate</h2>
           <p className="text-xs text-[var(--color-muted-fg)] mb-4">
@@ -155,7 +118,7 @@ export default function RiskPage() {
             )}
 
             {!loading && !fetchError && (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer key={`chart-${rateData.length}`} width="100%" height="100%">
                 <AreaChart
                   data={rateData}
                   margin={{ top: 8, right: 4, left: 0, bottom: 4 }}
@@ -238,7 +201,8 @@ export default function RiskPage() {
                     fill="url(#rateGrad)"
                     dot={false}
                     activeDot={{ r: 5, fill: LINE_COLOR, stroke: "var(--color-card)", strokeWidth: 2 }}
-                    isAnimationActive={false}
+                    animationDuration={1100}
+                    animationEasing="ease-out"
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -299,9 +263,9 @@ export default function RiskPage() {
 
               <p className="text-xs text-[var(--color-fg)] leading-relaxed border-t border-[var(--color-border)] pt-3 mt-2">
                 {selected.diff > 0
-                  ? "The rate was higher on this date — your invoice would have cost more CAD. If the rate climbs back here, locking in today could save you money."
+                  ? "The rate was higher on this date. Your invoice would have cost more CAD. If the rate climbs back here, locking in today could save you money."
                   : selected.diff < 0
-                  ? "The rate was lower on this date — your invoice would have been cheaper. This shows the downside range you're exposed to if EUR strengthens."
+                  ? "The rate was lower on this date. Your invoice would have been cheaper. This shows the downside range you're exposed to if EUR strengthens."
                   : "The rate on this date matches today's rate exactly."}
               </p>
             </div>
@@ -315,15 +279,68 @@ export default function RiskPage() {
         </figure>
       </div>
 
+      {/* Stat cards (moved below the chart) */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3" style={fade(2)}>
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
+          <p className="text-xs uppercase tracking-widest text-[var(--color-muted-fg)] mb-2">Current rate</p>
+          <p className="font-money text-[30px] font-bold text-[var(--color-fg)] tabular">
+            {currentPoint ? currentPoint.rate.toFixed(4) : SAMPLE.ecbRateToday}
+          </p>
+          <p className="text-xs text-[var(--color-muted-fg)] mt-1">EUR/CAD mid market</p>
+        </div>
+
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
+          <p className="text-xs uppercase tracking-widest text-[var(--color-muted-fg)] mb-2">Drift today</p>
+          <p
+            className="font-money text-[30px] font-bold tabular"
+            style={{
+              color: SAMPLE.driftTodayPct > 0
+                ? "#3DD68C"
+                : SAMPLE.driftTodayPct < 0
+                ? "#f87171"
+                : "var(--color-fg)",
+            }}
+          >
+            {SAMPLE.driftTodayPct > 0 ? "+" : ""}{SAMPLE.driftTodayPct}%
+          </p>
+          <p className="text-xs text-[var(--color-muted-fg)] mt-1">
+            {SAMPLE.driftTodayPct > 0 ? "In your favor" : SAMPLE.driftTodayPct < 0 ? "Against you" : "Flat"}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
+          <p className="text-xs uppercase tracking-widest text-[var(--color-muted-fg)] mb-2">12 month change</p>
+          <p
+            className="font-money text-[30px] font-bold tabular"
+            style={{
+              color: yearChangePct === null
+                ? "var(--color-fg)"
+                : parseFloat(yearChangePct) > 0
+                ? "#3DD68C"
+                : parseFloat(yearChangePct) < 0
+                ? "#f87171"
+                : "var(--color-fg)",
+            }}
+          >
+            {yearChangePct
+              ? `${parseFloat(yearChangePct) > 0 ? "+" : ""}${yearChangePct}%`
+              : "…"}
+          </p>
+          <p className="text-xs text-[var(--color-muted-fg)] mt-1">
+            Since {firstPoint ? fmtDate(firstPoint.date) : "last year"}
+          </p>
+        </div>
+      </div>
+
       {/* Decision */}
-      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
+      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5" style={fade(3)}>
         <div className="flex items-center gap-3 mb-3">
-          <h2 className="font-semibold text-[var(--color-fg)]">Pay-now vs wait</h2>
+          <h2 className="font-semibold text-[var(--color-fg)]">Pay now vs wait</h2>
           <Badge variant={d.variant}>{d.label}</Badge>
         </div>
         <p className="text-sm text-[var(--color-muted-fg)]">{SAMPLE.decisionReason}</p>
         <p className="mt-3 text-xs text-[var(--color-muted-fg)]">
-          This is volatility analysis, not a prediction. Hedged never predicts exchange rates.
+          This is volatility analysis, not a prediction. HalalFlow never predicts exchange rates.
         </p>
       </div>
     </div>

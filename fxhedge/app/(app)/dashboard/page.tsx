@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { MOCK_PROFILE, currencySymbol } from "@/lib/fixtures";
 import { useAppData } from "@/hooks/use-app-data";
 import {
@@ -80,6 +81,10 @@ function AnimatedBar({
 export default function DashboardPage() {
   const d = useAppData();
   const reduced = usePrefersReducedMotion();
+  const { resolvedTheme } = useTheme();
+  const [themeMounted, setThemeMounted] = useState(false);
+  useEffect(() => setThemeMounted(true), []);
+  const isDark = themeMounted && resolvedTheme === "dark";
 
   // ---- fade-reveal state (plays once per mount) ----
   const [visible, setVisible] = useState(false);
@@ -130,7 +135,7 @@ export default function DashboardPage() {
 
   if (d.loading) return <DashboardSkeleton />;
 
-  const chartData = d.rateHistory.length ? d.rateHistory : [{ day: "—", rate: d.ecbRateToday }];
+  const chartData = d.rateHistory.length ? d.rateHistory : [{ day: "…", rate: d.ecbRateToday }];
   const money = (n: number) => `${sym}${Math.round(n).toLocaleString()}`;
 
   const card =
@@ -138,7 +143,7 @@ export default function DashboardPage() {
 
   return (
     // Adjust the calc() offset to match your app-shell header height so it fits one screen.
-    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-6.5rem)]">
+    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-2rem)]">
 
       {/* Header */}
       <header style={fade(0)}>
@@ -195,7 +200,7 @@ export default function DashboardPage() {
                   <div className="text-[11px] text-[var(--color-muted-fg)]">
                     {gap > 0
                       ? <>Hidden cost vs mid market: <span className="font-money tabular" style={{ color: "#f87171" }}>−{money(gap)}</span></>
-                      : <span style={{ color: "#3DD68C" }}>At mid market — no hidden spread.</span>}
+                      : <span style={{ color: "#3DD68C" }}>At mid market. No hidden spread.</span>}
                   </div>
                 </li>
               );
@@ -279,30 +284,45 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* 4 — Amanah AI Advisor */}
+        {/* 4 — HalalFlow AI Advisor */}
         <section
           className="relative rounded-2xl p-5 flex flex-col min-h-0 overflow-hidden border"
           style={{
             ...fade(4),
-            borderColor: "rgba(99,102,241,.3)",
-            background:
-              "radial-gradient(120% 120% at 100% 0%, rgba(129,140,248,.28), transparent 55%), linear-gradient(160deg,#171233,#0c0b1e)",
+            borderColor: isDark ? "rgba(34,197,94,0.30)" : "rgba(22,163,74,0.30)",
+            background: isDark
+              ? "radial-gradient(120% 120% at 100% 0%, rgba(34,197,94,0.20), transparent 55%), linear-gradient(160deg,#0F1A12,#050805)"
+              : "radial-gradient(120% 120% at 100% 0%, rgba(34,197,94,0.15), transparent 55%), linear-gradient(160deg,#ECF6E9,#F7FBF3)",
           }}
         >
-          <div className="rounded-2xl grid place-items-center relative z-10"
-            style={{ width: 52, height: 52, background: "radial-gradient(circle at 30% 30%,#a5b4fc,#4f46e5)", boxShadow: "0 0 26px rgba(99,102,241,.5)" }}>
-            <Bot className="h-6 w-6" style={{ color: "#0b0b1a" }} />
+          <div
+            className="rounded-2xl grid place-items-center relative z-10"
+            style={{
+              width: 52, height: 52,
+              background: "radial-gradient(circle at 30% 30%, #4ADE80, #16A34A)",
+              boxShadow:  isDark ? "0 0 26px rgba(34,197,94,0.45)" : "0 4px 18px rgba(22,163,74,0.35)",
+            }}
+          >
+            <Bot className="h-6 w-6" style={{ color: "#04120A" }} />
           </div>
-          <h3 className="font-serif text-xl font-normal text-[var(--color-fg)] mt-3.5 relative z-10">Amanah AI Advisor</h3>
-          <p className="text-[12.5px] leading-relaxed mt-2 relative z-10" style={{ color: "rgba(244,246,251,.7)" }}>
-            Automated margin protection, real-time rate insight, and Sharia-aligned hedging guidance — grounded in cited sources, never a fatwa.
+          <h3 className="font-serif text-xl font-normal mt-3.5 relative z-10" style={{ color: "var(--color-fg)" }}>
+            HalalFlow AI Advisor
+          </h3>
+          <p className="text-[12.5px] leading-relaxed mt-2 relative z-10" style={{ color: "var(--color-muted-fg)" }}>
+            Automated margin protection, real time rate insight, and Sharia aligned hedging guidance, grounded in cited sources, never a fatwa.
           </p>
           <div className="flex gap-2.5 mt-auto pt-4 relative z-10">
-            <Link href="/ask" className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-              style={{ background: "var(--color-primary)" }}>
+            <Link
+              href="/ask"
+              className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+              style={{ background: "linear-gradient(135deg, #16A34A, #22C55E)", color: "#04120A" }}
+            >
               <Sparkles className="h-4 w-4" /> Try now
             </Link>
-            <Link href="/risk" className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-fg)] hover:bg-[var(--color-muted)] transition-colors">
+            <Link
+              href="/risk"
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-4 py-2.5 text-sm font-medium text-[var(--color-fg)] hover:bg-[var(--color-muted)] transition-colors"
+            >
               See risk <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -350,7 +370,7 @@ function SpreadTooltip({ active, payload, money }: any) {
 function DashboardSkeleton() {
   const box = "animate-pulse rounded-2xl bg-[var(--color-muted)]";
   return (
-    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-6.5rem)]">
+    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-2rem)]">
       <div className={`${box} h-12 w-64`} />
       <div className="grid gap-4 flex-1 min-h-0 lg:grid-cols-[1fr_1.12fr] lg:grid-rows-2">
         <div className={box} /><div className={box} /><div className={box} /><div className={box} />

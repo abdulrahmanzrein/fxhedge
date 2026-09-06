@@ -65,7 +65,7 @@ export default function AskPage() {
   return (
     <div className="flex flex-col" style={{ height: "calc(100vh - 7rem)" }}>
       <div className="mb-5 shrink-0">
-        <h1 className="font-serif text-3xl font-normal text-[var(--color-fg)]">Ask Hedged</h1>
+        <h1 className="font-serif text-3xl font-normal text-[var(--color-fg)]">Ask HalalFlow</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-fg)]">
           Islamic finance questions about your EUR/CAD payment · General education only
         </p>

@@ -13,10 +13,11 @@ import {
   Scale,
   Moon,
   Target,
-  MessageCircle,
   LogOut,
   Menu,
 } from "lucide-react";
+import { ChatWidget } from "@/components/chat-widget";
+import { HalalFlowLogo } from "@/components/halalflow-logo";
 import { useState, useRef, useEffect, forwardRef } from "react";
 
 const workspaceNav = [
@@ -29,10 +30,9 @@ const workspaceNav = [
 ];
 
 const faithNav = [
-  { href: "/sharia",   label: "Sharia options",      icon: Shield        },
-  { href: "/zakat",    label: "Zakat calculator",    icon: Moon          },
-  { href: "/ask",      label: "Ask Hedged",          icon: MessageCircle },
-  { href: "/reflect",  label: "The weight of riba",  icon: Scale         },
+  { href: "/sharia",   label: "Sharia options",      icon: Shield },
+  { href: "/zakat",    label: "Zakat calculator",    icon: Moon   },
+  { href: "/reflect",  label: "The weight of riba",  icon: Scale  },
 ];
 
 const NavItem = forwardRef<
@@ -74,11 +74,14 @@ function Sidebar({
   return (
     <div className="flex h-full flex-col py-4">
       <div className="px-4 mb-6">
-        <Link href="/" className="font-serif text-xl font-semibold text-[var(--color-fg)] hover:opacity-80 transition-opacity">
-          Hedged
+        <Link href="/" className="inline-flex items-center gap-2 font-serif text-xl font-semibold text-[var(--color-fg)] hover:opacity-80 transition-opacity">
+          <HalalFlowLogo size={24} withGlow={false} />
+          HalalFlow
         </Link>
       </div>
-      <div className="flex-1 space-y-5 px-2">
+
+      {/* Scrollable nav */}
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-5 px-2">
         <nav aria-label="Workspace">
           <p aria-hidden="true" className="mb-1 px-3 text-xs uppercase tracking-widest text-[var(--color-muted-fg)]">
             Workspace
@@ -105,25 +108,31 @@ function Sidebar({
           </div>
         </nav>
       </div>
+
+      {/* Sidebar footer — theme + sign out */}
+      <div className="mt-4 px-3 pt-3 border-t border-[var(--color-border)] flex items-center gap-2">
+        <ThemeToggle />
+        <form action={signOutAction} className="flex-1">
+          <button
+            type="submit"
+            className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-sm text-[var(--color-muted-fg)] hover:bg-[var(--color-muted)] hover:text-[var(--color-fg)] transition-[color,background-color,scale] duration-150 active:scale-[0.96]"
+          >
+            <LogOut size={16} />
+            Sign out
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
 
-export function AppShell({
-  children,
-  initials = "?",
-}: {
-  children: React.ReactNode;
-  initials?: string;
-}) {
+export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const firstNavRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
-    if (mobileOpen) {
-      firstNavRef.current?.focus();
-    }
+    if (mobileOpen) firstNavRef.current?.focus();
   }, [mobileOpen]);
 
   useEffect(() => {
@@ -175,48 +184,31 @@ export function AppShell({
         </div>
       )}
 
-      {/* Main content — inert when sidebar is open on mobile */}
+      {/* Main content */}
       <div
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore — React 19 types inert as boolean but HTML spec accepts ""
         inert={mobileOpen ? "" : undefined}
-        className="flex min-w-0 flex-1 flex-col"
+        className="flex min-w-0 flex-1 flex-col relative"
       >
-        {/* Topbar */}
-        <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[var(--color-border)] bg-[var(--color-card)] px-4">
-          <button
-            ref={menuButtonRef}
-            className="min-[920px]:hidden transition-[opacity,scale] duration-150 active:scale-[0.96]"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open navigation"
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-sidebar"
-          >
-            <Menu size={20} />
-          </button>
-          <div className="flex-1" />
-          <ThemeToggle />
-          <form action={signOutAction}>
-            <button
-              type="submit"
-              aria-label="Sign out"
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-card)] hover:bg-[var(--color-muted)] transition-[color,background-color,border-color,scale] duration-150 active:scale-[0.96]"
-            >
-              <LogOut size={16} />
-            </button>
-          </form>
-          <div
-            aria-hidden="true"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-primary)] text-xs font-bold text-white"
-          >
-            {initials.slice(0, 2).toUpperCase()}
-          </div>
-        </header>
+        {/* Mobile-only floating menu button (only visible when sidebar hidden) */}
+        <button
+          ref={menuButtonRef}
+          className="min-[920px]:hidden fixed top-4 left-4 z-20 flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-card)] hover:bg-[var(--color-muted)] transition-[background-color,scale] duration-150 active:scale-[0.96]"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open navigation"
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-sidebar"
+        >
+          <Menu size={18} />
+        </button>
 
-        {/* Page content */}
         <main id="main-content" className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-[1180px] px-6 py-8">{children}</div>
+          <div className="mx-auto max-w-[1180px] px-6 py-4">{children}</div>
         </main>
+
+        {/* Global floating chat widget */}
+        <ChatWidget />
       </div>
     </div>
   );

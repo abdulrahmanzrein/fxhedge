@@ -3,7 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: "Hedged — Stop losing margin to hidden FX costs",
+  title: "HalalFlow — Stop losing margin to hidden FX costs",
   description: "FX hedging for small businesses. See your true cost, compare providers, explore Islamic finance options.",
 };
 

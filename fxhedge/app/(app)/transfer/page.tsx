@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useInvoice, type Invoice } from "@/hooks/use-invoice";
 import { currencySymbol } from "@/lib/fixtures";
+import { usePageFade } from "@/components/page-fade";
 import { ArrowRight, Clock, Trash2 } from "lucide-react";
 
 const CURRENCIES = ["EUR", "USD", "GBP", "CAD", "AUD", "SGD"];
@@ -20,6 +21,7 @@ function newId() {
 export default function TransferPage() {
   const router = useRouter();
   const { recent, setCurrent, removeRecent, ready } = useInvoice();
+  const { fade } = usePageFade();
 
   const [from,   setFrom]   = useState("EUR");
   const [to,     setTo]     = useState("CAD");
@@ -46,9 +48,9 @@ export default function TransferPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 lg:h-[calc(100dvh-2rem)]">
       {/* Header */}
-      <div className="hero-animate">
+      <div style={fade(0)}>
         <div
           className="text-xs font-medium uppercase tracking-wider"
           style={{ color: "var(--color-primary)" }}
@@ -59,17 +61,17 @@ export default function TransferPage() {
           What&apos;s your next payment?
         </h1>
         <p className="text-[var(--color-muted-fg)] mt-2 max-w-2xl">
-          Enter an upcoming supplier invoice — we&apos;ll break down providers, rates, and hedging options on the dashboard.
+          Enter an upcoming supplier invoice. We&apos;ll break down providers, rates, and hedging options on the dashboard.
         </p>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-5">
+      <div className="grid gap-5 lg:grid-cols-5 flex-1 min-h-0">
 
         {/* Form */}
         <form
           onSubmit={submit}
-          className="hero-animate lg:col-span-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 flex flex-col gap-5"
-          style={{ animationDelay: "0.1s" }}
+          className="lg:col-span-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 flex flex-col gap-5 min-h-0 overflow-y-auto"
+          style={fade(1)}
         >
           <div className="grid grid-cols-2 gap-4">
             <Field label="From currency" htmlFor="from-cur">
@@ -135,10 +137,12 @@ export default function TransferPage() {
             <p className="text-xs" style={{ color: "#f87171" }}>Pick two different currencies.</p>
           )}
 
+          <div className="flex-1" />
+
           <button
             type="submit"
             disabled={from === to || amount <= 0}
-            className="mt-2 flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold text-white transition-[opacity,scale] duration-150 active:scale-[0.96] hover:opacity-90 disabled:opacity-40 disabled:active:scale-100"
+            className="flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold text-white transition-[opacity,scale] duration-150 active:scale-[0.96] hover:opacity-90 disabled:opacity-40 disabled:active:scale-100"
             style={{ background: "var(--color-primary)" }}
           >
             Analyze on dashboard <ArrowRight size={16} />
@@ -147,10 +151,10 @@ export default function TransferPage() {
 
         {/* Recent invoices */}
         <div
-          className="hero-animate lg:col-span-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6"
-          style={{ animationDelay: "0.18s" }}
+          className="lg:col-span-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 flex flex-col min-h-0"
+          style={fade(2)}
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 shrink-0">
             <div className="flex items-center gap-2">
               <Clock size={14} style={{ color: "var(--color-muted-fg)" }} />
               <span className="text-xs font-medium uppercase tracking-wider text-[var(--color-muted-fg)]">
@@ -163,20 +167,20 @@ export default function TransferPage() {
           </div>
 
           {!ready ? (
-            <ul className="space-y-2">
+            <ul className="space-y-2 flex-1 min-h-0 overflow-y-auto">
               {[0, 1, 2].map((i) => (
                 <li key={i} className="animate-pulse h-16 rounded-xl bg-[var(--color-muted)]" />
               ))}
             </ul>
           ) : recent.length === 0 ? (
-            <div className="text-center py-10">
+            <div className="flex-1 min-h-0 flex flex-col items-center justify-center text-center">
               <p className="text-sm text-[var(--color-muted-fg)]">No recent invoices yet.</p>
               <p className="text-xs text-[var(--color-muted-fg)] mt-1">
                 Analyze one on the left and it&apos;ll appear here.
               </p>
             </div>
           ) : (
-            <ul className="space-y-2">
+            <ul className="space-y-2 flex-1 min-h-0 overflow-y-auto">
               {recent.map((inv) => (
                 <li key={inv.id}>
                   <div

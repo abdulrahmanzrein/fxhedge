@@ -12,13 +12,13 @@ const options = [
   {
     id: "murabaha",
     title: "Murabaha (cost-plus sale)",
-    desc: "Bank buys the currency at today's rate and sells it to you at a fixed mark-up. Widely accepted. Avoid if the mark-up is not disclosed upfront.",
+    desc: "Bank buys the currency at today's rate and sells it to you at a fixed markup. Widely accepted. Avoid if the markup is not disclosed upfront.",
     status: "halal" as const,
   },
   {
     id: "wad",
     title: "Wa'd (unilateral promise)",
-    desc: "A promise — not a contract — to buy currency at a future date. Scholarly debate exists: some scholars accept it, others see binding wa'd as equivalent to a forward. Check your madhab.",
+    desc: "A promise, not a contract, to buy currency at a future date. Scholarly debate exists: some scholars accept it, others see binding wa'd as equivalent to a forward. Check your madhab.",
     status: "debated" as const,
   },
   {
@@ -42,9 +42,9 @@ const suggestedQuestions = [
   "What do AAOIFI standards say about FX hedging?",
 ];
 
-const PLACEHOLDER_ANSWER = `**Natural hedging** is the most straightforward halal approach. If your business earns revenue in EUR, you already hold EUR to pay your supplier — no currency exchange needed, and no riba exposure.
+const PLACEHOLDER_ANSWER = `**Natural hedging** is the most straightforward halal approach. If your business earns revenue in EUR, you already hold EUR to pay your supplier. No currency exchange needed, and no riba exposure.
 
-For businesses that must convert, **murabaha** is widely accepted by Islamic scholars and available through some Islamic banks in Canada and the UK. The bank buys at spot and sells to you at a disclosed mark-up — no interest involved.
+For businesses that must convert, **murabaha** is widely accepted by Islamic scholars and available through some Islamic banks in Canada and the UK. The bank buys at spot and sells to you at a disclosed markup. No interest involved.
 
 **Wa'd** is more nuanced. A *unilateral* promise (one party promises, the other is not bound) is generally acceptable. A *bilateral* binding wa'd starts to resemble a conventional forward and is contested.
 

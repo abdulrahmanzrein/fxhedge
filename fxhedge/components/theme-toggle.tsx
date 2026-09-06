@@ -28,7 +28,7 @@ export function ThemeToggle() {
         setTheme(isDark ? "light" : "dark");
       }}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className="h-9 w-9 flex items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-card)] hover:bg-[var(--color-muted)] transition-[background-color,border-color,scale] duration-150 active:scale-[0.96]"
+      className="h-9 w-9 flex items-center justify-center rounded-md border border-[var(--color-border)] bg-transparent text-[var(--color-fg)] hover:bg-[var(--color-muted)] hover:border-[var(--color-primary)]/40 transition-[background-color,border-color,scale] duration-150 active:scale-[0.96]"
     >
       <span className="relative h-4 w-4">
         <Sun
