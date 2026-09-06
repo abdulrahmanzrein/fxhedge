@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { MOCK_PROFILE } from "@/lib/fixtures";
+import { useAppData } from "@/hooks/use-app-data";
 import { Send } from "lucide-react";
 
 interface Message {
@@ -17,6 +17,7 @@ const SUGGESTED = [
 ];
 
 export default function AskPage() {
+  const d = useAppData();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput]       = useState("");
   const [loading, setLoading]   = useState(false);
@@ -39,8 +40,9 @@ export default function AskPage() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           question: q,
-          pair: `${MOCK_PROFILE.supplier_currency}-${MOCK_PROFILE.home_currency}`,
-          amount: MOCK_PROFILE.invoice_amount,
+          pair: `${d.fromCurrency}-${d.toCurrency}`,
+          amount: d.invoiceAmount,
+          margin_at_risk: d.marginAtRiskMinus5pct,
         }),
       });
       const data = await res.json();
@@ -67,7 +69,8 @@ export default function AskPage() {
       <div className="mb-5 shrink-0">
         <h1 className="font-serif text-3xl font-normal text-[var(--color-fg)]">Ask HalalFlow</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-fg)]">
-          Islamic finance questions about your EUR/CAD payment · General education only
+          Islamic finance questions about your {d.fromCurrency}/{d.toCurrency} payment · General
+          education only
         </p>
       </div>
 

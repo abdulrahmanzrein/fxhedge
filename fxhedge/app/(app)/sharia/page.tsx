@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Markdown } from "@/components/markdown";
+import { useAppData } from "@/hooks/use-app-data";
 
 const options = [
   {
@@ -42,26 +43,47 @@ const suggestedQuestions = [
   "What do AAOIFI standards say about FX hedging?",
 ];
 
-const PLACEHOLDER_ANSWER = `**Natural hedging** is the most straightforward halal approach. If your business earns revenue in EUR, you already hold EUR to pay your supplier. No currency exchange needed, and no riba exposure.
-
-For businesses that must convert, **murabaha** is widely accepted by Islamic scholars and available through some Islamic banks in Canada and the UK. The bank buys at spot and sells to you at a disclosed markup. No interest involved.
-
-**Wa'd** is more nuanced. A *unilateral* promise (one party promises, the other is not bound) is generally acceptable. A *bilateral* binding wa'd starts to resemble a conventional forward and is contested.
-
-> This is general education grounded in cited scholarly sources, not a fatwa. Consult a qualified Islamic finance scholar for a ruling specific to your situation.`;
+const UNAVAILABLE =
+  "The assistant is unavailable right now. For Islamic-finance questions about your payment, please consult a qualified Sharia advisor.";
 
 export default function ShariaPage() {
+  const d = useAppData();
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function ask(q: string) {
+    if (!q.trim() || loading) return;
     setQuestion(q);
     setLoading(true);
     setAnswer(null);
-    await new Promise(r => setTimeout(r, 900));
-    setLoading(false);
-    setAnswer(PLACEHOLDER_ANSWER);
+    setFailed(false);
+
+    try {
+      const res = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          question: q,
+          pair: `${d.fromCurrency}-${d.toCurrency}`,
+          amount: d.invoiceAmount,
+          margin_at_risk: d.marginAtRiskMinus5pct,
+        }),
+      });
+      const data: { answer?: string; error?: boolean } = await res.json();
+      if (!res.ok || data.error || !data.answer) {
+        setFailed(true);
+        setAnswer(UNAVAILABLE);
+      } else {
+        setAnswer(data.answer);
+      }
+    } catch {
+      setFailed(true);
+      setAnswer("Could not reach the assistant. Check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -139,10 +161,17 @@ export default function ShariaPage() {
           )}
           {answer && !loading && (
             <div className="mt-4 border-t border-[var(--color-border)] pt-4">
-              <Markdown>{answer}</Markdown>
-              <p className="mt-3 text-[10px] text-[var(--color-muted-fg)]">
-                This is general education, not a fatwa or financial advice. Consult a qualified scholar for a ruling specific to your situation.
-              </p>
+              {failed ? (
+                <p className="text-sm" style={{ color: "var(--color-negative)" }}>{answer}</p>
+              ) : (
+                <>
+                  <Markdown>{answer}</Markdown>
+                  <p className="mt-3 text-[10px] text-[var(--color-muted-fg)]">
+                    This is general education, not a fatwa or financial advice. Consult a qualified
+                    scholar for a ruling specific to your situation.
+                  </p>
+                </>
+              )}
             </div>
           )}
         </div>
