@@ -2,11 +2,12 @@ import "server-only";
 import { ASSISTANT_SYSTEM_PROMPT } from "./prompt";
 
 /**
- * lib/assistant/ask.ts — server-side Gemini call (PRD FR-6).
+ * lib/assistant/ask.ts — server-side LLM call (PRD FR-6).
  * The API key NEVER reaches the client. Guardrails live in the prompt.
  */
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-5";
 
 /**
  * maxOutputTokens covers reasoning AND the reply, so an unbounded think can eat
@@ -38,12 +39,18 @@ interface GeminiResponse {
   error?: { message?: string; status?: string };
 }
 
+interface AnthropicResponse {
+  content?: Array<{ type?: string; text?: string }>;
+  error?: { type?: string; message?: string };
+}
+
 export async function askAssistant(
   question: string,
   context?: AskContext,
 ): Promise<AskResult> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey || apiKey.startsWith("PASTE")) {
+  const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+  const geminiApiKey = process.env.GEMINI_API_KEY;
+  if ((!anthropicApiKey || anthropicApiKey.startsWith("PASTE")) && (!geminiApiKey || geminiApiKey.startsWith("PASTE"))) {
     // FR-6 honest fallback: never appear broken, never fake an answer.
     throw new AssistantUnavailableError(
       "The assistant is unavailable right now. For Islamic-finance questions about your payment, please consult a qualified Sharia advisor.",
@@ -54,6 +61,60 @@ export async function askAssistant(
     ? `\n\n[The user's current deal: ${context.pair ?? "currency pair"} payment of ${context.amount}, margin at risk ${context.margin_at_risk ?? "n/a"}. You may reference it if relevant.]`
     : "";
 
+  if (anthropicApiKey && !anthropicApiKey.startsWith("PASTE")) {
+    const body = JSON.stringify({
+      model: ANTHROPIC_MODEL,
+      max_tokens: MAX_TOKENS,
+      system: ASSISTANT_SYSTEM_PROMPT,
+      messages: [{ role: "user", content: question + contextBlock }],
+    });
+
+    const call = () =>
+      fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": anthropicApiKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body,
+      });
+
+    let res = await call();
+    for (let attempt = 0; attempt < 2 && (res.status === 429 || res.status === 503); attempt++) {
+      await new Promise((r) => setTimeout(r, 1200 * (attempt + 1)));
+      res = await call();
+    }
+
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      console.error("[askAssistant] Anthropic error", res.status, detail.slice(0, 400));
+      throw new AssistantUnavailableError(
+        "The assistant could not be reached. For Islamic-finance questions about your payment, please consult a qualified Sharia advisor.",
+      );
+    }
+
+    const json = (await res.json()) as AnthropicResponse;
+    const answer = (json.content ?? [])
+      .filter((b) => b.type === "text" && typeof b.text === "string")
+      .map((b) => b.text as string)
+      .join("")
+      .trim();
+
+    if (!answer) {
+      throw new AssistantUnavailableError(
+        "The assistant returned an empty response. Please consult a qualified Sharia advisor.",
+      );
+    }
+    return { answer, model: ANTHROPIC_MODEL };
+  }
+
+  const apiKey = geminiApiKey;
+  if (!apiKey || apiKey.startsWith("PASTE")) {
+    throw new AssistantUnavailableError(
+      "The assistant is unavailable right now. For Islamic-finance questions about your payment, please consult a qualified Sharia advisor.",
+    );
+  }
   const body = JSON.stringify({
     system_instruction: { parts: [{ text: ASSISTANT_SYSTEM_PROMPT }] },
     contents: [{ role: "user", parts: [{ text: question + contextBlock }] }],
@@ -64,7 +125,7 @@ export async function askAssistant(
   });
 
   const call = () =>
-    fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
+    fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
       body,
@@ -107,5 +168,5 @@ export async function askAssistant(
       "The assistant returned an empty response. Please consult a qualified Sharia advisor.",
     );
   }
-  return { answer, model: MODEL };
+  return { answer, model: GEMINI_MODEL };
 }
