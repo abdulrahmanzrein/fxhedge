@@ -12,6 +12,8 @@ interface BreakevenData {
   today_rate: number;
   today_rate_source: string;
   hist_windows: number;
+  /** Typical bad-stretch move over comparable historical windows (%) — powers the plain-language room sentence. */
+  history_5pct: number;
 }
 
 interface HedgeMatch {
@@ -66,8 +68,11 @@ export default function BreakevenPage() {
     <div className="space-y-8">
       <div style={fade(0)}>
         <h1 className="font-serif text-3xl font-normal text-[var(--color-fg)]">Breakeven &amp; hedge</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-fg)]">
-          How much rate movement can you absorb before this deal loses money?
+        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--color-muted-fg)]">
+          Every deal has a rate at which it stops making money. This page shows where
+          that point is for your {currencySymbol(d.fromCurrency)}
+          {d.invoiceAmount.toLocaleString()} invoice, and how much room you have before
+          you reach it.
         </p>
       </div>
 
@@ -82,7 +87,7 @@ export default function BreakevenPage() {
         <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6" style={fade(1)}>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-medium text-[var(--color-muted-fg)] mb-2">Breakeven cushion</p>
+              <p className="text-xs font-medium text-[var(--color-muted-fg)] mb-2">Room before this deal stops making money</p>
               <p className="font-money text-5xl font-bold leading-none tabular" style={{ color: v!.color }}>
                 {be.cushion_pct.toFixed(1)}%
               </p>
@@ -98,14 +103,18 @@ export default function BreakevenPage() {
               {v!.label}
             </span>
           </div>
-          <p className="mt-4 text-sm text-[var(--color-muted-fg)] leading-relaxed">{be.verdict_reason}</p>
+          <p className="mt-3 text-sm leading-relaxed text-[var(--color-fg)]">
+            You have {be.cushion_pct.toFixed(1)}% of room. In the roughest 1 in 20 stretches of this
+            length, the rate swung {be.history_5pct.toFixed(1)}% — so a bad run would use most of it.
+            Worth checking weekly rather than once.
+          </p>
 
           {/* Stats row */}
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {[
               { label: "Breakeven rate", value: be.break_even_rate.toFixed(4) },
               { label: "Today's rate",   value: be.today_rate.toFixed(4)      },
-              { label: "Historical windows", value: be.hist_windows.toLocaleString() },
+              { label: "Past stretches compared", value: be.hist_windows.toLocaleString() },
             ].map((s) => (
               <div key={s.label} className="rounded-xl border border-[var(--color-border)] p-4">
                 <p className="text-xs text-[var(--color-muted-fg)] mb-1">{s.label}</p>
@@ -123,21 +132,23 @@ export default function BreakevenPage() {
         <h2 className="font-semibold text-[var(--color-fg)] mb-3">How to read this</h2>
         <div className="space-y-3 text-sm text-[var(--color-muted-fg)] leading-relaxed">
           <p>
-            The <strong className="text-[var(--color-fg)]">breakeven rate</strong> is the worst{" "}
-            {d.fromCurrency}/{d.toCurrency} rate at which you still cover your costs. If{" "}
-            {d.fromCurrency} strengthens past this point, the invoice costs more than you earn on the sale.
+            The <strong className="text-[var(--color-fg)]">breakeven rate</strong> is the
+            worst {d.fromCurrency}/{d.toCurrency} rate at which you still cover your costs.
+            Past it, the invoice costs more than you earn on the sale.
           </p>
-          <p>
-            The <strong className="text-[var(--color-fg)]">cushion</strong> is how far today's rate can move before you hit that breakeven. A larger cushion means more breathing room.
+          <p className="mt-2">
+            The <strong className="text-[var(--color-fg)]">room</strong> is how far
+            today&apos;s rate can move before you reach that point. More room means more
+            margin for a bad week.
           </p>
           <div className="flex flex-col gap-2 mt-3">
             {Object.entries(VERDICT).map(([k, v]) => (
               <div key={k} className="flex items-center gap-2">
                 <span className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style={{ color: v.color, background: v.bg }}>{v.label}</span>
                 <span>
-                  {k === "comfortable" && "Cushion exceeds the historical 95th percentile move. You have real buffer."}
-                  {k === "watch"       && "Cushion is below the worst typical move. Monitor before the due date."}
-                  {k === "danger"      && "Cushion is near zero. Any adverse move puts the deal in the red."}
+                  {k === "comfortable" && "More room than even the roughest comparable stretch used. You have a real buffer."}
+                  {k === "watch"       && "A rough stretch could use up most of your room. Check again before the due date."}
+                  {k === "danger"      && "Almost no room left. Even a small move puts the deal in the red."}
                 </span>
               </div>
             ))}
