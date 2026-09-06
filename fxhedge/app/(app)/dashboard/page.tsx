@@ -1,254 +1,237 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { MOCK_PROFILE, currencySymbol } from "@/lib/fixtures";
 import { useCountUp } from "@/hooks/use-count-up";
 import { useAppData } from "@/hooks/use-app-data";
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-  ReferenceDot,
+  AreaChart, Area,
+  LineChart, Line,
+  XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+  ReferenceLine, ReferenceDot,
 } from "recharts";
+import { ArrowRight, Bot, TrendingUp, TrendingDown, Sparkles } from "lucide-react";
 
 type SelectedPoint = { day: string; rate: number; cost: number; diff: number };
 
-function CustomTooltip({ active, payload, label, threshold }: any) {
+const PROVIDER_COLORS = ["#6366F1", "#10B981", "#F59E0B", "#EC4899"];
+
+// Synthetic margin-history data (best vs worst vs mid provider % over years).
+// Kept as static because the risk API only returns aggregate stats, not per-year series.
+const marginData = [
+  { q: "2018", best:  9, worst: -3,   mid: 4 },
+  { q: "2019", best: 11, worst: -1,   mid: 6 },
+  { q: "2020", best:  7, worst: -8,   mid: 2 },
+  { q: "2021", best: 12, worst:  0,   mid: 7 },
+  { q: "2022", best: 10, worst: -4,   mid: 5 },
+  { q: "2023", best:  8, worst: -2,   mid: 4 },
+  { q: "2024", best: 11, worst: -6.9, mid: 3 },
+];
+
+function RateTooltip({ active, payload, label, threshold }: any) {
   if (!active || !payload?.length) return null;
   const rate = payload[0]?.value as number;
-  const isAbove = rate >= threshold;
+  const above = rate >= threshold;
   return (
     <div
       className="rounded-xl border px-3 py-2.5 text-xs shadow-lg"
-      style={{ background: "var(--color-card)", borderColor: "var(--color-border)", minWidth: 120 }}
+      style={{ background: "var(--color-card)", borderColor: "var(--color-border)", minWidth: 130 }}
     >
-      <p className="font-medium mb-1" style={{ color: "var(--color-muted-fg)" }}>{label}</p>
-      <p className="font-money font-bold text-sm" style={{ color: isAbove ? "#3DD68C" : "#f87171" }}>
+      <p className="text-[10px] mb-1" style={{ color: "var(--color-muted-fg)" }}>{label}</p>
+      <p className="font-money font-bold text-sm tabular" style={{ color: above ? "#3DD68C" : "#f87171" }}>
         {rate.toFixed(4)}
       </p>
-      <p style={{ color: "var(--color-muted-fg)" }}>EUR/CAD rate</p>
+      <p className="text-[10px]" style={{ color: "var(--color-muted-fg)" }}>EUR/CAD rate</p>
     </div>
   );
 }
 
-function StatRow({ label, value }: { label: string; value: string }) {
+function MarginTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
   return (
-    <div className="flex items-center justify-between py-2.5 border-b border-[var(--color-border)] last:border-0">
-      <span className="text-sm text-[var(--color-muted-fg)]">{label}</span>
-      <span className="font-money text-sm font-semibold text-[var(--color-fg)] tabular">{value}</span>
+    <div
+      className="rounded-xl border px-3 py-2.5 text-xs shadow-lg"
+      style={{ background: "var(--color-card)", borderColor: "var(--color-border)" }}
+    >
+      <p className="text-[10px] mb-1.5" style={{ color: "var(--color-muted-fg)" }}>{label}</p>
+      {payload.map((p: any) => (
+        <p key={p.dataKey} className="tabular" style={{ color: p.color || p.stroke }}>
+          {p.name}: {p.value}%
+        </p>
+      ))}
     </div>
   );
 }
 
-function KpiCard({
-  label, prefix, value, badge, badgePositive, delay = 0,
-}: {
-  label: string; prefix: string; value: number; badge: string; badgePositive: boolean; delay?: number;
-}) {
-  const animated = useCountUp(value, 1400, 0, delay);
-  const color = badgePositive ? "#3DD68C" : "#f87171";
-  const bg    = badgePositive ? "rgba(61,214,140,0.12)" : "rgba(248,113,113,0.12)";
+function Legend() {
+  const items = [
+    { label: "Best",  color: "#10B981" },
+    { label: "Mid",   color: "#6366F1" },
+    { label: "Worst", color: "#F43F5E" },
+  ];
   return (
-    <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-      <p className="text-xs font-medium text-[var(--color-muted-fg)] mb-3">{label}</p>
-      <p className="font-money text-2xl font-bold text-[var(--color-fg)] leading-none mb-2 tabular">
-        {prefix}{animated.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-      </p>
-      <span
-        className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
-        style={{ color, background: bg }}
-      >
-        {badgePositive ? "↑" : "↓"} {badge}
-      </span>
+    <div className="flex items-center gap-3">
+      {items.map((i) => (
+        <span key={i.label} className="flex items-center gap-1.5 text-xs text-[var(--color-muted-fg)]">
+          <span className="h-2 w-2 rounded-full" style={{ background: i.color }} />
+          {i.label}
+        </span>
+      ))}
     </div>
   );
 }
 
 function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-[var(--color-muted)] ${className ?? ""}`} />;
+  return <div className={`animate-pulse rounded-2xl bg-[var(--color-muted)] ${className ?? ""}`} />;
 }
 
 export default function DashboardPage() {
   const sym = currencySymbol(MOCK_PROFILE.home_currency);
-  const d = useAppData();
+  const d   = useAppData();
   const [selected, setSelected] = useState<SelectedPoint | null>(null);
-  const [range, setRange] = useState("1M");
 
-  const bestReceived = useCountUp(d.bestProvider.received, 1500);
-  const savings      = useCountUp(d.savingVsWorst, 1800);
+  const trueCost   = useCountUp(d.trueCostToday, 1500);
+  const bestNet    = useCountUp(d.bestProvider.received, 1600, 0, 100);
 
   const THRESHOLD = d.ecbRateInvoiceDay;
   const currentRate = d.rateHistory.length
     ? d.rateHistory[d.rateHistory.length - 1].rate
     : d.ecbRateToday;
-  const isRateFavorable = currentRate >= THRESHOLD;
-  const lineColor  = isRateFavorable ? "#3DD68C" : "#f87171";
-  const gradientId = isRateFavorable ? "greenGrad" : "redGrad";
+  const isFavorable = currentRate >= THRESHOLD;
+  const rateColor = isFavorable ? "#3DD68C" : "#f87171";
 
   function handleChartClick(state: any) {
-    const payload = state?.activePayload?.[0]?.payload as { day: string; rate: number } | undefined;
-    if (!payload) return;
-    const cost = Math.round(d.invoiceAmount * payload.rate);
+    const p = state?.activePayload?.[0]?.payload as { day: string; rate: number } | undefined;
+    if (!p) return;
+    const cost = Math.round(d.invoiceAmount * p.rate);
     const diff = cost - d.trueCostToday;
-    setSelected({ day: payload.day, rate: payload.rate, cost, diff });
+    setSelected({ day: p.day, rate: p.rate, cost, diff });
   }
 
   if (d.loading) {
     return (
-      <div className="space-y-6">
-        <div>
-          <Skeleton className="h-9 w-72 mb-2" />
-          <Skeleton className="h-4 w-56" />
+      <div className="flex flex-col gap-5">
+        <Skeleton className="h-24" />
+        <div className="grid lg:grid-cols-2 gap-5">
+          <Skeleton className="h-96" />
+          <Skeleton className="h-96" />
         </div>
-        <div className="grid gap-4 lg:grid-cols-5">
-          <Skeleton className="lg:col-span-2 h-80" />
-          <Skeleton className="lg:col-span-3 h-80" />
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Skeleton className="h-28" />
-          <Skeleton className="h-28" />
-          <Skeleton className="h-28" />
+        <div className="grid lg:grid-cols-2 gap-5">
+          <Skeleton className="h-72" />
+          <Skeleton className="h-72" />
         </div>
       </div>
     );
   }
 
-  const chartData = d.rateHistory.length > 0 ? d.rateHistory : [
-    { day: "—", rate: d.ecbRateToday },
-  ];
+  const chartData = d.rateHistory.length > 0 ? d.rateHistory : [{ day: "—", rate: d.ecbRateToday }];
+  const first = MOCK_PROFILE.business_name.split(" ")[0];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="font-serif text-3xl font-normal text-[var(--color-fg)]">
-            Assalamu alaikum, {MOCK_PROFILE.business_name.split(" ")[0]}
-          </h1>
-          <p className="mt-1 text-sm text-[var(--color-muted-fg)]">
-            {MOCK_PROFILE.business_name} · EUR to CAD · invoice due in {MOCK_PROFILE.days_until_due} days
-          </p>
-        </div>
+    <div className="flex flex-col gap-5">
+
+      {/* Greeting */}
+      <div className="hero-animate">
         <div
-          className="hidden sm:flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-medium"
-          style={{
-            borderColor: isRateFavorable ? "rgba(61,214,140,0.3)" : "rgba(248,113,113,0.3)",
-            background:  isRateFavorable ? "rgba(61,214,140,0.08)" : "rgba(248,113,113,0.08)",
-            color:       isRateFavorable ? "#3DD68C" : "#f87171",
-          }}
+          className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider"
+          style={{ color: "var(--color-primary)" }}
         >
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: isRateFavorable ? "#3DD68C" : "#f87171" }} />
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: isRateFavorable ? "#3DD68C" : "#f87171" }} />
-          </span>
-          Rate is {isRateFavorable ? "favorable" : "costly"} today
+          Active scenario · {MOCK_PROFILE.supplier_currency}-{MOCK_PROFILE.home_currency}
         </div>
+        <h1 className="font-serif text-3xl md:text-4xl font-normal text-[var(--color-fg)] mt-2">
+          Dashboard
+        </h1>
+        <p className="text-[var(--color-muted-fg)] mt-2 max-w-2xl">
+          Assalamu alaikum, {first}. Happy to see you again — here&apos;s the update on your{" "}
+          {sym}{d.invoiceAmount.toLocaleString()} invoice, {MOCK_PROFILE.days_until_due} days on terms.
+        </p>
       </div>
 
-      {/* Top row: hero metric + chart */}
-      <div className="grid gap-4 lg:grid-cols-5">
+      {/* Top row */}
+      <div className="grid lg:grid-cols-2 gap-5">
 
-        {/* Hero metric card */}
-        <div className="lg:col-span-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 flex flex-col justify-between">
-          <div>
-            <p className="text-xs font-medium text-[var(--color-muted-fg)] mb-3">
-              Best rate today via {d.bestProvider.name}
-            </p>
-            <p className="font-money text-5xl font-bold text-[var(--color-fg)] leading-none tabular">
-              {sym}{bestReceived.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-            </p>
+        {/* Invoice exposure (true cost) */}
+        <div className="hero-animate rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6" style={{ animationDelay: "0.1s" }}>
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-medium uppercase tracking-wider text-[var(--color-muted-fg)]">
+              Invoice exposure (true cost)
+            </div>
             <span
-              className="mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
-              style={{ background: "rgba(61,214,140,0.12)", color: "#3DD68C" }}
+              className="inline-flex items-center gap-1 text-xs font-semibold rounded-full px-2.5 py-1"
+              style={{ color: "#3DD68C", background: "rgba(61,214,140,0.12)" }}
             >
-              ↑ +{sym}{savings.toLocaleString(undefined, { maximumFractionDigits: 0 })} vs {d.worstProvider.name}
+              <TrendingDown className="h-3.5 w-3.5" /> {d.driftTodayPct}%
             </span>
           </div>
+          <div className="mt-3 font-money text-4xl font-bold tabular text-[var(--color-fg)] leading-none">
+            {sym}{trueCost.toLocaleString()}
+          </div>
+          <p className="text-xs text-[var(--color-muted-fg)] mt-2">
+            CAD at ECB mid market · {MOCK_PROFILE.supplier_currency}/{MOCK_PROFILE.home_currency} {d.ecbRateToday.toFixed(4)}
+          </p>
 
-          {/* Provider distribution */}
-          <div className="mt-6 space-y-3">
-            <p className="text-xs font-medium text-[var(--color-muted-fg)]">Provider ranking</p>
-            {d.providers.map((p, i) => {
-              const pct = Math.round((p.received / d.bestProvider.received) * 100);
-              const isWinner = i === 0;
-              return (
-                <div key={p.name}>
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="h-2 w-2 rounded-full flex-shrink-0"
-                        style={{ background: isWinner ? "#3DD68C" : i === 1 ? "var(--color-primary)" : "var(--color-muted-fg)" }}
-                      />
-                      <span className="font-medium text-[var(--color-fg)]">{p.name}</span>
-                    </div>
-                    <span className="font-money font-semibold text-[var(--color-fg)] tabular">
-                      {sym}{p.received.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="h-1 rounded-full overflow-hidden" style={{ background: "var(--color-muted)" }}>
-                    <div
-                      className="h-1 rounded-full"
-                      style={{
-                        width: `${pct}%`,
-                        background: isWinner ? "#3DD68C" : i === 1 ? "var(--color-primary)" : "var(--color-border)",
-                        transition: "width 1s ease",
-                      }}
+          <div className="mt-5 border-t border-[var(--color-border)] pt-4">
+            <div className="text-xs font-medium uppercase tracking-wider text-[var(--color-muted-fg)] mb-3">
+              Received by provider
+            </div>
+            <ul className="space-y-2.5">
+              {d.providers.map((p, i) => (
+                <li key={p.name} className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-2.5">
+                    <span
+                      className="h-2.5 w-2.5 rounded-full"
+                      style={{ background: PROVIDER_COLORS[i % PROVIDER_COLORS.length] }}
                     />
-                  </div>
-                </div>
-              );
-            })}
+                    <span className="text-[var(--color-fg)]">{p.name}</span>
+                  </span>
+                  <span className="font-money tabular text-[var(--color-fg)]">
+                    {sym}{p.received.toLocaleString()}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
-        {/* Chart card */}
-        <div className="lg:col-span-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="font-semibold text-[var(--color-fg)]">EUR/CAD Rate</p>
-              <p className="text-xs text-[var(--color-muted-fg)] mt-0.5">
-                Click any point to see your invoice cost at that rate
-              </p>
+        {/* Best provider net + interactive rate chart */}
+        <div className="hero-animate rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6" style={{ animationDelay: "0.18s" }}>
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-medium uppercase tracking-wider text-[var(--color-muted-fg)]">
+              Best provider net received
             </div>
-            <div className="flex gap-1.5">
-              {["1W", "1M", "3M"].map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setRange(t)}
-                  className="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
-                  style={
-                    range === t
-                      ? { background: "var(--color-primary)", color: "#fff" }
-                      : { background: "var(--color-muted)", color: "var(--color-muted-fg)" }
-                  }
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
+            <span
+              className="inline-flex items-center gap-1 text-xs font-semibold rounded-full px-2.5 py-1"
+              style={{
+                color: isFavorable ? "#3DD68C" : "#f87171",
+                background: isFavorable ? "rgba(61,214,140,0.12)" : "rgba(248,113,113,0.12)",
+              }}
+            >
+              {isFavorable ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+              {" "}{isFavorable ? "Favorable" : "Costly"}
+            </span>
           </div>
+          <div className="mt-3 font-money text-4xl font-bold tabular text-[var(--color-fg)] leading-none">
+            {sym}{bestNet.toLocaleString()}
+          </div>
+          <p className="text-xs text-[var(--color-muted-fg)] mt-2">
+            {d.bestProvider.name} · mid market · no hidden spread
+          </p>
 
-          <div className="h-56">
+          <div className="h-44 mt-4 -mx-2">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={chartData}
-                margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
+                margin={{ top: 6, right: 8, bottom: 0, left: -28 }}
                 onClick={handleChartClick}
                 style={{ cursor: "crosshair" }}
               >
                 <defs>
-                  <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#3DD68C" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#3DD68C" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="redGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#f87171" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#f87171" stopOpacity={0} />
+                  <linearGradient id="rateFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stopColor={rateColor} stopOpacity={0.35} />
+                    <stop offset="100%" stopColor={rateColor} stopOpacity={0} />
                   </linearGradient>
                 </defs>
+                <CartesianGrid stroke="var(--color-border)" vertical={false} />
                 <XAxis
                   dataKey="day"
                   tick={{ fontSize: 10, fill: "var(--color-muted-fg)" }}
@@ -257,19 +240,14 @@ export default function DashboardPage() {
                   interval="preserveStartEnd"
                 />
                 <YAxis
+                  domain={["auto", "auto"]}
                   tick={{ fontSize: 10, fill: "var(--color-muted-fg)" }}
                   axisLine={false}
                   tickLine={false}
-                  domain={["auto", "auto"]}
                   tickFormatter={(v) => v.toFixed(3)}
                 />
-                <Tooltip content={<CustomTooltip threshold={THRESHOLD} />} />
-                <ReferenceLine
-                  y={THRESHOLD}
-                  stroke="var(--color-muted-fg)"
-                  strokeDasharray="4 3"
-                  strokeOpacity={0.45}
-                />
+                <Tooltip content={<RateTooltip threshold={THRESHOLD} />} />
+                <ReferenceLine y={THRESHOLD} stroke="var(--color-muted-fg)" strokeDasharray="4 3" strokeOpacity={0.4} />
                 {selected && (
                   <ReferenceDot
                     x={selected.day}
@@ -283,11 +261,11 @@ export default function DashboardPage() {
                 <Area
                   type="monotone"
                   dataKey="rate"
-                  stroke={lineColor}
+                  stroke={rateColor}
                   strokeWidth={2}
-                  fill={`url(#${gradientId})`}
+                  fill="url(#rateFill)"
                   dot={false}
-                  activeDot={{ r: 5, fill: lineColor, stroke: "var(--color-card)", strokeWidth: 2, cursor: "pointer" }}
+                  activeDot={{ r: 5, fill: rateColor, stroke: "var(--color-card)", strokeWidth: 2, cursor: "pointer" }}
                   animationDuration={800}
                   animationEasing="ease-out"
                 />
@@ -297,70 +275,117 @@ export default function DashboardPage() {
 
           {selected ? (
             <div
-              className="mt-4 rounded-xl border p-4"
+              className="mt-3 rounded-xl border p-3.5"
               style={{
                 borderColor: selected.rate >= THRESHOLD ? "rgba(61,214,140,0.25)" : "rgba(248,113,113,0.25)",
                 background:  selected.rate >= THRESHOLD ? "rgba(61,214,140,0.05)" : "rgba(248,113,113,0.05)",
               }}
             >
-              <div className="flex items-start justify-between gap-4 mb-3">
-                <div>
-                  <p className="font-semibold text-sm text-[var(--color-fg)]">
-                    {selected.day} · rate {selected.rate.toFixed(4)}
-                  </p>
-                  <p className="text-xs mt-0.5 text-[var(--color-muted-fg)]">EUR/CAD on this date</p>
-                </div>
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <p className="font-semibold text-sm text-[var(--color-fg)]">
+                  {selected.day} · rate {selected.rate.toFixed(4)}
+                </p>
                 <button
                   onClick={() => setSelected(null)}
-                  className="text-xs text-[var(--color-muted-fg)] hover:text-[var(--color-fg)] transition-colors shrink-0"
+                  className="text-xs text-[var(--color-muted-fg)] hover:text-[var(--color-fg)]"
                 >✕</button>
               </div>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <p className="text-xs text-[var(--color-muted-fg)] mb-0.5">Invoice cost</p>
-                  <p className="font-money font-bold text-[var(--color-fg)] tabular">
-                    {sym}{selected.cost.toLocaleString()}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-[var(--color-muted-fg)] mb-0.5">vs today</p>
-                  <p className="font-money font-bold tabular" style={{ color: selected.diff > 0 ? "#f87171" : "#3DD68C" }}>
-                    {selected.diff > 0
-                      ? `+${sym}${selected.diff.toLocaleString()} more`
-                      : `−${sym}${Math.abs(selected.diff).toLocaleString()} less`}
-                  </p>
-                </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-[var(--color-muted-fg)]">Invoice cost</span>
+                <span className="font-money font-bold tabular text-[var(--color-fg)]">
+                  {sym}{selected.cost.toLocaleString()}
+                </span>
               </div>
-              <p className="mt-3 text-xs text-[var(--color-muted-fg)] leading-relaxed border-t border-[var(--color-border)] pt-3">
-                {selected.diff > 0
-                  ? "The rate was higher here — your invoice would cost more CAD. Locking in today could save you money."
-                  : "The rate was lower here — your invoice would have been cheaper. This is your downside if EUR strengthens."}
-              </p>
+              <div className="flex items-center justify-between text-sm mt-1">
+                <span className="text-[var(--color-muted-fg)]">vs today</span>
+                <span
+                  className="font-money font-bold tabular"
+                  style={{ color: selected.diff > 0 ? "#f87171" : "#3DD68C" }}
+                >
+                  {selected.diff > 0
+                    ? `+${sym}${selected.diff.toLocaleString()} more`
+                    : `−${sym}${Math.abs(selected.diff).toLocaleString()} less`}
+                </span>
+              </div>
             </div>
           ) : (
             <p className="mt-3 text-center text-xs text-[var(--color-muted-fg)]">
-              ↑ Click any point to see your invoice cost at that rate
+              ↑ Click any point on the chart to see your invoice cost at that rate
             </p>
           )}
         </div>
       </div>
 
-      {/* KPI row */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <KpiCard label="You could save" prefix={sym} value={d.savingVsWorst} badge={`Switch to ${d.bestProvider.name}`} badgePositive delay={0} />
-        <KpiCard label="Worst provider"  prefix={sym} value={d.worstProvider.received} badge={`${d.worstProvider.name} — avoid`} badgePositive={false} delay={80} />
-        <KpiCard label="Margin at risk"  prefix={sym} value={Math.abs(d.marginAtRiskMinus5pct)} badge="if EUR rises 5%" badgePositive={false} delay={160} />
-      </div>
+      {/* Bottom row */}
+      <div className="grid lg:grid-cols-2 gap-5">
 
-      {/* Rate snapshot */}
-      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-        <h2 className="font-semibold text-[var(--color-fg)] mb-4">Rate snapshot</h2>
-        <StatRow label="ECB mid market rate today"  value={d.ecbRateToday.toFixed(4)} />
-        <StatRow label="ECB rate on invoice day"    value={d.ecbRateInvoiceDay.toFixed(4)} />
-        <StatRow label={`True cost at today rate`}  value={`${sym}${d.trueCostToday.toLocaleString()}`} />
-        <StatRow label="Source"                     value={d.rateSource} />
-        <StatRow label="Drift over 21 days"         value={`${d.driftTodayPct}%`} />
-        <p className="mt-4 text-xs italic text-[var(--color-muted-fg)]">{d.decisionReason}</p>
+        {/* Margin history */}
+        <div className="hero-animate rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6" style={{ animationDelay: "0.26s" }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs font-medium uppercase tracking-wider text-[var(--color-muted-fg)]">
+                Margin history
+              </div>
+              <div className="text-lg font-semibold text-[var(--color-fg)] mt-1">Best vs worst vs mid (%)</div>
+            </div>
+            <Legend />
+          </div>
+          <div className="h-56 mt-4 -mx-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={marginData} margin={{ top: 6, right: 8, bottom: 0, left: -24 }}>
+                <CartesianGrid stroke="var(--color-border)" vertical={false} />
+                <XAxis dataKey="q" tick={{ fontSize: 10, fill: "var(--color-muted-fg)" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: "var(--color-muted-fg)" }} axisLine={false} tickLine={false} unit="%" />
+                <Tooltip content={<MarginTooltip />} />
+                <Line type="monotone" dataKey="best"  name="Best"  stroke="#10B981" strokeWidth={2} dot={false} animationDuration={900} />
+                <Line type="monotone" dataKey="mid"   name="Mid"   stroke="#6366F1" strokeWidth={2} dot={false} animationDuration={900} />
+                <Line type="monotone" dataKey="worst" name="Worst" stroke="#F43F5E" strokeWidth={2} dot={false} animationDuration={900} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Amanah AI Advisor */}
+        <div
+          className="hero-animate relative rounded-2xl p-[1.5px] overflow-hidden"
+          style={{ animationDelay: "0.34s", background: "linear-gradient(135deg, #3B82F6, #D946EF, #3B82F6)" }}
+        >
+          <div className="rounded-[14px] bg-[var(--color-card)]/95 p-6 h-full flex flex-col">
+            <div className="flex items-center gap-3">
+              <div
+                className="h-12 w-12 rounded-xl flex items-center justify-center"
+                style={{ background: "rgba(59,130,246,0.15)", color: "var(--color-primary)" }}
+              >
+                <Bot className="h-6 w-6" />
+              </div>
+              <div>
+                <div className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--color-primary)" }}>
+                  Amanah AI Advisor
+                </div>
+                <div className="text-lg font-semibold text-[var(--color-fg)]">Hedge smarter, the halal way</div>
+              </div>
+            </div>
+            <p className="text-[var(--color-muted-fg)] mt-4 flex-1 text-sm leading-relaxed">
+              Get automated margin protection, real-time rate insights, and personalized Sharia-aligned
+              hedging advice — grounded in cited sources, not a fatwa.
+            </p>
+            <div className="flex items-center gap-2 mt-5">
+              <Link
+                href="/ask"
+                className="h-10 inline-flex items-center gap-2 rounded-lg px-4 text-sm font-medium text-white hover:opacity-90 transition-opacity"
+                style={{ background: "var(--color-primary)" }}
+              >
+                <Sparkles className="h-4 w-4" /> Try Now
+              </Link>
+              <Link
+                href="/risk"
+                className="h-10 inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-4 text-sm font-medium text-[var(--color-fg)] hover:bg-[var(--color-muted)] transition-colors"
+              >
+                See risk <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

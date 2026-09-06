@@ -70,7 +70,7 @@ export function useAppData(): AppData {
           fetch(`/api/fx?pair=${from}-${to}&days_ago=${days}`),
           fetch(`/api/providers?from=${from}&to=${to}&amount=${inv}`),
           fetch(`/api/risk?pair=${from}-${to}&days_ago=${days}&years=10`),
-          fetch(`/api/history?pair=${from}-${to}&years=0.08`), // ~30 days
+          fetch(`/api/history?pair=${from}-${to}&years=1`),
         ]);
 
         if (!fxRes.ok || !provRes.ok || !riskRes.ok) throw new Error("API error");
@@ -88,9 +88,11 @@ export function useAppData(): AppData {
         let rateHistory: { day: string; rate: number }[] = [];
         if (histRes.ok) {
           const hist: { rates: Record<string, number> } = await histRes.json();
-          rateHistory = Object.entries(hist.rates)
+          const all = Object.entries(hist.rates)
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([date, rate]) => ({ day: shortDay(date), rate }));
+          // Show the last ~60 trading days on the dashboard chart
+          rateHistory = all.slice(-60);
         }
 
         setData({

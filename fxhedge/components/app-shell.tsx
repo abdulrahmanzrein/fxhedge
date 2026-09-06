@@ -11,6 +11,9 @@ import {
   TrendingUp,
   Shield,
   Scale,
+  Moon,
+  Target,
+  MessageCircle,
   LogOut,
   Menu,
 } from "lucide-react";
@@ -22,11 +25,14 @@ const workspaceNav = [
   { href: "/cost",       label: "Cost breakdown",      icon: BarChart2       },
   { href: "/compare",    label: "Compare providers",   icon: GitCompare      },
   { href: "/risk",       label: "Risk explorer",       icon: TrendingUp      },
+  { href: "/breakeven",  label: "Breakeven & hedge",   icon: Target          },
 ];
 
 const faithNav = [
-  { href: "/sharia",   label: "Sharia options",      icon: Shield },
-  { href: "/reflect",  label: "The weight of riba",  icon: Scale  },
+  { href: "/sharia",   label: "Sharia options",      icon: Shield        },
+  { href: "/zakat",    label: "Zakat calculator",    icon: Moon          },
+  { href: "/ask",      label: "Ask Hedged",          icon: MessageCircle },
+  { href: "/reflect",  label: "The weight of riba",  icon: Scale         },
 ];
 
 const NavItem = forwardRef<

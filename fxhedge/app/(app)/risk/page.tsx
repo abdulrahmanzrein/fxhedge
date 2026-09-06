@@ -34,19 +34,15 @@ export default function RiskPage() {
   const [selected, setSelected]   = useState<SelectedPoint | null>(null);
 
   useEffect(() => {
-    const end   = new Date().toISOString().split("T")[0];
-    const start = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
-      .toISOString().split("T")[0];
-
-    fetch(`https://api.frankfurter.app/${start}..${end}?from=EUR&to=CAD`)
+    fetch(`/api/history?pair=EUR-CAD&years=1`)
       .then((r) => {
         if (!r.ok) throw new Error("fetch failed");
         return r.json();
       })
-      .then((data: { rates: Record<string, { CAD: number }> }) => {
+      .then((data: { rates: Record<string, number> }) => {
         const points: RatePoint[] = Object.entries(data.rates)
           .sort(([a], [b]) => a.localeCompare(b))
-          .map(([date, rates]) => ({ date, rate: rates.CAD }));
+          .map(([date, rate]) => ({ date, rate }));
         setRateData(points);
       })
       .catch(() => setFetchError(true))

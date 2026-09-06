@@ -1,168 +1,159 @@
 "use client";
+import { useEffect, useState } from "react";
 import { MOCK_PROFILE, currencySymbol } from "@/lib/fixtures";
 import { useCountUp } from "@/hooks/use-count-up";
 import { useAppData } from "@/hooks/use-app-data";
 
-const providerMeta: Record<string, { domain: string; bg: string }> = {
-  Wise:            { domain: "wise.com",          bg: "#00B9A0" },
-  Instarem:        { domain: "instarem.com",       bg: "#6B21A8" },
-  "Deutsche Bank": { domain: "db.com",             bg: "#0018A8" },
-  "Western Union": { domain: "westernunion.com",   bg: "#FDBB30" },
-  PayPal:          { domain: "paypal.com",         bg: "#003087" },
-};
-
 function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-[var(--color-muted)] ${className ?? ""}`} />;
+  return <div className={`animate-pulse rounded-2xl bg-[var(--color-muted)] ${className ?? ""}`} />;
 }
 
-function ProviderCard({
-  provider,
-  index,
-  best,
-  sym,
-}: {
-  provider: { name: string; received: number; mid_market: boolean };
-  index: number;
-  best: number;
-  sym: string;
-}) {
-  const received = useCountUp(provider.received, 1400, 0, index * 120);
-  const diff = provider.received - best;
-  const pct  = Math.round((provider.received / best) * 100);
-  const isFirst = index === 0;
-  const meta = providerMeta[provider.name];
-
+function AnimatedBar({ width, color, delay = 0 }: { width: string; color: string; delay?: number }) {
+  const [w, setW] = useState("0%");
+  useEffect(() => {
+    const t = setTimeout(() => setW(width), 60 + delay);
+    return () => clearTimeout(t);
+  }, [width, delay]);
   return (
     <div
-      className="overflow-hidden rounded-2xl border bg-[var(--color-card)]"
-      style={{ borderColor: isFirst ? "var(--color-primary)" : "var(--color-border)" }}
-    >
-      <div className="flex items-center justify-between p-5">
-        <div className="flex min-w-0 items-center gap-4">
-          <div
-            className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl"
-            style={{ background: meta?.bg ?? "var(--color-muted)" }}
-          >
-            {meta && (
-              <img
-                src={`https://www.google.com/s2/favicons?domain=${meta.domain}&sz=128`}
-                alt={provider.name}
-                width={32}
-                height={32}
-                className="object-contain"
-                style={{ filter: "brightness(0) invert(1)" }}
-              />
-            )}
-          </div>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-semibold text-[var(--color-fg)]">{provider.name}</span>
-              {provider.mid_market && (
-                <span
-                  className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                  style={{ background: "rgba(61,214,140,0.12)", color: "#3DD68C" }}
-                >
-                  mid market
-                </span>
-              )}
-              {isFirst && (
-                <span
-                  className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-white"
-                  style={{ background: "var(--color-primary)" }}
-                >
-                  Best
-                </span>
-              )}
-            </div>
-            {!isFirst && (
-              <p className="mt-0.5 text-xs" style={{ color: "#f87171" }}>
-                {sym}{Math.abs(diff).toLocaleString()} less than best
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="shrink-0 text-right">
-          <p className="font-money text-xl font-bold text-[var(--color-fg)] tabular">
-            {sym}{received.toLocaleString()}
-          </p>
-          <p className="text-xs text-[var(--color-muted-fg)]">supplier receives</p>
-        </div>
-      </div>
-
-      <div className="h-1" style={{ background: "var(--color-muted)" }}>
-        <div
-          className="h-1 transition-all duration-700"
-          style={{
-            width: `${pct}%`,
-            background: isFirst ? "#3DD68C" : "var(--color-primary)",
-            opacity: isFirst ? 1 : 0.45,
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function RefValue({ value, delay = 0 }: { value: number; delay?: number }) {
-  const animated = useCountUp(value, 1200, 0, delay);
-  return (
-    <span className="font-money text-2xl font-bold text-[var(--color-fg)] tabular">
-      ${animated.toLocaleString()}
-    </span>
+      className="h-full rounded-full"
+      style={{ width: w, background: color, transition: "width 800ms cubic-bezier(0.16, 1, 0.3, 1)" }}
+    />
   );
 }
 
 export default function ComparePage() {
-  const sym = currencySymbol(MOCK_PROFILE.home_currency);
-  const d   = useAppData();
-  const best = d.bestProvider.received;
+  const sym  = currencySymbol(MOCK_PROFILE.home_currency);
+  const symF = currencySymbol(MOCK_PROFILE.supplier_currency);
+  const d    = useAppData();
+
+  const mid   = d.trueCostToday;
+  const midCount = useCountUp(mid, 1400);
 
   if (d.loading) {
     return (
-      <div className="space-y-8">
+      <div className="flex flex-col gap-6">
         <div>
-          <Skeleton className="h-9 w-56 mb-2" />
-          <Skeleton className="h-4 w-72" />
+          <Skeleton className="h-4 w-40 mb-2" />
+          <Skeleton className="h-10 w-96 mb-3" />
+          <Skeleton className="h-4 w-full max-w-2xl" />
         </div>
-        <Skeleton className="h-24 rounded-2xl" />
-        <div className="space-y-3">
-          {[0,1,2,3].map(i => <Skeleton key={i} className="h-24" />)}
-        </div>
+        <Skeleton className="h-32" />
+        <Skeleton className="h-96" />
       </div>
     );
   }
 
+  const ranked = [...d.providers].sort((a, b) => b.received - a.received);
+  const max = Math.max(mid, ...ranked.map((p) => p.received));
+  const min = Math.min(...ranked.map((p) => p.received));
+  const widthFor = (v: number) => `${30 + ((v - min) / ((max - min) || 1)) * 70}%`;
+
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="font-serif text-3xl font-normal text-[var(--color-fg)]">Compare providers</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-fg)]">
-          Ranked by what your supplier receives · {sym}{d.invoiceAmount.toLocaleString()} · EUR to CAD
+    <div className="flex flex-col gap-6">
+
+      {/* Header */}
+      <div className="hero-animate">
+        <div
+          className="text-xs font-medium uppercase tracking-wider"
+          style={{ color: "var(--color-primary)" }}
+        >
+          Compare providers
+        </div>
+        <h1 className="font-serif text-3xl md:text-4xl font-normal text-[var(--color-fg)] mt-2">
+          Ranked by what you actually receive.
+        </h1>
+        <p className="text-[var(--color-muted-fg)] mt-2 max-w-2xl">
+          The mid market bar is the ECB reference rate — what the money is truly worth today. Every bar below it is a provider taking a cut.
         </p>
       </div>
 
-      {/* ECB reference */}
-      <div className="flex items-center justify-between rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-        <div>
-          <p className="mb-1 text-xs font-medium text-[var(--color-muted-fg)]">ECB mid market reference rate</p>
-          <RefValue value={d.trueCostToday} />
-          <p className="mt-1 text-xs text-[var(--color-muted-fg)]">
-            Rate: {d.ecbRateToday.toFixed(4)} · Source: {d.rateSource}
-          </p>
+      {/* True mid-market card */}
+      <div
+        className="hero-animate rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6"
+        style={{ animationDelay: "0.1s" }}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--color-primary)" }}>
+              True mid market
+            </div>
+            <div className="mt-2 font-money text-3xl font-bold tabular text-[var(--color-fg)] leading-none">
+              {sym}{midCount.toLocaleString()}
+            </div>
+          </div>
+          <div className="text-right text-sm text-[var(--color-muted-fg)] shrink-0">
+            <p className="tabular">
+              ECB {MOCK_PROFILE.supplier_currency}/{MOCK_PROFILE.home_currency} = {d.ecbRateToday.toFixed(4)}
+            </p>
+            <p className="tabular">
+              {symF}{d.invoiceAmount.toLocaleString()} invoice
+            </p>
+          </div>
         </div>
-        <span
-          className="rounded-full px-3 py-1 text-xs font-semibold"
-          style={{ background: "rgba(61,214,140,0.12)", color: "#3DD68C" }}
+        <div
+          className="mt-4 h-3 rounded-full overflow-hidden"
+          style={{ background: "rgba(59,130,246,0.15)" }}
         >
-          Best possible
-        </span>
+          <AnimatedBar width={widthFor(mid)} color="var(--color-primary)" />
+        </div>
       </div>
 
-      {/* Provider cards */}
-      <div className="space-y-3">
-        {d.providers.map((provider, i) => (
-          <ProviderCard key={provider.name} provider={provider} index={i} best={best} sym={sym} />
-        ))}
+      {/* Providers ranked */}
+      <div
+        className="hero-animate rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6"
+        style={{ animationDelay: "0.18s" }}
+      >
+        <h2 className="font-serif text-2xl font-normal text-[var(--color-fg)]">Providers, ranked</h2>
+        <ul className="mt-5 flex flex-col gap-5">
+          {ranked.map((p, i) => {
+            const gap = mid - p.received;
+            const isMid = p.mid_market;
+            return (
+              <li key={p.name} className="flex flex-col gap-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-2">
+                    <span className="text-[var(--color-muted-fg)] tabular w-5">{i + 1}.</span>
+                    <span className="font-medium text-[var(--color-fg)]">{p.name}</span>
+                    {isMid && (
+                      <span
+                        className="text-[10px] font-semibold uppercase tracking-wider rounded px-1.5 py-0.5 border"
+                        style={{ color: "#3DD68C", borderColor: "rgba(61,214,140,0.3)" }}
+                      >
+                        mid market
+                      </span>
+                    )}
+                  </span>
+                  <span className="font-money tabular font-medium text-[var(--color-fg)]">
+                    {sym}{p.received.toLocaleString()}
+                  </span>
+                </div>
+                <div
+                  className="relative h-3 rounded-full overflow-hidden"
+                  style={{ background: "var(--color-muted)" }}
+                >
+                  <AnimatedBar
+                    width={widthFor(p.received)}
+                    color={isMid ? "#3DD68C" : "var(--color-primary)"}
+                    delay={i * 60}
+                  />
+                </div>
+                <div className="text-xs text-[var(--color-muted-fg)]">
+                  {gap > 0 ? (
+                    <>
+                      Hidden cost vs mid market:{" "}
+                      <span className="font-money tabular" style={{ color: "#f87171" }}>
+                        −{sym}{gap.toLocaleString()}
+                      </span>
+                    </>
+                  ) : (
+                    <span style={{ color: "#3DD68C" }}>At mid market — no hidden spread.</span>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
       <p className="text-xs text-[var(--color-muted-fg)]">
