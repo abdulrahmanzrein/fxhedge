@@ -105,6 +105,26 @@ body {
 }
 .slim-scroll:hover::-webkit-scrollbar-thumb { background: var(--color-muted-fg); }
 
+/* Advisor tile — decorative motes drifting up out of the green glow.
+   CSS animation so it keeps running off the main thread while the dashboard
+   fetches. Under reduced motion the boxes hold their scattered positions,
+   keeping the texture without the movement. */
+@keyframes advisor-rise {
+  0%   { transform: translateY(24px);   opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(-200px); opacity: 0; }
+}
+
+.advisor-mote {
+  animation: advisor-rise var(--rise-duration, 16s) linear var(--rise-delay, 0s) infinite;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .advisor-mote { animation: none; opacity: 1; }
+}
+
 /* Softens the last row so a long list visibly continues past the card edge */
 .fade-bottom {
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent);

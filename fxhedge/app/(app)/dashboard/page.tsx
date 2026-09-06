@@ -35,6 +35,18 @@ const DESCRIPTIONS: Record<string, string> = {
 // Fade-reveal timing (ms) — plays once per mount (fires on every navigation to /dashboard)
 const STAGGER = 95;
 
+// Advisor tile motes. Staggered so they never pulse in unison; long durations
+// keep the drift ambient rather than something that pulls the eye off the data.
+const ADVISOR_MOTES = [
+  { left: "9%",  top: "62%", size: 10, duration: 15, delay: 0,   alpha: 0.16 },
+  { left: "23%", top: "78%", size: 6,  duration: 19, delay: 3.4, alpha: 0.12 },
+  { left: "37%", top: "56%", size: 14, duration: 17, delay: 1.1, alpha: 0.09 },
+  { left: "51%", top: "84%", size: 8,  duration: 21, delay: 5.6, alpha: 0.14 },
+  { left: "64%", top: "66%", size: 11, duration: 16, delay: 2.3, alpha: 0.11 },
+  { left: "79%", top: "80%", size: 7,  duration: 20, delay: 7.2, alpha: 0.15 },
+  { left: "90%", top: "58%", size: 12, duration: 18, delay: 4.1, alpha: 0.08 },
+];
+
 /* ------------------------------------------------------------------ */
 /* Small helpers / hooks                                              */
 /* ------------------------------------------------------------------ */
@@ -390,10 +402,31 @@ export default function DashboardPage() {
             ...fade(4),
             borderColor: isDark ? "rgba(34,197,94,0.30)" : "rgba(22,163,74,0.30)",
             background: isDark
-              ? "radial-gradient(120% 120% at 100% 0%, rgba(34,197,94,0.20), transparent 55%), linear-gradient(160deg,#0F1A12,#050805)"
-              : "radial-gradient(120% 120% at 100% 0%, rgba(34,197,94,0.15), transparent 55%), linear-gradient(160deg,#ECF6E9,#F7FBF3)",
+              ? "radial-gradient(88% 58% at 50% 103%, rgba(34,197,94,0.62), rgba(34,197,94,0.20) 38%, rgba(34,197,94,0.05) 60%, transparent 78%), linear-gradient(to top, #07130A, #050505 62%)"
+              : "radial-gradient(88% 58% at 50% 103%, rgba(22,163,74,0.34), rgba(22,163,74,0.12) 38%, rgba(22,163,74,0.03) 60%, transparent 78%), linear-gradient(to top, #EAF7ED, #FFFFFF 62%)",
           }}
         >
+          {/* Decorative motes rising out of the glow */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+            {ADVISOR_MOTES.map((m, i) => (
+              <span
+                key={i}
+                className="advisor-mote absolute rounded-[3px]"
+                style={{
+                  left: m.left,
+                  top: m.top,
+                  width: m.size,
+                  height: m.size,
+                  background: isDark
+                    ? `rgba(74,222,128,${m.alpha})`
+                    : `rgba(22,163,74,${m.alpha * 0.9})`,
+                  "--rise-duration": `${m.duration}s`,
+                  "--rise-delay": `${m.delay}s`,
+                } as React.CSSProperties}
+              />
+            ))}
+          </div>
+
           <div
             className="rounded-2xl grid place-items-center relative z-10"
             style={{
