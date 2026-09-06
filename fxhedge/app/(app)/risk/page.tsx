@@ -207,7 +207,7 @@ export default function RiskPage() {
                       fontSize:     12,
                       color:        "var(--color-fg)",
                     }}
-                    formatter={(v: number) => [v.toFixed(4), "EUR/CAD"]}
+                    formatter={(v) => [(v as number).toFixed(4), "EUR/CAD"]}
                     labelFormatter={(d) =>
                       new Date(d + "T00:00:00").toLocaleDateString("en-CA", {
                         year: "numeric", month: "short", day: "numeric",

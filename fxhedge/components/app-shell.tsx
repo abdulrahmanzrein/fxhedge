@@ -171,7 +171,9 @@ export function AppShell({
 
       {/* Main content — inert when sidebar is open on mobile */}
       <div
-        {...(mobileOpen ? { inert: "" } : {})}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore — React 19 types inert as boolean but HTML spec accepts ""
+        inert={mobileOpen ? "" : undefined}
         className="flex min-w-0 flex-1 flex-col"
       >
         {/* Topbar */}

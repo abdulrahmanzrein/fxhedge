@@ -66,32 +66,41 @@ body {
   font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
-/* Hero fade-up — fires on page load */
+/* Tabular numerals utility */
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Hero fade-up — staggered via animation-delay on children */
 @keyframes hero-fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(22px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .hero-animate {
-  animation: hero-fade-up 0.75s ease both;
+  animation: hero-fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* Ambient gradient orbs — pure CSS, zero JS */
+@keyframes orb-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(-55px, 38px) scale(1.07); }
+}
+@keyframes orb-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(45px, -32px) scale(1.05); }
+}
+.orb-a { animation: orb-drift-a 13s ease-in-out infinite; }
+.orb-b { animation: orb-drift-b 17s ease-in-out infinite; }
 
 /* Scroll-reveal — toggled by IntersectionObserver */
 .scroll-reveal {
   opacity: 0;
-  transform: translateY(30px) scale(0.98);
-  transition: opacity 0.65s ease, transform 0.65s ease;
+  transform: translateY(26px);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .scroll-reveal.in-view {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -101,10 +110,10 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-
   .scroll-reveal {
     opacity: 1;
     transform: none;
     transition: none;
   }
+  .orb-a, .orb-b { animation: none; }
 }

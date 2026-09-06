@@ -67,7 +67,29 @@ export default function LandingPage() {
         <div
           className="absolute inset-0"
           style={{
-            background: "linear-gradient(to bottom, rgba(4,6,18,0.78) 0%, rgba(4,6,18,0.55) 45%, rgba(4,6,18,0.75) 85%, rgba(4,6,18,0.95) 100%)",
+            background: "linear-gradient(to bottom, rgba(4,6,18,0.80) 0%, rgba(4,6,18,0.55) 45%, rgba(4,6,18,0.78) 85%, rgba(4,6,18,0.97) 100%)",
+          }}
+        />
+        {/* Radial blue glow at top */}
+        <div
+          className="absolute inset-x-0 top-0 h-[55vh] pointer-events-none"
+          style={{ background: "radial-gradient(ellipse 75% 55% at 50% 0%, rgba(59,130,246,0.20) 0%, transparent 70%)" }}
+        />
+        {/* Ambient gradient orbs */}
+        <div
+          className="orb-a absolute pointer-events-none"
+          style={{ left: "8%", top: "18%", width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)", filter: "blur(72px)" }}
+        />
+        <div
+          className="orb-b absolute pointer-events-none"
+          style={{ right: "6%", bottom: "22%", width: 380, height: 380, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)", filter: "blur(90px)" }}
+        />
+        {/* Grainy noise texture */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            opacity: 0.032,
+            backgroundImage: `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>")`,
           }}
         />
 
