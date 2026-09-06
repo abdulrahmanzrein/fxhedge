@@ -89,6 +89,52 @@ body {
 /* Tabular numerals utility */
 .tabular { font-variant-numeric: tabular-nums; }
 
+/* Horizontal scroll without a visible scrollbar (market ticker) */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Slim themed scrollbar. Deliberately no `scrollbar-width`: it makes Chrome
+   fall back to an overlay bar that stays invisible until you scroll, which
+   hid the fact that these lists had more rows below the fold. */
+.slim-scroll { scrollbar-color: var(--color-border) transparent; }
+.slim-scroll::-webkit-scrollbar { width: 6px; }
+.slim-scroll::-webkit-scrollbar-track { background: transparent; }
+.slim-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+.slim-scroll:hover::-webkit-scrollbar-thumb { background: var(--color-muted-fg); }
+
+/* Advisor tile — decorative motes drifting up out of the green glow.
+   CSS animation so it keeps running off the main thread while the dashboard
+   fetches. Under reduced motion the boxes hold their scattered positions,
+   keeping the texture without the movement. */
+@keyframes advisor-rise {
+  0%   { transform: translateY(24px);   opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(-200px); opacity: 0; }
+}
+
+.advisor-mote {
+  animation: advisor-rise var(--rise-duration, 16s) linear var(--rise-delay, 0s) infinite;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .advisor-mote { animation: none; opacity: 1; }
+}
+
+/* Softens the last row so a long list visibly continues past the card edge */
+.fade-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-bottom { -webkit-mask-image: none; mask-image: none; }
+}
+
 /* Hero fade-up — staggered via animation-delay on children */
 @keyframes hero-fade-up {
   from { opacity: 0; transform: translateY(22px); }

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useInvoice, type Invoice } from "@/hooks/use-invoice";
+import { useInvoice, todayIsoDate, type Invoice } from "@/hooks/use-invoice";
 import { currencySymbol } from "@/lib/fixtures";
 import { usePageFade } from "@/components/page-fade";
 import { ArrowRight, Clock, Trash2, FileText, Upload, Sparkles } from "lucide-react";
@@ -75,6 +75,7 @@ export default function TransferPage() {
   const [amount, setAmount] = useState(12000);
   const [days,   setDays]   = useState(21);
   const [label,  setLabel]  = useState("");
+  const [invoicedOn, setInvoicedOn] = useState(todayIsoDate);
 
   // PDF drop / extract
   const [dragActive, setDragActive] = useState(false);
@@ -140,6 +141,7 @@ export default function TransferPage() {
     const inv: Invoice = {
       id:     newId(),
       amount, from, to, days,
+      invoicedOn: invoicedOn || todayIsoDate(),
       label:  label.trim() || `${from}→${to} invoice`,
       savedAt: new Date().toISOString(),
     };
@@ -292,6 +294,17 @@ export default function TransferPage() {
           </Field>
 
           <div className="grid grid-cols-2 gap-4">
+            <Field label="Invoice date" htmlFor="inv-date">
+              <input
+                id="inv-date"
+                type="date"
+                required
+                max={todayIsoDate()}
+                value={invoicedOn}
+                onChange={(e) => setInvoicedOn(e.target.value)}
+                className={inputCls + " tabular"}
+              />
+            </Field>
             <Field label="Days until due" htmlFor="inv-days">
               <input
                 id="inv-days"
@@ -304,17 +317,23 @@ export default function TransferPage() {
                 className={inputCls + " tabular"}
               />
             </Field>
-            <Field label="Label (optional)" htmlFor="inv-label">
-              <input
-                id="inv-label"
-                type="text"
-                value={label}
-                onChange={(e) => setLabel(e.target.value)}
-                placeholder="Q3 supplier invoice"
-                className={inputCls}
-              />
-            </Field>
           </div>
+
+          <p className="-mt-1 text-[11px] leading-relaxed text-[var(--color-muted-fg)]">
+            The invoice date sets what the rate is compared against. Days until due sets how long
+            you are still exposed.
+          </p>
+
+          <Field label="Label (optional)" htmlFor="inv-label">
+            <input
+              id="inv-label"
+              type="text"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="Q3 supplier invoice"
+              className={inputCls}
+            />
+          </Field>
 
           {from === to && (
             <p className="text-xs" style={{ color: "#f87171" }}>Pick two different currencies.</p>

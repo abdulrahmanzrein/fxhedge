@@ -8,7 +8,7 @@ import { useAppData } from "@/hooks/use-app-data";
 import { useUser } from "@/hooks/use-user";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  CartesianGrid, ReferenceLine, PieChart, Pie, Cell,
+  CartesianGrid, ReferenceLine,
 } from "recharts";
 import { Bot, Sparkles, ArrowRight, TrendingUp } from "lucide-react";
 
@@ -16,11 +16,36 @@ import { Bot, Sparkles, ArrowRight, TrendingUp } from "lucide-react";
 /* Config                                                              */
 /* ------------------------------------------------------------------ */
 
-const TOP_N = 3;                                   // banks shown in Compare + Cost breakdown
-const SLICE_COLORS = ["#10B981", "#F59E0B", "#EA580C"]; // best -> worst (green -> orange)
+// Rank -> opacity for the spread bar. One hue from the theme, so the scale stays
+// on-palette. Intensity rises with rank: the worst provider loses the most and
+// reads the strongest, the best barely registers.
+function rankOpacity(i: number, n: number): number {
+  if (n <= 1) return 1;
+  return 0.32 + (i / (n - 1)) * 0.68;
+}
+
+const DESCRIPTIONS: Record<string, string> = {
+  Wise:            "Real mid market rate with a transparent flat fee. Best for small businesses.",
+  Instarem:        "Regulated remittance provider. Small spread on top of mid market.",
+  "Deutsche Bank": "Traditional bank wire. Bakes the FX spread into the exchange rate.",
+  "Western Union": "Retail remittance service. Widest spread of the tested providers.",
+  PayPal:          "Consumer payment platform. Adds a large FX conversion margin.",
+};
 
 // Fade-reveal timing (ms) — plays once per mount (fires on every navigation to /dashboard)
 const STAGGER = 95;
+
+// Advisor tile motes. Staggered so they never pulse in unison; long durations
+// keep the drift ambient rather than something that pulls the eye off the data.
+const ADVISOR_MOTES = [
+  { left: "9%",  top: "62%", size: 10, duration: 15, delay: 0,   alpha: 0.16 },
+  { left: "23%", top: "78%", size: 6,  duration: 19, delay: 3.4, alpha: 0.12 },
+  { left: "37%", top: "56%", size: 14, duration: 17, delay: 1.1, alpha: 0.09 },
+  { left: "51%", top: "84%", size: 8,  duration: 21, delay: 5.6, alpha: 0.14 },
+  { left: "64%", top: "66%", size: 11, duration: 16, delay: 2.3, alpha: 0.11 },
+  { left: "79%", top: "80%", size: 7,  duration: 20, delay: 7.2, alpha: 0.15 },
+  { left: "90%", top: "58%", size: 12, duration: 18, delay: 4.1, alpha: 0.08 },
+];
 
 /* ------------------------------------------------------------------ */
 /* Small helpers / hooks                                              */
@@ -91,6 +116,7 @@ export default function DashboardPage() {
   // ---- fade-reveal state (plays once per mount) ----
   const [visible, setVisible] = useState(false);
   const [cycle, setCycle] = useState(0);
+  const [openProvider, setOpenProvider] = useState<string | null>(null);
 
   useEffect(() => {
     if (d.loading) return;
@@ -108,14 +134,16 @@ export default function DashboardPage() {
   // ---- derived data (safe with fallback while loading) ----
   const sym = currencySymbol(MOCK_PROFILE.home_currency);
   const mid = d.trueCostToday;
-  const ranked = [...d.providers].sort((a, b) => b.received - a.received).slice(0, TOP_N);
+  const ranked = [...d.providers].sort((a, b) => b.received - a.received);
   const minR = Math.min(...ranked.map((p) => p.received), mid);
   const widthFor = (v: number) => `${30 + ((v - minR) / ((mid - minR) || 1)) * 70}%`;
 
   const slices = ranked.map((p, i) => ({
     name: p.name,
+    received: p.received,
     markup: Math.max(1, mid - p.received),
-    color: SLICE_COLORS[i % SLICE_COLORS.length],
+    opacity: rankOpacity(i, ranked.length),
+    description: DESCRIPTIONS[p.name] ?? "Provider quote from Wise Comparison API.",
   }));
   const totalSpread = slices.reduce((s, x) => s + x.markup, 0);
 
@@ -140,12 +168,39 @@ export default function DashboardPage() {
   const chartData = d.rateHistory.length ? d.rateHistory : [{ day: "…", rate: d.ecbRateToday }];
   const money = (n: number) => `${sym}${Math.round(n).toLocaleString()}`;
 
+  // Cost breakdown rows — every value carries its source, as the old /cost page did.
+  const breakdown = [
+    {
+      label: "Invoice amount",
+      note: "your input",
+      value: `${currencySymbol(d.fromCurrency)}${d.invoiceAmount.toLocaleString()}`,
+    },
+    { label: "ECB mid market rate", note: d.rateSource, value: d.ecbRateToday.toFixed(4) },
+    { label: "True mid market cost", note: "invoice × rate", value: money(mid) },
+    {
+      label: `Best — ${d.bestProvider.name}`,
+      note: "Wise Comparison API",
+      value: money(d.bestProvider.received),
+    },
+    {
+      label: `Worst — ${d.worstProvider.name}`,
+      note: "Wise Comparison API",
+      value: money(d.worstProvider.received),
+    },
+    {
+      label: "Saving by switching",
+      note: "best vs worst",
+      value: money(d.savingVsWorst),
+      good: true,
+    },
+  ];
+
   const card =
     "rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 flex flex-col min-h-0 overflow-hidden";
 
   return (
     // Adjust the calc() offset to match your app-shell header height so it fits one screen.
-    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-2rem)]">
+    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-4.75rem)]">
 
       {/* Header — greeting + name, then invoice summary */}
       <header style={fade(0)}>
@@ -172,7 +227,7 @@ export default function DashboardPage() {
         {/* 1 — Compare banks (top N) */}
         <section className={card} style={fade(1)}>
           <span className="text-xs font-medium text-[var(--color-muted-fg)]">
-            Compare banks · top {TOP_N}, ranked by what your supplier receives
+            Compare banks · {ranked.length} providers · scroll for all, tap a row for detail
           </span>
 
           <div className="flex items-end justify-between gap-3 pb-3 mt-1 border-b border-[var(--color-border)]">
@@ -181,7 +236,7 @@ export default function DashboardPage() {
               <div className="font-money text-3xl font-bold tabular text-[var(--color-fg)] leading-none mt-2">
                 {money(midAnim)}
               </div>
-              <div className="h-[7px] rounded-full overflow-hidden mt-2" style={{ background: "rgba(255,255,255,.06)" }}>
+              <div className="h-[7px] rounded-full overflow-hidden mt-2 bg-[var(--color-muted)]">
                 <AnimatedBar width="100%" color="var(--color-primary)" cycle={cycle} reduced={reduced} />
               </div>
             </div>
@@ -191,31 +246,61 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <ul className="mt-4 flex flex-col gap-4 overflow-hidden">
+          <ul className="slim-scroll fade-bottom mt-4 flex flex-1 min-h-0 flex-col gap-4 overflow-y-auto pr-2">
             {ranked.map((p, i) => {
               const gap = mid - p.received;
               const isBest = i === 0;
+              const open = openProvider === p.name;
               return (
                 <li key={p.name} className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2">
-                      <span className="text-[var(--color-muted-fg)] tabular w-4 text-xs">{i + 1}</span>
-                      <span className="font-medium text-[var(--color-fg)]">{p.name}</span>
+                  <button
+                    onClick={() => setOpenProvider(open ? null : p.name)}
+                    aria-expanded={open}
+                    className="flex items-center justify-between gap-2 text-left text-sm transition-opacity hover:opacity-80"
+                  >
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="w-4 shrink-0 text-xs tabular text-[var(--color-muted-fg)]">{i + 1}</span>
+                      <span className="truncate font-medium text-[var(--color-fg)]">{p.name}</span>
                       {isBest && (
-                        <span className="text-[9px] font-bold uppercase tracking-wider rounded px-1.5 py-0.5 border"
-                          style={{ color: "#3DD68C", borderColor: "rgba(61,214,140,.3)" }}>mid market</span>
+                        <span
+                          className="shrink-0 rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+                          style={{ color: "var(--color-primary)", borderColor: "var(--color-primary)" }}
+                        >
+                          mid market
+                        </span>
                       )}
                     </span>
-                    <span className="font-money tabular text-[var(--color-fg)]">{money(p.received)}</span>
+                    <span className="shrink-0 font-money tabular text-[var(--color-fg)]">{money(p.received)}</span>
+                  </button>
+
+                  <div className="h-[7px] overflow-hidden rounded-full bg-[var(--color-muted)]">
+                    <AnimatedBar
+                      width={widthFor(p.received)}
+                      color="var(--color-primary)"
+                      cycle={cycle}
+                      reduced={reduced}
+                      delay={i * 60}
+                    />
                   </div>
-                  <div className="h-[7px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,.06)" }}>
-                    <AnimatedBar width={widthFor(p.received)} color={isBest ? "#3DD68C" : "var(--color-primary)"} cycle={cycle} reduced={reduced} delay={i * 80} />
-                  </div>
+
                   <div className="text-[11px] text-[var(--color-muted-fg)]">
-                    {gap > 0
-                      ? <>Hidden cost vs mid market: <span className="font-money tabular" style={{ color: "#f87171" }}>−{money(gap)}</span></>
-                      : <span style={{ color: "#3DD68C" }}>At mid market. No hidden spread.</span>}
+                    {gap > 0 ? (
+                      <>
+                        Hidden cost vs mid market:{" "}
+                        <span className="font-money tabular" style={{ color: "var(--color-negative)" }}>
+                          −{money(gap)}
+                        </span>
+                      </>
+                    ) : (
+                      <span style={{ color: "var(--color-primary)" }}>At mid market. No hidden spread.</span>
+                    )}
                   </div>
+
+                  {open && (
+                    <p className="rounded-lg bg-[var(--color-muted)] px-3 py-2 text-[11px] leading-relaxed text-[var(--color-muted-fg)]">
+                      {DESCRIPTIONS[p.name] ?? "Provider quote from Wise Comparison API."}
+                    </p>
+                  )}
                 </li>
               );
             })}
@@ -262,40 +347,52 @@ export default function DashboardPage() {
         {/* 3 — Cost breakdown (same top N) */}
         <section className={card} style={fade(3)}>
           <span className="text-xs font-medium text-[var(--color-muted-fg)]">Cost breakdown · where your margin goes</span>
-          <div className="flex items-center gap-4 flex-1 min-h-0 mt-2">
-            <div className="relative shrink-0" style={{ width: 150, height: 150 }}>
-              <ResponsiveContainer key={cycle} width="100%" height="100%">
-                <PieChart>
-                  <Pie data={slices} dataKey="markup" nameKey="name" cx="50%" cy="50%"
-                    innerRadius="60%" outerRadius="90%" paddingAngle={2} strokeWidth={0}
-                    animationDuration={1000} animationEasing="ease-out">
-                    {slices.map((s, i) => <Cell key={i} fill={s.color} />)}
-                  </Pie>
-                  <Tooltip content={<SpreadTooltip money={money} />} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                <span className="text-[9px] uppercase tracking-wider text-[var(--color-muted-fg)]">Spread lost</span>
-                <span className="font-money font-bold text-xl tabular mt-0.5" style={{ color: "#f87171" }}>
-                  {money(spreadAnim)}
-                </span>
-              </div>
+
+          <div className="mt-2">
+            <div className="font-money text-3xl font-bold leading-none tabular" style={{ color: "var(--color-negative)" }}>
+              {money(spreadAnim)}
             </div>
-            <ul className="flex-1 min-w-0 flex flex-col gap-3">
-              {slices.map((s) => {
-                const pct = ((s.markup / totalSpread) * 100).toFixed(1);
-                return (
-                  <li key={s.name} className="flex items-center gap-2.5 text-[12.5px]">
-                    <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: s.color }} />
-                    <span className="flex-1 text-[var(--color-fg)]">{s.name}</span>
-                    <span className="font-money tabular text-[var(--color-fg)]">
-                      {money(s.markup)}<span className="text-[var(--color-muted-fg)] text-[11px] ml-1">({pct}%)</span>
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
+            <p className="mt-1.5 text-[11px] text-[var(--color-muted-fg)]">
+              total spread lost across {slices.length} providers vs the ECB mid market
+            </p>
           </div>
+
+          {/* Spread distribution — each segment sized by that provider's cut */}
+          <div className="mt-4 flex h-3 gap-[2px] overflow-hidden rounded-full">
+            {slices.map((s) => (
+              <span
+                key={s.name}
+                className="min-w-[3px] rounded-[2px]"
+                style={{
+                  flex: `${s.markup} 1 0`,
+                  background: "var(--color-negative)",
+                  opacity: s.opacity,
+                }}
+                title={`${s.name}: ${money(s.markup)} lost`}
+              />
+            ))}
+          </div>
+          <p className="mt-2 text-[11px] text-[var(--color-muted-fg)]">
+            Best to worst, left to right. Full list in Compare banks.
+          </p>
+
+          {/* Every figure labelled with where it came from */}
+          <dl className="mt-4 flex flex-1 min-h-0 flex-col justify-between gap-1 border-t border-[var(--color-border)] pt-3 text-[12px]">
+            {breakdown.map((row) => (
+              <div key={row.label} className="flex items-baseline justify-between gap-3">
+                <dt className="min-w-0">
+                  <span className="block truncate text-[var(--color-fg)]">{row.label}</span>
+                  <span className="block text-[10.5px] text-[var(--color-muted-fg)]">{row.note}</span>
+                </dt>
+                <dd
+                  className="shrink-0 font-money tabular font-semibold"
+                  style={{ color: row.good ? "var(--color-primary)" : "var(--color-fg)" }}
+                >
+                  {row.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </section>
 
         {/* 4 — HalalFlow AI Advisor */}
@@ -305,10 +402,31 @@ export default function DashboardPage() {
             ...fade(4),
             borderColor: isDark ? "rgba(34,197,94,0.30)" : "rgba(22,163,74,0.30)",
             background: isDark
-              ? "radial-gradient(120% 120% at 100% 0%, rgba(34,197,94,0.20), transparent 55%), linear-gradient(160deg,#0F1A12,#050805)"
-              : "radial-gradient(120% 120% at 100% 0%, rgba(34,197,94,0.15), transparent 55%), linear-gradient(160deg,#ECF6E9,#F7FBF3)",
+              ? "radial-gradient(88% 58% at 50% 103%, rgba(34,197,94,0.62), rgba(34,197,94,0.20) 38%, rgba(34,197,94,0.05) 60%, transparent 78%), linear-gradient(to top, #07130A, #050505 62%)"
+              : "radial-gradient(88% 58% at 50% 103%, rgba(22,163,74,0.34), rgba(22,163,74,0.12) 38%, rgba(22,163,74,0.03) 60%, transparent 78%), linear-gradient(to top, #EAF7ED, #FFFFFF 62%)",
           }}
         >
+          {/* Decorative motes rising out of the glow */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+            {ADVISOR_MOTES.map((m, i) => (
+              <span
+                key={i}
+                className="advisor-mote absolute rounded-[3px]"
+                style={{
+                  left: m.left,
+                  top: m.top,
+                  width: m.size,
+                  height: m.size,
+                  background: isDark
+                    ? `rgba(74,222,128,${m.alpha})`
+                    : `rgba(22,163,74,${m.alpha * 0.9})`,
+                  "--rise-duration": `${m.duration}s`,
+                  "--rise-delay": `${m.delay}s`,
+                } as React.CSSProperties}
+              />
+            ))}
+          </div>
+
           <div
             className="rounded-2xl grid place-items-center relative z-10"
             style={{
@@ -366,25 +484,10 @@ function RateTooltip({ active, payload, label, sym, invoiceAmount }: any) {
   );
 }
 
-function SpreadTooltip({ active, payload, money }: any) {
-  if (!active || !payload?.length) return null;
-  const p = payload[0].payload;
-  return (
-    <div className="rounded-xl border px-3 py-2 text-xs shadow-lg"
-      style={{ background: "var(--color-card)", borderColor: "var(--color-border)" }}>
-      <div className="flex items-center gap-2">
-        <span className="h-2.5 w-2.5 rounded-full" style={{ background: p.color }} />
-        <span className="font-semibold text-[var(--color-fg)]">{p.name}</span>
-      </div>
-      <p className="mt-1" style={{ color: p.color }}>Loses {money(p.markup)} vs mid market</p>
-    </div>
-  );
-}
-
 function DashboardSkeleton() {
   const box = "animate-pulse rounded-2xl bg-[var(--color-muted)]";
   return (
-    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-2rem)]">
+    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-4.75rem)]">
       <div className={`${box} h-12 w-64`} />
       <div className="grid gap-4 flex-1 min-h-0 lg:grid-cols-[1fr_1.12fr] lg:grid-rows-2">
         <div className={box} /><div className={box} /><div className={box} /><div className={box} />

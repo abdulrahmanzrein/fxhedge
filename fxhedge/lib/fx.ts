@@ -189,3 +189,90 @@ export async function fetchLatestRateWithFallback(
     throw primaryError;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Ticker — many pairs from a single upstream call
+// ---------------------------------------------------------------------------
+
+export const TICKER_PAIRS = [
+  "EUR-CAD",
+  "USD-CAD",
+  "GBP-CAD",
+  "EUR-USD",
+  "GBP-EUR",
+  "AUD-CAD",
+  "CHF-CAD",
+] as const;
+
+export interface TickerQuote {
+  pair: string;
+  from: string;
+  to: string;
+  rate: number;
+  change_pct: number;
+  spark: number[];
+}
+
+/**
+ * Derive a FROM-TO daily series from EUR-based quotes. The ECB publishes
+ * everything against EUR, so any cross rate is just to/from on each day.
+ */
+export function crossSeries(
+  daily: Record<string, Record<string, number>>,
+  from: string,
+  to: string,
+): number[] {
+  const out: number[] = [];
+  for (const date of Object.keys(daily).sort()) {
+    const q = daily[date];
+    const f = from === "EUR" ? 1 : q?.[from];
+    const t = to === "EUR" ? 1 : q?.[to];
+    if (typeof f !== "number" || typeof t !== "number" || f <= 0) continue;
+    out.push(t / f);
+  }
+  return out;
+}
+
+/** Percent change between the first and last observation of a series. */
+export function seriesChangePct(series: number[]): number {
+  if (series.length < 2 || series[0] <= 0) return 0;
+  return ((series[series.length - 1] - series[0]) / series[0]) * 100;
+}
+
+/** Latest rate + trailing change + sparkline for each pair. */
+export async function fetchTicker(
+  pairs: readonly string[] = TICKER_PAIRS,
+  days = 30,
+): Promise<TickerQuote[]> {
+  const parsed = pairs
+    .map(parsePair)
+    .filter((p): p is { from: string; to: string } => p !== null);
+  const symbols = [
+    ...new Set(parsed.flatMap((p) => [p.from, p.to])),
+  ].filter((c) => c !== "EUR");
+
+  const end = todayIso();
+  const start = addDaysIso(end, days);
+  const url = `${FRANKFURTER_BASE}/${start}..${end}?from=EUR&to=${symbols.join(",")}`;
+  const res = await fetch(url, { next: { revalidate: LATEST_REVALIDATE } });
+  if (!res.ok) throw new Error(`Frankfurter timeseries failed: ${res.status}`);
+  const json = (await res.json()) as {
+    rates?: Record<string, Record<string, number>>;
+  };
+  const daily = json.rates ?? {};
+
+  const quotes: TickerQuote[] = [];
+  for (const { from, to } of parsed) {
+    const series = crossSeries(daily, from, to);
+    if (series.length === 0) continue;
+    quotes.push({
+      pair: `${from}-${to}`,
+      from,
+      to,
+      rate: series[series.length - 1],
+      change_pct: seriesChangePct(series),
+      spark: series.slice(-24),
+    });
+  }
+  return quotes;
+}

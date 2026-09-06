@@ -6,8 +6,6 @@ import { signOutAction } from "@/app/(auth)/actions";
 import {
   LayoutDashboard,
   ArrowLeftRight,
-  BarChart2,
-  GitCompare,
   TrendingUp,
   Shield,
   Scale,
@@ -18,13 +16,12 @@ import {
 } from "lucide-react";
 import { ChatWidget } from "@/components/chat-widget";
 import { HalalFlowLogo } from "@/components/halalflow-logo";
+import { MarketTicker } from "@/components/market-ticker";
 import { useState, useRef, useEffect, forwardRef } from "react";
 
 const workspaceNav = [
   { href: "/dashboard",  label: "Dashboard",          icon: LayoutDashboard },
   { href: "/transfer",   label: "New transfer",        icon: ArrowLeftRight  },
-  { href: "/cost",       label: "Cost breakdown",      icon: BarChart2       },
-  { href: "/compare",    label: "Compare providers",   icon: GitCompare      },
   { href: "/risk",       label: "Risk explorer",       icon: TrendingUp      },
   { href: "/breakeven",  label: "Breakeven & hedge",   icon: Target          },
 ];
@@ -202,6 +199,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         >
           <Menu size={18} />
         </button>
+
+        <MarketTicker />
 
         <main id="main-content" className="flex-1 overflow-y-auto">
           <div className="mx-auto max-w-[1180px] px-6 py-4">{children}</div>
