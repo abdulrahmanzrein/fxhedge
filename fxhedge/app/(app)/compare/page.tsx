@@ -68,44 +68,37 @@ export default function ComparePage() {
         </p>
       </div>
 
-      {/* True mid-market card */}
+      {/* Combined ranking card — ECB reference sits at top, providers below */}
       <div
         className="hero-animate rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6"
         style={{ animationDelay: "0.1s" }}
       >
-        <div className="flex items-start justify-between gap-4">
-          <div>
+        {/* ECB mid-market reference */}
+        <div className="flex items-start justify-between gap-4 pb-5 border-b border-[var(--color-border)]">
+          <div className="min-w-0">
             <div className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--color-primary)" }}>
               True mid market
             </div>
             <div className="mt-2 font-money text-3xl font-bold tabular text-[var(--color-fg)] leading-none">
               {sym}{midCount.toLocaleString()}
             </div>
+            <div className="mt-3 h-2 rounded-full overflow-hidden" style={{ background: "rgba(59,130,246,0.15)" }}>
+              <AnimatedBar width={widthFor(mid)} color="var(--color-primary)" />
+            </div>
           </div>
-          <div className="text-right text-sm text-[var(--color-muted-fg)] shrink-0">
+          <div className="text-right text-xs text-[var(--color-muted-fg)] shrink-0">
             <p className="tabular">
-              ECB {MOCK_PROFILE.supplier_currency}/{MOCK_PROFILE.home_currency} = {d.ecbRateToday.toFixed(4)}
+              ECB {d.fromCurrency}/{d.toCurrency} = {d.ecbRateToday.toFixed(4)}
             </p>
-            <p className="tabular">
+            <p className="tabular mt-0.5">
               {symF}{d.invoiceAmount.toLocaleString()} invoice
             </p>
           </div>
         </div>
-        <div
-          className="mt-4 h-3 rounded-full overflow-hidden"
-          style={{ background: "rgba(59,130,246,0.15)" }}
-        >
-          <AnimatedBar width={widthFor(mid)} color="var(--color-primary)" />
-        </div>
-      </div>
 
-      {/* Providers ranked */}
-      <div
-        className="hero-animate rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6"
-        style={{ animationDelay: "0.18s" }}
-      >
-        <h2 className="font-serif text-2xl font-normal text-[var(--color-fg)]">Providers, ranked</h2>
-        <ul className="mt-5 flex flex-col gap-5">
+        {/* Providers ranked */}
+        <h2 className="mt-5 font-serif text-xl font-normal text-[var(--color-fg)]">Providers, ranked</h2>
+        <ul className="mt-4 flex flex-col gap-5">
           {ranked.map((p, i) => {
             const gap = mid - p.received;
             const isMid = p.mid_market;
