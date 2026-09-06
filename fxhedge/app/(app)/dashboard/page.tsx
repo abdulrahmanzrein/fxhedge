@@ -6,6 +6,7 @@ import { useTheme } from "next-themes";
 import { MOCK_PROFILE, currencySymbol } from "@/lib/fixtures";
 import { useAppData } from "@/hooks/use-app-data";
 import { useUser } from "@/hooks/use-user";
+import { VerdictStrip } from "@/components/dashboard/verdict-strip";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, ReferenceLine,
@@ -229,6 +230,10 @@ export default function DashboardPage() {
           supplier invoice, <span className="tabular">{d.daysUntilDue}</span> days on terms.
         </p>
       </header>
+
+      <div style={fade(1)}>
+        <VerdictStrip d={d} />
+      </div>
 
       <div className="grid gap-4 flex-1 min-h-0 lg:grid-cols-[1fr_1.12fr] lg:grid-rows-2">
 
