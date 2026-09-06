@@ -16,11 +16,12 @@ import { Bot, Sparkles, ArrowRight, TrendingUp } from "lucide-react";
 /* Config                                                              */
 /* ------------------------------------------------------------------ */
 
-// Rank -> opacity. One hue from the theme, faded by position, so the scale
-// stays on-palette in both themes instead of introducing amber/orange.
+// Rank -> opacity for the spread bar. One hue from the theme, so the scale stays
+// on-palette. Intensity rises with rank: the worst provider loses the most and
+// reads the strongest, the best barely registers.
 function rankOpacity(i: number, n: number): number {
   if (n <= 1) return 1;
-  return 1 - (i / (n - 1)) * 0.68;
+  return 0.32 + (i / (n - 1)) * 0.68;
 }
 
 const DESCRIPTIONS: Record<string, string> = {
@@ -155,6 +156,33 @@ export default function DashboardPage() {
   const chartData = d.rateHistory.length ? d.rateHistory : [{ day: "…", rate: d.ecbRateToday }];
   const money = (n: number) => `${sym}${Math.round(n).toLocaleString()}`;
 
+  // Cost breakdown rows — every value carries its source, as the old /cost page did.
+  const breakdown = [
+    {
+      label: "Invoice amount",
+      note: "your input",
+      value: `${currencySymbol(d.fromCurrency)}${d.invoiceAmount.toLocaleString()}`,
+    },
+    { label: "ECB mid market rate", note: d.rateSource, value: d.ecbRateToday.toFixed(4) },
+    { label: "True mid market cost", note: "invoice × rate", value: money(mid) },
+    {
+      label: `Best — ${d.bestProvider.name}`,
+      note: "Wise Comparison API",
+      value: money(d.bestProvider.received),
+    },
+    {
+      label: `Worst — ${d.worstProvider.name}`,
+      note: "Wise Comparison API",
+      value: money(d.worstProvider.received),
+    },
+    {
+      label: "Saving by switching",
+      note: "best vs worst",
+      value: money(d.savingVsWorst),
+      good: true,
+    },
+  ];
+
   const card =
     "rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 flex flex-col min-h-0 overflow-hidden";
 
@@ -187,7 +215,7 @@ export default function DashboardPage() {
         {/* 1 — Compare banks (top N) */}
         <section className={card} style={fade(1)}>
           <span className="text-xs font-medium text-[var(--color-muted-fg)]">
-            Compare banks · {ranked.length} providers, ranked by what your supplier receives
+            Compare banks · {ranked.length} providers · scroll for all, tap a row for detail
           </span>
 
           <div className="flex items-end justify-between gap-3 pb-3 mt-1 border-b border-[var(--color-border)]">
@@ -206,7 +234,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <ul className="slim-scroll mt-4 flex flex-1 min-h-0 flex-col gap-4 overflow-y-auto pr-2">
+          <ul className="slim-scroll fade-bottom mt-4 flex flex-1 min-h-0 flex-col gap-4 overflow-y-auto pr-2">
             {ranked.map((p, i) => {
               const gap = mid - p.received;
               const isBest = i === 0;
@@ -336,25 +364,22 @@ export default function DashboardPage() {
             Best to worst, left to right. Full list in Compare banks.
           </p>
 
-          <dl className="mt-auto flex flex-col gap-2.5 border-t border-[var(--color-border)] pt-4 text-[12px]">
-            <div className="flex items-center justify-between gap-2">
-              <dt className="text-[var(--color-muted-fg)]">Invoice amount</dt>
-              <dd className="font-money tabular text-[var(--color-fg)]">
-                {currencySymbol(d.fromCurrency)}{d.invoiceAmount.toLocaleString()}
-              </dd>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <dt className="text-[var(--color-muted-fg)]">True mid market cost</dt>
-              <dd className="font-money tabular text-[var(--color-fg)]">{money(mid)}</dd>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <dt className="text-[var(--color-muted-fg)]">
-                Saving with {d.bestProvider.name} vs {d.worstProvider.name}
-              </dt>
-              <dd className="font-money font-semibold tabular" style={{ color: "var(--color-primary)" }}>
-                {money(d.savingVsWorst)}
-              </dd>
-            </div>
+          {/* Every figure labelled with where it came from */}
+          <dl className="mt-4 flex flex-1 min-h-0 flex-col justify-between gap-1 border-t border-[var(--color-border)] pt-3 text-[12px]">
+            {breakdown.map((row) => (
+              <div key={row.label} className="flex items-baseline justify-between gap-3">
+                <dt className="min-w-0">
+                  <span className="block truncate text-[var(--color-fg)]">{row.label}</span>
+                  <span className="block text-[10.5px] text-[var(--color-muted-fg)]">{row.note}</span>
+                </dt>
+                <dd
+                  className="shrink-0 font-money tabular font-semibold"
+                  style={{ color: row.good ? "var(--color-primary)" : "var(--color-fg)" }}
+                >
+                  {row.value}
+                </dd>
+              </div>
+            ))}
           </dl>
         </section>
 

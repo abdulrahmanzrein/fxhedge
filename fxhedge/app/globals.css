@@ -93,8 +93,10 @@ body {
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* Slim themed scrollbar — keeps long in-card lists obviously scrollable */
-.slim-scroll { scrollbar-width: thin; scrollbar-color: var(--color-border) transparent; }
+/* Slim themed scrollbar. Deliberately no `scrollbar-width`: it makes Chrome
+   fall back to an overlay bar that stays invisible until you scroll, which
+   hid the fact that these lists had more rows below the fold. */
+.slim-scroll { scrollbar-color: var(--color-border) transparent; }
 .slim-scroll::-webkit-scrollbar { width: 6px; }
 .slim-scroll::-webkit-scrollbar-track { background: transparent; }
 .slim-scroll::-webkit-scrollbar-thumb {
@@ -102,6 +104,16 @@ body {
   border-radius: 3px;
 }
 .slim-scroll:hover::-webkit-scrollbar-thumb { background: var(--color-muted-fg); }
+
+/* Softens the last row so a long list visibly continues past the card edge */
+.fade-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-bottom { -webkit-mask-image: none; mask-image: none; }
+}
 
 /* Hero fade-up — staggered via animation-delay on children */
 @keyframes hero-fade-up {
