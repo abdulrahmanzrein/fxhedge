@@ -4,3 +4,13 @@ skills-lock.json
 context/
 build/
 awesome-claude-skills/
+
+# Internal coordination and draft collateral
+SYNC-PROTOCOL.md
+GIT-WORKFLOW.md
+dev1_CONTEXT.md
+dev2_CONTEXT.md
+halalflow-pitch*
+halalflow-deck/
+.playwright-mcp/
+.DS_Store
