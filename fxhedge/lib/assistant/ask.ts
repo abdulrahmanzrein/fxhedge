@@ -1,20 +1,21 @@
 import "server-only";
+import Anthropic from "@anthropic-ai/sdk";
 import { ASSISTANT_SYSTEM_PROMPT } from "./prompt";
 
 /**
- * lib/assistant/ask.ts — server-side Gemini call (PRD FR-6).
+ * lib/assistant/ask.ts — server-side Claude call (PRD FR-6).
  * The API key NEVER reaches the client. Guardrails live in the prompt.
  */
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+// Cheapest model in the current lineup ($1/$5 per MTok), which is what this
+// assistant needs: it answers from the system prompt, not from reasoning.
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5";
 
 /**
- * maxOutputTokens covers reasoning AND the reply, so an unbounded think can eat
- * the whole budget and truncate the answer mid-sentence. Cap the thinking and
- * leave the rest for prose.
+ * A cost ceiling, not a length target. Answers run ~1k tokens; this caps a
+ * runaway generation without ever truncating a normal one.
  */
 const MAX_TOKENS = 2048;
-const THINKING_BUDGET = 512;
 
 export interface AskContext {
   amount?: number;
@@ -29,20 +30,11 @@ export interface AskResult {
 
 export class AssistantUnavailableError extends Error {}
 
-interface GeminiResponse {
-  candidates?: {
-    content?: { parts?: { text?: string }[] };
-    finishReason?: string;
-  }[];
-  promptFeedback?: { blockReason?: string };
-  error?: { message?: string; status?: string };
-}
-
 export async function askAssistant(
   question: string,
   context?: AskContext,
 ): Promise<AskResult> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey || apiKey.startsWith("PASTE")) {
     // FR-6 honest fallback: never appear broken, never fake an answer.
     throw new AssistantUnavailableError(
@@ -54,51 +46,47 @@ export async function askAssistant(
     ? `\n\n[The user's current deal: ${context.pair ?? "currency pair"} payment of ${context.amount}, margin at risk ${context.margin_at_risk ?? "n/a"}. You may reference it if relevant.]`
     : "";
 
-  const body = JSON.stringify({
-    system_instruction: { parts: [{ text: ASSISTANT_SYSTEM_PROMPT }] },
-    contents: [{ role: "user", parts: [{ text: question + contextBlock }] }],
-    generationConfig: {
-      maxOutputTokens: MAX_TOKENS,
-      thinkingConfig: { thinkingBudget: THINKING_BUDGET },
-    },
-  });
+  const client = new Anthropic({ apiKey });
 
-  const call = () =>
-    fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
-      method: "POST",
-      headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
-      body,
+  let response: Anthropic.Message;
+  try {
+    // The SDK retries 429s and 5xx on its own (2 attempts), so there is no
+    // hand-rolled backoff loop here.
+    response = await client.messages.create({
+      model: MODEL,
+      max_tokens: MAX_TOKENS,
+      system: ASSISTANT_SYSTEM_PROMPT,
+      messages: [{ role: "user", content: question + contextBlock }],
     });
-
-  // Flash models return 429/503 under load often enough to hit several times in
-  // a row, so back off and try again rather than handing back a dead end.
-  let res = await call();
-  for (let attempt = 0; attempt < 2 && (res.status === 429 || res.status === 503); attempt++) {
-    await new Promise((r) => setTimeout(r, 1200 * (attempt + 1)));
-    res = await call();
-  }
-
-  if (!res.ok) {
-    // Server-side only. Surfaces a wrong model id or a rejected key, which are
-    // otherwise indistinguishable from any other outage at the UI.
-    const detail = await res.text().catch(() => "");
-    console.error("[askAssistant] Gemini error", res.status, detail.slice(0, 400));
+  } catch (err) {
+    // Server-side only, and split by cause: a rejected key and a quota wall are
+    // indistinguishable at the UI, and we have already lost an afternoon to
+    // exactly that ambiguity once.
+    if (err instanceof Anthropic.AuthenticationError) {
+      console.error("[askAssistant] Anthropic key rejected", err.message);
+    } else if (err instanceof Anthropic.RateLimitError) {
+      console.error("[askAssistant] Anthropic rate limited", err.message);
+    } else if (err instanceof Anthropic.APIConnectionError) {
+      // Subclasses APIError, so it has to be caught before the general case.
+      console.error("[askAssistant] Anthropic unreachable", err.message);
+    } else if (err instanceof Anthropic.APIError) {
+      console.error("[askAssistant] Anthropic error", err.status, err.message);
+    } else {
+      console.error("[askAssistant] unexpected failure", err);
+    }
     throw new AssistantUnavailableError(
       "The assistant could not be reached. For Islamic-finance questions about your payment, please consult a qualified Sharia advisor.",
     );
   }
 
-  const json = (await res.json()) as GeminiResponse;
-
-  const blocked = json.promptFeedback?.blockReason;
-  if (blocked) {
+  if (response.stop_reason === "refusal") {
     throw new AssistantUnavailableError(
       "That question could not be answered. Please rephrase it, or consult a qualified Sharia advisor.",
     );
   }
 
-  const answer = (json.candidates?.[0]?.content?.parts ?? [])
-    .map((p) => p.text ?? "")
+  const answer = response.content
+    .map((block) => (block.type === "text" ? block.text : ""))
     .join("")
     .trim();
 
