@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { MOCK_PROFILE, currencySymbol } from "@/lib/fixtures";
+import { currencySymbol } from "@/lib/fixtures";
+import { useAppData } from "@/hooks/use-app-data";
 import { usePageFade } from "@/components/page-fade";
 
 interface BreakevenData {
@@ -36,26 +37,28 @@ const VERDICT = {
 };
 
 export default function BreakevenPage() {
-  const sym = currencySymbol(MOCK_PROFILE.home_currency);
+  const d = useAppData();
+  const sym = currencySymbol(d.toCurrency);
+  const pair = `${d.fromCurrency}-${d.toCurrency}`;
   const { fade } = usePageFade();
   const [be, setBe]       = useState<BreakevenData | null>(null);
   const [hedge, setHedge] = useState<HedgeData | null>(null);
   const [beErr, setBeErr] = useState(false);
 
   useEffect(() => {
-    const { invoice_amount, invoice_amount: inv } = MOCK_PROFILE;
+    if (d.loading) return;
     const revenue = 18000;
 
-    fetch(`/api/breakeven?invoice=${invoice_amount}&revenue=${revenue}&pair=EUR-CAD`)
+    fetch(`/api/breakeven?invoice=${d.invoiceAmount}&revenue=${revenue}&pair=${pair}`)
       .then((r) => r.ok ? r.json() : Promise.reject())
       .then(setBe)
       .catch(() => setBeErr(true));
 
     fetch("/api/natural-hedge")
       .then((r) => r.ok ? r.json() : null)
-      .then((d) => d && setHedge(d))
+      .then((h) => h && setHedge(h))
       .catch(() => {});
-  }, []);
+  }, [d.loading, pair, d.invoiceAmount]);
 
   const v = be ? VERDICT[be.verdict] : null;
 
@@ -120,7 +123,9 @@ export default function BreakevenPage() {
         <h2 className="font-semibold text-[var(--color-fg)] mb-3">How to read this</h2>
         <div className="space-y-3 text-sm text-[var(--color-muted-fg)] leading-relaxed">
           <p>
-            The <strong className="text-[var(--color-fg)]">breakeven rate</strong> is the worst EUR/CAD rate at which you still cover your costs. If EUR weakens past this point, the invoice costs more than you earn on the sale.
+            The <strong className="text-[var(--color-fg)]">breakeven rate</strong> is the worst{" "}
+            {d.fromCurrency}/{d.toCurrency} rate at which you still cover your costs. If{" "}
+            {d.fromCurrency} strengthens past this point, the invoice costs more than you earn on the sale.
           </p>
           <p>
             The <strong className="text-[var(--color-fg)]">cushion</strong> is how far today's rate can move before you hit that breakeven. A larger cushion means more breathing room.
