@@ -11,6 +11,7 @@ import {
   Scale,
   Moon,
   Target,
+  MessageCircle,
   LogOut,
   Menu,
 } from "lucide-react";
@@ -19,17 +20,30 @@ import { HalalFlowLogo } from "@/components/halalflow-logo";
 import { MarketTicker } from "@/components/market-ticker";
 import { useState, useRef, useEffect, forwardRef } from "react";
 
-const workspaceNav = [
-  { href: "/dashboard",  label: "Dashboard",          icon: LayoutDashboard },
-  { href: "/transfer",   label: "New transfer",        icon: ArrowLeftRight  },
-  { href: "/risk",       label: "Risk explorer",       icon: TrendingUp      },
-  { href: "/breakeven",  label: "Breakeven & hedge",   icon: Target          },
-];
-
-const faithNav = [
-  { href: "/sharia",   label: "Sharia options",      icon: Shield },
-  { href: "/zakat",    label: "Zakat calculator",    icon: Moon   },
-  { href: "/reflect",  label: "The weight of riba",  icon: Scale  },
+const NAV_GROUPS = [
+  {
+    label: "Your payment",
+    items: [
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/transfer", label: "New transfer", icon: ArrowLeftRight },
+    ],
+  },
+  {
+    label: "Before you pay",
+    items: [
+      { href: "/risk", label: "Risk explorer", icon: TrendingUp },
+      { href: "/breakeven", label: "Breakeven & hedge", icon: Target },
+    ],
+  },
+  {
+    label: "Faith & finance",
+    items: [
+      { href: "/sharia", label: "Sharia options", icon: Shield },
+      { href: "/zakat", label: "Zakat calculator", icon: Moon },
+      { href: "/ask", label: "Ask HalalFlow", icon: MessageCircle },
+      { href: "/reflect", label: "The weight of riba", icon: Scale },
+    ],
+  },
 ];
 
 const NavItem = forwardRef<
@@ -77,33 +91,28 @@ function Sidebar({
         </Link>
       </div>
 
-      {/* Scrollable nav */}
-      <div className="flex-1 min-h-0 overflow-y-auto space-y-5 px-2">
-        <nav aria-label="Workspace">
-          <p aria-hidden="true" className="mb-1 px-3 text-xs uppercase tracking-widest text-[var(--color-muted-fg)]">
-            Workspace
-          </p>
-          <div className="space-y-1">
-            {workspaceNav.map((item, i) => (
-              <NavItem
-                key={item.href}
-                {...item}
-                onClick={onNav}
-                ref={i === 0 ? firstItemRef : undefined}
-              />
-            ))}
-          </div>
-        </nav>
-        <nav aria-label="Faith and finance">
-          <p aria-hidden="true" className="mb-1 px-3 text-xs uppercase tracking-widest text-[var(--color-muted-fg)]">
-            Faith &amp; finance
-          </p>
-          <div className="space-y-1">
-            {faithNav.map(item => (
-              <NavItem key={item.href} {...item} onClick={onNav} />
-            ))}
-          </div>
-        </nav>
+      {/* Scrollable nav — group spacing via mt-5, not space-y on the container */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-2">
+        {NAV_GROUPS.map((group, gi) => (
+          <nav key={group.label} aria-label={group.label} className={gi > 0 ? "mt-5" : undefined}>
+            <p
+              aria-hidden="true"
+              className="mb-1 px-3 text-xs uppercase tracking-widest text-[var(--color-muted-fg)]"
+            >
+              {group.label}
+            </p>
+            <div className="space-y-1">
+              {group.items.map((item, i) => (
+                <NavItem
+                  key={item.href}
+                  {...item}
+                  onClick={onNav}
+                  ref={gi === 0 && i === 0 ? firstItemRef : undefined}
+                />
+              ))}
+            </div>
+          </nav>
+        ))}
       </div>
 
       {/* Sidebar footer — theme + sign out */}
