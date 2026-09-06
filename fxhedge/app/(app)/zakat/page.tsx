@@ -30,7 +30,7 @@ const CURRENCIES = ["CAD", "USD", "EUR", "GBP", "AED", "TRY"];
 const ACCENT = "#3DD68C";
 
 const METHOD_LABEL: Record<MadhhabMethod, string> = {
-  aaoifi: "AAOIFI · Standard No. 9",
+  aaoifi: "AAOIFI · Standard No. 35",
   hanafi: "Hanafi view",
 };
 

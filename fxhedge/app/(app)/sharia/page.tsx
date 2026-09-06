@@ -9,24 +9,28 @@ const options = [
     title: "Natural hedge",
     desc: "Match your income and expenses in the same currency. Zero cost, zero riba exposure. Best if you already earn in your supplier's currency.",
     status: "halal" as const,
+    source: "No contract involved, so no sarf question arises",
   },
   {
     id: "murabaha",
     title: "Murabaha (cost-plus sale)",
     desc: "Bank buys the currency at today's rate and sells it to you at a fixed markup. Widely accepted. Avoid if the markup is not disclosed upfront.",
     status: "halal" as const,
+    source: "AAOIFI Sharia Standard No. 8 — Murabahah",
   },
   {
     id: "wad",
     title: "Wa'd (unilateral promise)",
-    desc: "A promise, not a contract, to buy currency at a future date. Scholarly debate exists: some scholars accept it, others see binding wa'd as equivalent to a forward. Check your madhab.",
+    desc: "A promise, not a contract, to buy currency at a future date. A single unilateral promise is treated as binding on the promisor; two matching promises (muwa'adah) are widely held to replicate a forward. Check your madhab.",
     status: "debated" as const,
+    source: "AAOIFI Sharia Standard No. 49 — Unilateral and Bilateral Promise",
   },
   {
     id: "forward",
     title: "Conventional forward",
-    desc: "A contract to exchange currency at a fixed future rate. Contains an element of gharar (uncertainty). Generally not permissible under Sharia.",
+    desc: "A contract to exchange currency at a fixed future rate. Deferring both legs conflicts with the spot-settlement rule for currency exchange (sarf), and it carries gharar. Generally not permissible.",
     status: "caution" as const,
+    source: "AAOIFI Sharia Standard No. 1 — Trading in Currencies",
   },
 ];
 
@@ -106,6 +110,9 @@ export default function ShariaPage() {
               </span>
             </div>
             <p className="text-sm text-[var(--color-muted-fg)]">{opt.desc}</p>
+            <p className="mt-3 border-t border-[var(--color-border)] pt-2.5 text-[11px] text-[var(--color-dim)]">
+              {opt.source}
+            </p>
           </div>
         ))}
       </div>

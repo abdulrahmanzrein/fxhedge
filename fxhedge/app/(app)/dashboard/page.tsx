@@ -283,13 +283,27 @@ export default function DashboardPage() {
                     />
                   </div>
 
-                  <div className="text-[11px] text-[var(--color-muted-fg)]">
+                  <div className="text-[11px] leading-relaxed text-[var(--color-muted-fg)]">
                     {gap > 0 ? (
                       <>
-                        Hidden cost vs mid market:{" "}
+                        Costs you{" "}
                         <span className="font-money tabular" style={{ color: "var(--color-negative)" }}>
-                          −{money(gap)}
-                        </span>
+                          {money(gap)}
+                        </span>{" "}
+                        vs mid market
+                        {/* The stated fee and the rate markup are different things; the
+                            second is the one providers do not put on the invoice. */}
+                        {typeof p.transfer_fee === "number" && (
+                          <>
+                            {" · "}
+                            <span className="tabular">{money(p.transfer_fee * d.ecbRateToday)}</span> stated fee
+                            {" + "}
+                            <span className="tabular">
+                              {money(Math.max(0, gap - p.transfer_fee * d.ecbRateToday))}
+                            </span>{" "}
+                            hidden in the rate
+                          </>
+                        )}
                       </>
                     ) : (
                       <span style={{ color: "var(--color-primary)" }}>At mid market. No hidden spread.</span>

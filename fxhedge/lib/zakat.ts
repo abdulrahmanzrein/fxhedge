@@ -12,13 +12,13 @@ import type {
 } from "@/types/zakat";
 
 export const ZAKAT_RATE = 0.025;
-/** Nisab threshold = value of 87.48g of gold. */
+/** Nisab threshold = value of 87.48g of gold (AAOIFI Sharia Standard No. 57, Gold). */
 export const NISAB_GOLD_GRAMS = 87.48;
 
 const HOME_RATE_SOURCE = "home currency";
 
 /**
- * Rules per method (sourced: AAOIFI Sharia Standard No. 9 on zakat;
+ * Rules per method (sourced: AAOIFI Sharia Standard No. 35 on zakah;
  * Hanafi fiqh summaries — surfaced as a documented difference, not a verdict):
  * - Both: zakatable pool = cash + receivables (collectible) + inventory (resale
  *   value) − current liabilities.
