@@ -206,11 +206,10 @@ export default function DashboardPage() {
   ];
 
   const card =
-    "rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 flex flex-col min-h-0 overflow-hidden";
+    "rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 flex flex-col";
 
   return (
-    // Adjust the calc() offset to match your app-shell header height so it fits one screen.
-    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-4.75rem)]">
+    <div className="flex flex-col gap-4">
 
       {/* Header — greeting + name, then invoice summary */}
       <header style={fade(0)}>
@@ -236,7 +235,7 @@ export default function DashboardPage() {
         <VerdictStrip d={d} />
       </div>
 
-      <div className="grid gap-4 flex-1 min-h-0 lg:grid-cols-[1fr_1.12fr] lg:grid-rows-2">
+      <div className="grid gap-4 lg:grid-cols-[1fr_1.12fr]">
 
         {/* 1 — Compare banks (top N) */}
         <section className={card} style={fade(1)}>
@@ -260,7 +259,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <ul className="slim-scroll fade-bottom mt-4 flex flex-1 min-h-0 flex-col gap-4 overflow-y-auto pr-2">
+          <ul className="slim-scroll fade-bottom mt-4 flex max-h-[460px] flex-col gap-4 overflow-y-auto pr-2">
             {ranked.map((p, i) => {
               const gap = mid - p.received;
               const isBest = i === 0;
@@ -382,7 +381,7 @@ export default function DashboardPage() {
             {d.bestProvider.name} · mid market rate · no hidden spread
           </div>
 
-          <div className="flex-1 min-h-0 mt-2 -mx-2">
+          <div className="h-[280px] mt-2 -mx-2">
             <ResponsiveContainer key={cycle} width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 6, right: 8, bottom: 0, left: -28 }}>
                 <defs>
@@ -436,7 +435,7 @@ export default function DashboardPage() {
           </p>
 
           {/* Every figure labelled with where it came from */}
-          <dl className="mt-4 flex flex-1 min-h-0 flex-col justify-between gap-1 border-t border-[var(--color-border)] pt-3 text-[12px]">
+          <dl className="mt-4 flex flex-col gap-2 border-t border-[var(--color-border)] pt-3 text-[12px]">
             {breakdown.map((row) => (
               <div key={row.label} className="flex items-baseline justify-between gap-3">
                 <dt className="min-w-0">
@@ -546,10 +545,10 @@ function RateTooltip({ active, payload, label, sym, invoiceAmount }: any) {
 function DashboardSkeleton() {
   const box = "animate-pulse rounded-2xl bg-[var(--color-muted)]";
   return (
-    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-4.75rem)]">
+    <div className="flex flex-col gap-4">
       <div className={`${box} h-12 w-64`} />
-      <div className="grid gap-4 flex-1 min-h-0 lg:grid-cols-[1fr_1.12fr] lg:grid-rows-2">
-        <div className={box} /><div className={box} /><div className={box} /><div className={box} />
+      <div className="grid gap-4 lg:grid-cols-[1fr_1.12fr]">
+        <div className={`${box} h-[340px]`} /><div className={`${box} h-[340px]`} /><div className={`${box} h-[340px]`} /><div className={`${box} h-[340px]`} />
       </div>
     </div>
   );
