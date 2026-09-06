@@ -93,6 +93,19 @@ body {
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
+/* Chat widget shadows live as tokens so the widget never branches on theme in
+   JS. resolvedTheme is undefined during SSR but resolved by hydration, so a
+   JS branch renders two different style attributes and React reports a
+   hydration mismatch. CSS reads data-theme, which is set before hydration. */
+:root {
+  --shadow-chat-panel: 0 24px 60px -12px rgba(10, 14, 26, 0.22), 0 2px 8px rgba(10, 14, 26, 0.08);
+  --shadow-chat-button: 0 8px 24px rgba(10, 14, 26, 0.18);
+}
+[data-theme="dark"] {
+  --shadow-chat-panel: 0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  --shadow-chat-button: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
 /* ─── Assistant prose ──────────────────────────────────────────────
    Preflight strips heading sizes, list markers and margins, and the
    `prose` classes this used to rely on need a plugin that isn't

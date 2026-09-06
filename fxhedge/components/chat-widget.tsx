@@ -1,6 +1,5 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useTheme } from "next-themes";
 import { MOCK_PROFILE } from "@/lib/fixtures";
 import { MessageCircle, X, Send, Sparkles, GripVertical } from "lucide-react";
 
@@ -33,8 +32,6 @@ function clamp(v: number, min: number, max: number) {
 }
 
 export function ChatWidget() {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
 
   const [open, setOpen]         = useState(false);
   const [pos, setPos]           = useState<Pos>(DEFAULT_POS);
@@ -201,9 +198,7 @@ export function ChatWidget() {
     height: Math.min(PANEL_HEIGHT, Math.max(320, viewport.h - EDGE_PAD * 2 - BTN_SIZE - PANEL_GAP)),
     background:  "var(--color-card)",
     borderColor: "var(--color-border)",
-    boxShadow:   isDark
-      ? "0 24px 60px -12px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03)"
-      : "0 24px 60px -12px rgba(10,14,26,0.22), 0 2px 8px rgba(10,14,26,0.08)",
+    boxShadow:   "var(--shadow-chat-panel)",
     opacity:       ready && open ? 1 : 0,
     transform:     open ? "translateY(0) scale(1)" : "translateY(12px) scale(0.98)",
     transformOrigin: openAbove ? "bottom right" : "top right",
@@ -231,9 +226,7 @@ export function ChatWidget() {
           border:     open ? "1px solid var(--color-border)" : "none",
           color:      open ? "var(--color-fg)" : "#04120A",
           boxShadow:  open
-            ? (isDark
-                ? "0 8px 24px rgba(0,0,0,0.5)"
-                : "0 8px 24px rgba(10,14,26,0.18)")
+            ? "var(--shadow-chat-button)"
             : "0 8px 30px rgba(34,197,94,0.45), 0 0 0 2px rgba(34,197,94,0.15)",
           cursor:     dragging ? "grabbing" : "grab",
           transition: dragging
