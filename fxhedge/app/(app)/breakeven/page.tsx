@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { currencySymbol } from "@/lib/fixtures";
+import { currencySymbol, MOCK_PROFILE } from "@/lib/fixtures";
 import { useAppData } from "@/hooks/use-app-data";
+import { useUser } from "@/hooks/use-user";
 import { usePageFade } from "@/components/page-fade";
 
 interface BreakevenData {
@@ -40,16 +41,23 @@ const VERDICT = {
 
 export default function BreakevenPage() {
   const d = useAppData();
+  const user = useUser();
   const sym = currencySymbol(d.toCurrency);
   const pair = `${d.fromCurrency}-${d.toCurrency}`;
   const { fade } = usePageFade();
+
+  // This business prices deals as: invoice at the invoice-day rate, plus the
+  // target margin from their profile. Replaces the old hardcoded 18000, which
+  // made every deal inherit Aisha's sample economics.
+  const pricingRate = d.ecbRateInvoiceDay > 0 ? d.ecbRateInvoiceDay : d.ecbRateToday;
+  const targetMargin = user.profile?.target_margin ?? MOCK_PROFILE.target_margin;
+  const revenue = Math.round(d.invoiceAmount * pricingRate * (1 + targetMargin / 100) * 100) / 100;
   const [be, setBe]       = useState<BreakevenData | null>(null);
   const [hedge, setHedge] = useState<HedgeData | null>(null);
   const [beErr, setBeErr] = useState(false);
 
   useEffect(() => {
-    if (d.loading) return;
-    const revenue = 18000;
+    if (d.loading || user.loading) return;
 
     fetch(`/api/breakeven?invoice=${d.invoiceAmount}&revenue=${revenue}&pair=${pair}`)
       .then((r) => r.ok ? r.json() : Promise.reject())
@@ -60,7 +68,8 @@ export default function BreakevenPage() {
       .then((r) => r.ok ? r.json() : null)
       .then((h) => h && setHedge(h))
       .catch(() => {});
-  }, [d.loading, pair, d.invoiceAmount]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [d.loading, user.loading, user.profile, pair, d.invoiceAmount, d.ecbRateInvoiceDay, d.ecbRateToday]);
 
   const v = be ? VERDICT[be.verdict] : null;
 
@@ -87,7 +96,11 @@ export default function BreakevenPage() {
         <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6" style={fade(1)}>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-medium text-[var(--color-muted-fg)] mb-2">Room before this deal stops making money</p>
+              <p className="text-xs font-medium text-[var(--color-muted-fg)] mb-2">
+                {be.cushion_pct > 0
+                  ? "Room before this deal stops making money"
+                  : "This deal is under water at today's rate"}
+              </p>
               <p className="font-money text-5xl font-bold leading-none tabular" style={{ color: v!.color }}>
                 {be.cushion_pct.toFixed(1)}%
               </p>
@@ -103,10 +116,10 @@ export default function BreakevenPage() {
               {v!.label}
             </span>
           </div>
-          <p className="mt-3 text-sm leading-relaxed text-[var(--color-fg)]">
-            You have {be.cushion_pct.toFixed(1)}% of room. In the roughest 1 in 20 stretches of this
-            length, the rate swung {be.history_5pct.toFixed(1)}% — so a bad run would use most of it.
-            Worth checking weekly rather than once.
+          <p className="mt-3 text-sm leading-relaxed text-[var(--color-fg)]">{be.verdict_reason}</p>
+          <p className="mt-2 text-xs text-[var(--color-muted-fg)]">
+            Assumes a {sym}{Math.round(revenue).toLocaleString()} sale: your {targetMargin}% target
+            margin on this invoice, priced at the rate on the day it was issued ({pricingRate.toFixed(4)}).
           </p>
 
           {/* Stats row */}

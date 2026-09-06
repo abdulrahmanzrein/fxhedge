@@ -36,7 +36,10 @@ export function computeBreakEven(input: BreakEvenInput): BreakEvenResult {
 
   let verdict: BreakEvenResult["verdict"];
   let verdict_reason: string;
-  if (cushion_pct > 2 * worst5pctMove) {
+  if (cushion_pct <= 0) {
+    verdict = "danger";
+    verdict_reason = `At today's rate this deal already loses money before the market moves at all. There is no cushion left, and history shows windows moving ${worst5pctMove.toFixed(1)}%+ (worst on record ${worstOnRecord.toFixed(1)}%). Repricing the sale or paying now is worth a serious look.`;
+  } else if (cushion_pct > 2 * worst5pctMove) {
     verdict = "comfortable";
     verdict_reason = `Your rate can move ${cushion_pct.toFixed(1)}% against you before you lose money. History says only 5% of similar windows move more than ${worst5pctMove.toFixed(1)}% — your cushion covers that twice over.`;
   } else if (cushion_pct > worst5pctMove) {
