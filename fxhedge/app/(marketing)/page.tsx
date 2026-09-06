@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { Phone3D } from "@/components/phone-3d";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -21,20 +21,97 @@ const features = [
   },
 ];
 
-const stats = [
-  { value: "4+",     label: "FX providers compared"   },
-  { value: "$12k",   label: "Avg invoice amount"       },
-  { value: "$767",   label: "Avg saving vs worst rate" },
-  { value: "100%",   label: "Halal finance coverage"   },
+/** No-op store — lets useSyncExternalStore report hydration state. */
+function subscribeNever(): () => void {
+  return () => {};
+}
+
+const TAGLINE = "Trade honestly. See the cost before you pay it.";
+
+/**
+ * Sourced passages for the flowing strip. Same English translations as
+ * /reflect (the reflect screen's sourcing is the project standard):
+ * Quran — Sahih International; hadith as cited. Never paraphrase scripture.
+ */
+const VERSES = [
+  {
+    ref: "Quran 2:275",
+    ar: "وَأَحَلَّ اللَّهُ الْبَيْعَ وَحَرَّمَ الرِّبَا",
+    en: "But Allah has permitted trade and has forbidden riba.",
+  },
+  {
+    ref: "Quran 2:276",
+    ar: "يَمْحَقُ اللَّهُ الرِّبَا وَيُرْبِي الصَّدَقَاتِ",
+    en: "Allah destroys riba and gives increase to charities.",
+  },
+  {
+    ref: "Hadith · Sahih Muslim",
+    ar: "لَعَنَ رَسُولُ اللَّهِ ﷺ آكِلَ الرِّبَا وَمُؤْكِلَهُ",
+    en: "The Prophet ﷺ cursed the one who consumes riba and the one who pays it.",
+  },
+  {
+    ref: "Quran 3:130",
+    ar: "يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا الرِّبَا أَضْعَافًا مُضَاعَفَةً",
+    en: "Do not consume riba, doubled and multiplied, but fear Allah that you may be successful.",
+  },
+  {
+    ref: "Hadith · Sahih Muslim",
+    ar: "الذَّهَبُ بِالذَّهَبِ وَالْفِضَّةُ بِالْفِضَّةِ... يَدًا بِيَدٍ",
+    en: "Gold for gold, silver for silver, hand to hand — the standard on fair exchange.",
+  },
+  {
+    ref: "Quran 2:278–279",
+    ar: "وَاتَّقُوا اللَّهَ وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا إِن كُنتُم مُّؤْمِنِينَ",
+    en: "Fear Allah and give up what remains of riba, if you should be believers.",
+  },
 ];
+
+/** Flowing strip of scripture on honest trade — pauses on hover so a passage can be read. */
+function VerseMarquee() {
+  return (
+    <section
+      aria-label="Verses and hadith on honest trade"
+      className="verse-marquee border-y"
+      style={{ borderColor: "var(--color-border)", background: "var(--color-card)" }}
+    >
+      {/* Track holds two copies; the CSS animation translates exactly -50% for a seamless loop */}
+      <div className="verse-marquee-track py-6">
+        {[0, 1].map((copy) => (
+          <div key={copy} className="flex shrink-0 items-stretch" aria-hidden={copy === 1}>
+            {VERSES.map((v) => (
+              <figure key={`${copy}-${v.ref}`} className="m-0 mx-6 w-[400px] shrink-0">
+                <blockquote className="m-0">
+                  <p
+                    lang="ar"
+                    dir="rtl"
+                    className="font-arabic text-right text-xl m-0 text-[var(--color-fg)]"
+                  >
+                    {v.ar}
+                  </p>
+                  <p className="text-pretty mt-2 m-0 text-sm leading-relaxed text-[var(--color-muted-fg)]">
+                    &ldquo;{v.en}&rdquo;
+                  </p>
+                </blockquote>
+                <figcaption className="mt-2 text-xs uppercase tracking-widest" style={{ color: "var(--color-primary)" }}>
+                  {v.ref}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 export default function LandingPage() {
   const [liveValue, setLiveValue] = useState("$0");
-  const [mounted, setMounted]     = useState(false);
   const { resolvedTheme } = useTheme();
-  const isDark = mounted && resolvedTheme === "dark";
 
-  useEffect(() => setMounted(true), []);
+  // Hydration gate without setState-in-effect: server snapshot false, client true.
+  // Same semantics as the old mounted flag, no cascading render.
+  const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
+  const isDark = mounted && resolvedTheme === "dark";
 
   // Trigger the .in animations on mount + IntersectionObserver for .sr-fade
   useEffect(() => {
@@ -49,7 +126,7 @@ export default function LandingPage() {
       });
     }, { threshold: 0.15 });
 
-    document.querySelectorAll(".sr-fade").forEach((el, i) => {
+    document.querySelectorAll(".sr-fade, .tagline-reveal").forEach((el, i) => {
       (el as HTMLElement).style.transitionDelay = `${(i % 4) * 60}ms`;
       io.observe(el);
     });
@@ -111,7 +188,7 @@ export default function LandingPage() {
             <Link href="/login" className="text-sm font-medium text-[var(--color-muted-fg)] hover:text-[var(--color-fg)] transition-colors">Log in</Link>
             <Link
               href="/signup"
-              className="rounded-full px-5 py-[9px] text-sm font-semibold transition-[opacity,box-shadow,scale] duration-200 active:scale-[0.96]"
+              className="rounded-full px-5 py-[9px] text-sm font-semibold transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.96]"
               style={{
                 background: "linear-gradient(135deg, #16A34A, #4ADE80)",
                 boxShadow:  "0 0 22px rgba(34,197,94,.35)",
@@ -154,8 +231,19 @@ export default function LandingPage() {
           {/* Left: copy */}
           <div>
             <h1
-              className="lp-reveal lp-d1 font-serif font-normal m-0 leading-[1.03] text-[var(--color-fg)]"
-              style={{ fontSize: "clamp(2.55rem, 6vw, 4.5rem)", letterSpacing: "-0.01em", maxWidth: "15ch" }}
+              className="lp-reveal lp-d1 font-serif font-normal m-0 leading-[1.03] text-balance"
+              style={{
+                fontSize: "clamp(2.55rem, 6vw, 4.5rem)",
+                letterSpacing: "-0.01em",
+                maxWidth: "15ch",
+                /* B5: the one sanctioned gradient — on the heading text only */
+                backgroundImage: isDark
+                  ? "linear-gradient(90deg, #FFFFFF, #9B9B9B)"
+                  : "linear-gradient(90deg, #0A0A0A, #666666)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+              }}
             >
               Stop losing margin to hidden FX costs.
             </h1>
@@ -170,7 +258,7 @@ export default function LandingPage() {
             <div className="lp-reveal lp-d3 mt-[34px] flex flex-wrap gap-3">
               <Link
                 href="/signup"
-                className="rounded-full px-[30px] py-[14px] text-[14.5px] font-semibold transition-[opacity,box-shadow,scale] duration-200 active:scale-[0.96]"
+                className="rounded-full px-[30px] py-[14px] text-[14.5px] font-semibold transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.96]"
                 style={{
                   background: "linear-gradient(135deg, #16A34A, #4ADE80)",
                   boxShadow:  "0 0 22px rgba(34,197,94,.35)",
@@ -181,7 +269,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 href="/dashboard"
-                className="rounded-full border px-[30px] py-[14px] text-[14.5px] font-semibold transition-[color,border-color,background-color,scale] duration-200 active:scale-[0.96]"
+                className="rounded-full border px-[30px] py-[14px] text-[14.5px] font-semibold transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.96]"
                 style={{
                   borderColor: ghostBorder,
                   background:  ghostBg,
@@ -264,20 +352,28 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Stats strip ────────────────────────────────────────── */}
-      <div
-        className="border-y"
-        style={{ borderColor: "var(--color-border)", background: "var(--color-card)" }}
-      >
-        <div className="mx-auto max-w-[1180px] px-6 grid grid-cols-2 sm:grid-cols-4 gap-px">
-          {stats.map((s) => (
-            <div key={s.label} className="sr-fade flex flex-col items-center px-3.5 py-[30px]">
-              <span className="font-mono text-2xl text-[var(--color-fg)]">{s.value}</span>
-              <span className="mt-1.5 text-center text-[11.5px] text-[var(--color-muted-fg)]">{s.label}</span>
-            </div>
-          ))}
+      {/* ── Flowing verses + hadith ───────────────────────────── */}
+      <VerseMarquee />
+
+      {/* ── Tagline reveal ─────────────────────────────────────── */}
+      <section className="py-20" aria-label="Why HalalFlow exists">
+        <div className="mx-auto max-w-[680px] px-6">
+          <p
+            className="tagline-reveal font-serif text-balance m-0 text-[var(--color-fg)]"
+            style={{ fontSize: "clamp(1.9rem, 4.5vw, 3rem)", lineHeight: 1.15 }}
+          >
+            {TAGLINE.split(" ").map((word, i) => (
+              <span
+                key={i}
+                className="tagline-word inline-block"
+                style={{ transitionDelay: `${Math.min(i * 90, 1400)}ms` }}
+              >
+                {word}&nbsp;
+              </span>
+            ))}
+          </p>
         </div>
-      </div>
+      </section>
 
       {/* ── How it works ─────────────────────────────────────────── */}
       <section id="how" className="py-[88px]">
@@ -344,7 +440,7 @@ export default function LandingPage() {
             {features.map((f) => (
               <div
                 key={f.title}
-                className="sr-fade rounded-[18px] border p-6 transition-[border-color,transform,background-color] duration-300 hover:-translate-y-[3px]"
+                className="sr-fade rounded-[18px] border p-6 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-[3px]"
                 style={{ borderColor: featureBorder, background: featureBg }}
                 onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(34,197,94,.5)")}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = featureBorder)}
@@ -402,6 +498,10 @@ export default function LandingPage() {
           <p className="text-center text-[11.5px] text-[var(--color-muted-fg)] max-w-[44ch]">
             HalalFlow never moves money and never predicts exchange rates. General education only, not financial advice.
           </p>
+          <nav aria-label="Legal" className="flex items-center gap-4 text-[11.5px] text-[var(--color-muted-fg)]">
+            <Link href="/privacy" className="hover:text-[var(--color-fg)] transition-colors">Privacy policy</Link>
+            <Link href="/terms" className="hover:text-[var(--color-fg)] transition-colors">Terms of use</Link>
+          </nav>
         </div>
       </footer>
     </div>

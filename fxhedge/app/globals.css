@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Noto+Naskh+Arabic:wght@400;500&display=swap');
 @import "tailwindcss";
 
 /* Dark mode targets [data-theme="dark"] on <html> */
@@ -88,6 +88,16 @@ body {
 
 /* Tabular numerals utility */
 .tabular { font-variant-numeric: tabular-nums; }
+
+/* Arabic scripture — Fraunces is Latin-only, so give Quranic text a naskh face */
+.font-arabic {
+  font-family: 'Noto Naskh Arabic', 'Geeza Pro', 'Segoe UI Arabic', serif;
+  line-height: 1.9;
+}
+
+/* Balanced wrapping — headings break at meaningful points, body avoids orphans */
+.text-balance { text-wrap: balance; }
+.text-pretty  { text-wrap: pretty; }
 
 /* Horizontal scroll without a visible scrollbar (market ticker) */
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
@@ -359,14 +369,66 @@ body {
   animation: spark-draw 1.6s ease 0.9s forwards;
 }
 
-/* Scroll reveal — .sr toggled by IntersectionObserver .show class */
-.sr-fade { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s ease; }
-.sr-fade.show { opacity: 1; transform: none; }
+/* Scroll reveal — heavy fade-up with a defocus, eased on the fluid curve.
+   .sr toggled by IntersectionObserver .show class (B7: no scroll listeners) */
+.sr-fade {
+  opacity: 0;
+  transform: translateY(16px);
+  filter: blur(12px);
+  transition:
+    opacity 0.85s cubic-bezier(0.32, 0.72, 0, 1),
+    transform 0.85s cubic-bezier(0.32, 0.72, 0, 1),
+    filter 0.85s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.sr-fade.show { opacity: 1; transform: none; filter: blur(0); }
 
 @media (prefers-reduced-motion: reduce) {
-  .lp-reveal, .lp-live-card, .sr-fade { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .lp-reveal, .lp-live-card, .sr-fade { animation: none !important; opacity: 1 !important; transform: none !important; filter: none !important; }
   .lp-spark-line { stroke-dashoffset: 0 !important; animation: none !important; }
   .lp-live-dot { animation: none !important; }
+}
+
+/* ─── FLOWING VERSE STRIP (landing) ────────────────────────────
+   A single duplicated track translated -50% loops seamlessly.
+   Pauses on hover/focus so a passage can actually be read; under
+   reduced motion the strip becomes a plain scrollable row. */
+@keyframes verse-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.verse-marquee { overflow: hidden; }
+
+.verse-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: verse-marquee 80s linear infinite;
+  will-change: transform;
+}
+
+.verse-marquee:hover .verse-marquee-track,
+.verse-marquee:focus-within .verse-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .verse-marquee { overflow-x: auto; }
+  .verse-marquee-track { animation: none; will-change: auto; }
+}
+
+/* B11 tagline reveal — words start muted/defocused, activate one by one
+   (stagger via inline transition-delay; .show lands on the whole block) */
+.tagline-word {
+  opacity: 0.3;
+  filter: blur(3px);
+  transition:
+    opacity 0.7s cubic-bezier(0.32, 0.72, 0, 1),
+    filter 0.7s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.tagline-reveal.show .tagline-word { opacity: 1; filter: blur(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tagline-word { opacity: 1 !important; filter: none !important; transition: none !important; }
 }
 
 /* Scroll-reveal — toggled by IntersectionObserver */
