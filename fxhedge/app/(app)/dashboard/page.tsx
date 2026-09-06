@@ -16,8 +16,30 @@ import { Bot, Sparkles, ArrowRight, TrendingUp } from "lucide-react";
 /* Config                                                              */
 /* ------------------------------------------------------------------ */
 
-const TOP_N = 3;                                   // banks shown in Compare + Cost breakdown
-const SLICE_COLORS = ["#10B981", "#F59E0B", "#EA580C"]; // best -> worst (green -> orange)
+// Best -> worst gradient, interpolated so it reads correctly at any provider count.
+const SPREAD_STOPS = ["#10B981", "#F59E0B", "#EA580C", "#EF4444"];
+
+function spreadColor(i: number, n: number): string {
+  if (n <= 1) return SPREAD_STOPS[0];
+  const t = (i / (n - 1)) * (SPREAD_STOPS.length - 1);
+  const lo = Math.floor(t);
+  const hi = Math.min(lo + 1, SPREAD_STOPS.length - 1);
+  const f = t - lo;
+  const parse = (h: string) => [1, 3, 5].map((o) => parseInt(h.slice(o, o + 2), 16));
+  const [r1, g1, b1] = parse(SPREAD_STOPS[lo]);
+  const [r2, g2, b2] = parse(SPREAD_STOPS[hi]);
+  const ch = (a: number, b: number) =>
+    Math.round(a + (b - a) * f).toString(16).padStart(2, "0");
+  return `#${ch(r1, r2)}${ch(g1, g2)}${ch(b1, b2)}`;
+}
+
+const DESCRIPTIONS: Record<string, string> = {
+  Wise:            "Real mid market rate with a transparent flat fee. Best for small businesses.",
+  Instarem:        "Regulated remittance provider. Small spread on top of mid market.",
+  "Deutsche Bank": "Traditional bank wire. Bakes the FX spread into the exchange rate.",
+  "Western Union": "Retail remittance service. Widest spread of the tested providers.",
+  PayPal:          "Consumer payment platform. Adds a large FX conversion margin.",
+};
 
 // Fade-reveal timing (ms) — plays once per mount (fires on every navigation to /dashboard)
 const STAGGER = 95;
@@ -108,14 +130,16 @@ export default function DashboardPage() {
   // ---- derived data (safe with fallback while loading) ----
   const sym = currencySymbol(MOCK_PROFILE.home_currency);
   const mid = d.trueCostToday;
-  const ranked = [...d.providers].sort((a, b) => b.received - a.received).slice(0, TOP_N);
+  const ranked = [...d.providers].sort((a, b) => b.received - a.received);
   const minR = Math.min(...ranked.map((p) => p.received), mid);
   const widthFor = (v: number) => `${30 + ((v - minR) / ((mid - minR) || 1)) * 70}%`;
 
   const slices = ranked.map((p, i) => ({
     name: p.name,
+    received: p.received,
     markup: Math.max(1, mid - p.received),
-    color: SLICE_COLORS[i % SLICE_COLORS.length],
+    color: spreadColor(i, ranked.length),
+    description: DESCRIPTIONS[p.name] ?? "Provider quote from Wise Comparison API.",
   }));
   const totalSpread = slices.reduce((s, x) => s + x.markup, 0);
 
@@ -145,7 +169,7 @@ export default function DashboardPage() {
 
   return (
     // Adjust the calc() offset to match your app-shell header height so it fits one screen.
-    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-2rem)]">
+    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-4.75rem)]">
 
       {/* Header — greeting + name, then invoice summary */}
       <header style={fade(0)}>
@@ -172,7 +196,7 @@ export default function DashboardPage() {
         {/* 1 — Compare banks (top N) */}
         <section className={card} style={fade(1)}>
           <span className="text-xs font-medium text-[var(--color-muted-fg)]">
-            Compare banks · top {TOP_N}, ranked by what your supplier receives
+            Compare banks · {ranked.length} providers, ranked by what your supplier receives
           </span>
 
           <div className="flex items-end justify-between gap-3 pb-3 mt-1 border-b border-[var(--color-border)]">
@@ -191,7 +215,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <ul className="mt-4 flex flex-col gap-4 overflow-hidden">
+          <ul className="no-scrollbar mt-4 flex flex-1 min-h-0 flex-col gap-4 overflow-y-auto pr-0.5">
             {ranked.map((p, i) => {
               const gap = mid - p.received;
               const isBest = i === 0;
@@ -281,20 +305,36 @@ export default function DashboardPage() {
                 </span>
               </div>
             </div>
-            <ul className="flex-1 min-w-0 flex flex-col gap-3">
+            <ul className="no-scrollbar flex-1 min-w-0 min-h-0 flex flex-col gap-2.5 overflow-y-auto pr-0.5">
               {slices.map((s) => {
                 const pct = ((s.markup / totalSpread) * 100).toFixed(1);
                 return (
-                  <li key={s.name} className="flex items-center gap-2.5 text-[12.5px]">
-                    <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: s.color }} />
-                    <span className="flex-1 text-[var(--color-fg)]">{s.name}</span>
-                    <span className="font-money tabular text-[var(--color-fg)]">
-                      {money(s.markup)}<span className="text-[var(--color-muted-fg)] text-[11px] ml-1">({pct}%)</span>
-                    </span>
+                  <li key={s.name} className="flex items-start gap-2.5 text-[12.5px]">
+                    <span className="h-2.5 w-2.5 rounded-full shrink-0 mt-1" style={{ background: s.color }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[var(--color-fg)]">{s.name}</span>
+                        <span className="font-money tabular text-[var(--color-fg)] shrink-0">
+                          {money(s.markup)}<span className="text-[var(--color-muted-fg)] text-[11px] ml-1">({pct}%)</span>
+                        </span>
+                      </div>
+                      <p className="text-[11px] leading-snug text-[var(--color-muted-fg)] mt-0.5">
+                        {s.description}
+                      </p>
+                    </div>
                   </li>
                 );
               })}
             </ul>
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-[var(--color-border)] flex items-center justify-between text-[12px]">
+            <span className="text-[var(--color-muted-fg)]">
+              Saving with {d.bestProvider.name} vs {d.worstProvider.name}
+            </span>
+            <span className="font-money tabular font-semibold" style={{ color: "#3DD68C" }}>
+              {money(d.savingVsWorst)}
+            </span>
           </div>
         </section>
 
@@ -370,13 +410,17 @@ function SpreadTooltip({ active, payload, money }: any) {
   if (!active || !payload?.length) return null;
   const p = payload[0].payload;
   return (
-    <div className="rounded-xl border px-3 py-2 text-xs shadow-lg"
+    <div className="rounded-xl border px-3 py-2.5 text-xs shadow-lg max-w-[240px]"
       style={{ background: "var(--color-card)", borderColor: "var(--color-border)" }}>
       <div className="flex items-center gap-2">
         <span className="h-2.5 w-2.5 rounded-full" style={{ background: p.color }} />
         <span className="font-semibold text-[var(--color-fg)]">{p.name}</span>
       </div>
-      <p className="mt-1" style={{ color: p.color }}>Loses {money(p.markup)} vs mid market</p>
+      <p className="font-money font-bold text-sm tabular text-[var(--color-fg)] mt-1">
+        {money(p.received)}
+      </p>
+      <p className="mt-0.5" style={{ color: p.color }}>Loses {money(p.markup)} vs mid market</p>
+      <p className="mt-2 leading-relaxed text-[var(--color-muted-fg)]">{p.description}</p>
     </div>
   );
 }
@@ -384,7 +428,7 @@ function SpreadTooltip({ active, payload, money }: any) {
 function DashboardSkeleton() {
   const box = "animate-pulse rounded-2xl bg-[var(--color-muted)]";
   return (
-    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-2rem)]">
+    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-4.75rem)]">
       <div className={`${box} h-12 w-64`} />
       <div className="grid gap-4 flex-1 min-h-0 lg:grid-cols-[1fr_1.12fr] lg:grid-rows-2">
         <div className={box} /><div className={box} /><div className={box} /><div className={box} />

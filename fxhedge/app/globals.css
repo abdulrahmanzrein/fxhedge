@@ -89,6 +89,10 @@ body {
 /* Tabular numerals utility */
 .tabular { font-variant-numeric: tabular-nums; }
 
+/* Horizontal scroll without a visible scrollbar (market ticker) */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
 /* Hero fade-up — staggered via animation-delay on children */
 @keyframes hero-fade-up {
   from { opacity: 0; transform: translateY(22px); }

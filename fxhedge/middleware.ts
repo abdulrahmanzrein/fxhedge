@@ -4,8 +4,6 @@ import { NextResponse, type NextRequest } from "next/server";
 const PROTECTED_PREFIXES = [
   "/dashboard",
   "/transfer",
-  "/cost",
-  "/compare",
   "/risk",
   "/sharia",
   "/reflect",
