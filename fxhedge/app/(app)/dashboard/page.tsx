@@ -8,7 +8,7 @@ import { useAppData } from "@/hooks/use-app-data";
 import { useUser } from "@/hooks/use-user";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  CartesianGrid, ReferenceLine, PieChart, Pie, Cell,
+  CartesianGrid, ReferenceLine,
 } from "recharts";
 import { Bot, Sparkles, ArrowRight, TrendingUp } from "lucide-react";
 
@@ -16,21 +16,11 @@ import { Bot, Sparkles, ArrowRight, TrendingUp } from "lucide-react";
 /* Config                                                              */
 /* ------------------------------------------------------------------ */
 
-// Best -> worst gradient, interpolated so it reads correctly at any provider count.
-const SPREAD_STOPS = ["#10B981", "#F59E0B", "#EA580C", "#EF4444"];
-
-function spreadColor(i: number, n: number): string {
-  if (n <= 1) return SPREAD_STOPS[0];
-  const t = (i / (n - 1)) * (SPREAD_STOPS.length - 1);
-  const lo = Math.floor(t);
-  const hi = Math.min(lo + 1, SPREAD_STOPS.length - 1);
-  const f = t - lo;
-  const parse = (h: string) => [1, 3, 5].map((o) => parseInt(h.slice(o, o + 2), 16));
-  const [r1, g1, b1] = parse(SPREAD_STOPS[lo]);
-  const [r2, g2, b2] = parse(SPREAD_STOPS[hi]);
-  const ch = (a: number, b: number) =>
-    Math.round(a + (b - a) * f).toString(16).padStart(2, "0");
-  return `#${ch(r1, r2)}${ch(g1, g2)}${ch(b1, b2)}`;
+// Rank -> opacity. One hue from the theme, faded by position, so the scale
+// stays on-palette in both themes instead of introducing amber/orange.
+function rankOpacity(i: number, n: number): number {
+  if (n <= 1) return 1;
+  return 1 - (i / (n - 1)) * 0.68;
 }
 
 const DESCRIPTIONS: Record<string, string> = {
@@ -113,6 +103,7 @@ export default function DashboardPage() {
   // ---- fade-reveal state (plays once per mount) ----
   const [visible, setVisible] = useState(false);
   const [cycle, setCycle] = useState(0);
+  const [openProvider, setOpenProvider] = useState<string | null>(null);
 
   useEffect(() => {
     if (d.loading) return;
@@ -138,7 +129,7 @@ export default function DashboardPage() {
     name: p.name,
     received: p.received,
     markup: Math.max(1, mid - p.received),
-    color: spreadColor(i, ranked.length),
+    opacity: rankOpacity(i, ranked.length),
     description: DESCRIPTIONS[p.name] ?? "Provider quote from Wise Comparison API.",
   }));
   const totalSpread = slices.reduce((s, x) => s + x.markup, 0);
@@ -205,7 +196,7 @@ export default function DashboardPage() {
               <div className="font-money text-3xl font-bold tabular text-[var(--color-fg)] leading-none mt-2">
                 {money(midAnim)}
               </div>
-              <div className="h-[7px] rounded-full overflow-hidden mt-2" style={{ background: "rgba(255,255,255,.06)" }}>
+              <div className="h-[7px] rounded-full overflow-hidden mt-2 bg-[var(--color-muted)]">
                 <AnimatedBar width="100%" color="var(--color-primary)" cycle={cycle} reduced={reduced} />
               </div>
             </div>
@@ -215,31 +206,61 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <ul className="no-scrollbar mt-4 flex flex-1 min-h-0 flex-col gap-4 overflow-y-auto pr-0.5">
+          <ul className="slim-scroll mt-4 flex flex-1 min-h-0 flex-col gap-4 overflow-y-auto pr-2">
             {ranked.map((p, i) => {
               const gap = mid - p.received;
               const isBest = i === 0;
+              const open = openProvider === p.name;
               return (
                 <li key={p.name} className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2">
-                      <span className="text-[var(--color-muted-fg)] tabular w-4 text-xs">{i + 1}</span>
-                      <span className="font-medium text-[var(--color-fg)]">{p.name}</span>
+                  <button
+                    onClick={() => setOpenProvider(open ? null : p.name)}
+                    aria-expanded={open}
+                    className="flex items-center justify-between gap-2 text-left text-sm transition-opacity hover:opacity-80"
+                  >
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="w-4 shrink-0 text-xs tabular text-[var(--color-muted-fg)]">{i + 1}</span>
+                      <span className="truncate font-medium text-[var(--color-fg)]">{p.name}</span>
                       {isBest && (
-                        <span className="text-[9px] font-bold uppercase tracking-wider rounded px-1.5 py-0.5 border"
-                          style={{ color: "#3DD68C", borderColor: "rgba(61,214,140,.3)" }}>mid market</span>
+                        <span
+                          className="shrink-0 rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+                          style={{ color: "var(--color-primary)", borderColor: "var(--color-primary)" }}
+                        >
+                          mid market
+                        </span>
                       )}
                     </span>
-                    <span className="font-money tabular text-[var(--color-fg)]">{money(p.received)}</span>
+                    <span className="shrink-0 font-money tabular text-[var(--color-fg)]">{money(p.received)}</span>
+                  </button>
+
+                  <div className="h-[7px] overflow-hidden rounded-full bg-[var(--color-muted)]">
+                    <AnimatedBar
+                      width={widthFor(p.received)}
+                      color="var(--color-primary)"
+                      cycle={cycle}
+                      reduced={reduced}
+                      delay={i * 60}
+                    />
                   </div>
-                  <div className="h-[7px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,.06)" }}>
-                    <AnimatedBar width={widthFor(p.received)} color={isBest ? "#3DD68C" : "var(--color-primary)"} cycle={cycle} reduced={reduced} delay={i * 80} />
-                  </div>
+
                   <div className="text-[11px] text-[var(--color-muted-fg)]">
-                    {gap > 0
-                      ? <>Hidden cost vs mid market: <span className="font-money tabular" style={{ color: "#f87171" }}>−{money(gap)}</span></>
-                      : <span style={{ color: "#3DD68C" }}>At mid market. No hidden spread.</span>}
+                    {gap > 0 ? (
+                      <>
+                        Hidden cost vs mid market:{" "}
+                        <span className="font-money tabular" style={{ color: "var(--color-negative)" }}>
+                          −{money(gap)}
+                        </span>
+                      </>
+                    ) : (
+                      <span style={{ color: "var(--color-primary)" }}>At mid market. No hidden spread.</span>
+                    )}
                   </div>
+
+                  {open && (
+                    <p className="rounded-lg bg-[var(--color-muted)] px-3 py-2 text-[11px] leading-relaxed text-[var(--color-muted-fg)]">
+                      {DESCRIPTIONS[p.name] ?? "Provider quote from Wise Comparison API."}
+                    </p>
+                  )}
                 </li>
               );
             })}
@@ -286,56 +307,55 @@ export default function DashboardPage() {
         {/* 3 — Cost breakdown (same top N) */}
         <section className={card} style={fade(3)}>
           <span className="text-xs font-medium text-[var(--color-muted-fg)]">Cost breakdown · where your margin goes</span>
-          <div className="flex items-center gap-4 flex-1 min-h-0 mt-2">
-            <div className="relative shrink-0" style={{ width: 150, height: 150 }}>
-              <ResponsiveContainer key={cycle} width="100%" height="100%">
-                <PieChart>
-                  <Pie data={slices} dataKey="markup" nameKey="name" cx="50%" cy="50%"
-                    innerRadius="60%" outerRadius="90%" paddingAngle={2} strokeWidth={0}
-                    animationDuration={1000} animationEasing="ease-out">
-                    {slices.map((s, i) => <Cell key={i} fill={s.color} />)}
-                  </Pie>
-                  <Tooltip content={<SpreadTooltip money={money} />} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                <span className="text-[9px] uppercase tracking-wider text-[var(--color-muted-fg)]">Spread lost</span>
-                <span className="font-money font-bold text-xl tabular mt-0.5" style={{ color: "#f87171" }}>
-                  {money(spreadAnim)}
-                </span>
-              </div>
+
+          <div className="mt-2">
+            <div className="font-money text-3xl font-bold leading-none tabular" style={{ color: "var(--color-negative)" }}>
+              {money(spreadAnim)}
             </div>
-            <ul className="no-scrollbar flex-1 min-w-0 min-h-0 flex flex-col gap-2.5 overflow-y-auto pr-0.5">
-              {slices.map((s) => {
-                const pct = ((s.markup / totalSpread) * 100).toFixed(1);
-                return (
-                  <li key={s.name} className="flex items-start gap-2.5 text-[12.5px]">
-                    <span className="h-2.5 w-2.5 rounded-full shrink-0 mt-1" style={{ background: s.color }} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[var(--color-fg)]">{s.name}</span>
-                        <span className="font-money tabular text-[var(--color-fg)] shrink-0">
-                          {money(s.markup)}<span className="text-[var(--color-muted-fg)] text-[11px] ml-1">({pct}%)</span>
-                        </span>
-                      </div>
-                      <p className="text-[11px] leading-snug text-[var(--color-muted-fg)] mt-0.5">
-                        {s.description}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+            <p className="mt-1.5 text-[11px] text-[var(--color-muted-fg)]">
+              total spread lost across {slices.length} providers vs the ECB mid market
+            </p>
           </div>
 
-          <div className="mt-3 pt-3 border-t border-[var(--color-border)] flex items-center justify-between text-[12px]">
-            <span className="text-[var(--color-muted-fg)]">
-              Saving with {d.bestProvider.name} vs {d.worstProvider.name}
-            </span>
-            <span className="font-money tabular font-semibold" style={{ color: "#3DD68C" }}>
-              {money(d.savingVsWorst)}
-            </span>
+          {/* Spread distribution — each segment sized by that provider's cut */}
+          <div className="mt-4 flex h-3 gap-[2px] overflow-hidden rounded-full">
+            {slices.map((s) => (
+              <span
+                key={s.name}
+                className="min-w-[3px] rounded-[2px]"
+                style={{
+                  flex: `${s.markup} 1 0`,
+                  background: "var(--color-negative)",
+                  opacity: s.opacity,
+                }}
+                title={`${s.name}: ${money(s.markup)} lost`}
+              />
+            ))}
           </div>
+          <p className="mt-2 text-[11px] text-[var(--color-muted-fg)]">
+            Best to worst, left to right. Full list in Compare banks.
+          </p>
+
+          <dl className="mt-auto flex flex-col gap-2.5 border-t border-[var(--color-border)] pt-4 text-[12px]">
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-[var(--color-muted-fg)]">Invoice amount</dt>
+              <dd className="font-money tabular text-[var(--color-fg)]">
+                {currencySymbol(d.fromCurrency)}{d.invoiceAmount.toLocaleString()}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-[var(--color-muted-fg)]">True mid market cost</dt>
+              <dd className="font-money tabular text-[var(--color-fg)]">{money(mid)}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-[var(--color-muted-fg)]">
+                Saving with {d.bestProvider.name} vs {d.worstProvider.name}
+              </dt>
+              <dd className="font-money font-semibold tabular" style={{ color: "var(--color-primary)" }}>
+                {money(d.savingVsWorst)}
+              </dd>
+            </div>
+          </dl>
         </section>
 
         {/* 4 — HalalFlow AI Advisor */}
@@ -402,25 +422,6 @@ function RateTooltip({ active, payload, label, sym, invoiceAmount }: any) {
       <p className="text-[10px] mt-0.5" style={{ color: "var(--color-muted-fg)" }}>
         invoice ≈ {sym}{Math.round(invoiceAmount * rate).toLocaleString()}
       </p>
-    </div>
-  );
-}
-
-function SpreadTooltip({ active, payload, money }: any) {
-  if (!active || !payload?.length) return null;
-  const p = payload[0].payload;
-  return (
-    <div className="rounded-xl border px-3 py-2.5 text-xs shadow-lg max-w-[240px]"
-      style={{ background: "var(--color-card)", borderColor: "var(--color-border)" }}>
-      <div className="flex items-center gap-2">
-        <span className="h-2.5 w-2.5 rounded-full" style={{ background: p.color }} />
-        <span className="font-semibold text-[var(--color-fg)]">{p.name}</span>
-      </div>
-      <p className="font-money font-bold text-sm tabular text-[var(--color-fg)] mt-1">
-        {money(p.received)}
-      </p>
-      <p className="mt-0.5" style={{ color: p.color }}>Loses {money(p.markup)} vs mid market</p>
-      <p className="mt-2 leading-relaxed text-[var(--color-muted-fg)]">{p.description}</p>
     </div>
   );
 }

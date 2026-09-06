@@ -93,6 +93,16 @@ body {
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
+/* Slim themed scrollbar — keeps long in-card lists obviously scrollable */
+.slim-scroll { scrollbar-width: thin; scrollbar-color: var(--color-border) transparent; }
+.slim-scroll::-webkit-scrollbar { width: 6px; }
+.slim-scroll::-webkit-scrollbar-track { background: transparent; }
+.slim-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+.slim-scroll:hover::-webkit-scrollbar-thumb { background: var(--color-muted-fg); }
+
 /* Hero fade-up — staggered via animation-delay on children */
 @keyframes hero-fade-up {
   from { opacity: 0; transform: translateY(22px); }
