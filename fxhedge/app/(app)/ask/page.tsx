@@ -1,37 +1,42 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useAppData } from "@/hooks/use-app-data";
-import { Send } from "lucide-react";
-
-interface Message {
-  role: "user" | "assistant";
-  text: string;
-  error?: boolean;
-}
+import { useChats, groupByDay, type ChatMessage } from "@/hooks/use-chats";
+import { Markdown } from "@/components/markdown";
+import { ArrowUp, Plus, Sparkles, Trash2, PanelLeft } from "lucide-react";
 
 const SUGGESTED = [
-  "What is murabaha and can I use it to hedge my EUR invoice?",
-  "Is using a forward contract permissible in Islamic finance?",
+  "What is murabaha and can I use it to hedge my invoice?",
+  "Is a forward contract permissible in Islamic finance?",
   "What are my halal alternatives to a currency swap?",
   "How does a wa'd-based FX arrangement work?",
 ];
 
+const UNAVAILABLE =
+  "The assistant is unavailable right now. For Islamic-finance questions about your payment, please consult a qualified Sharia advisor.";
+
 export default function AskPage() {
   const d = useAppData();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput]       = useState("");
-  const [loading, setLoading]   = useState(false);
+  const { chats, active, activeId, ready, setActiveId, startChat, appendTo, removeChat } = useChats();
+
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [railOpen, setRailOpen] = useState(true);
+
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+  }, [active?.messages.length, loading]);
 
   async function send(question: string) {
-    if (!question.trim() || loading) return;
     const q = question.trim();
+    if (!q || loading) return;
     setInput("");
-    setMessages((m) => [...m, { role: "user", text: q }]);
+
+    const id = activeId ?? startChat(q);
+    if (activeId) appendTo(id, { role: "user", text: q });
     setLoading(true);
 
     try {
@@ -45,135 +50,226 @@ export default function AskPage() {
           margin_at_risk: d.marginAtRiskMinus5pct,
         }),
       });
-      const data = await res.json();
-      if (data.error || !data.answer) {
-        setMessages((m) => [
-          ...m,
-          { role: "assistant", text: "The assistant is unavailable right now. For Islamic-finance questions about your payment, please consult a qualified Sharia advisor.", error: true },
-        ]);
-      } else {
-        setMessages((m) => [...m, { role: "assistant", text: data.answer }]);
-      }
+      const data: { answer?: string; error?: boolean } = await res.json();
+      const reply: ChatMessage =
+        !res.ok || data.error || !data.answer
+          ? { role: "assistant", text: UNAVAILABLE, error: true }
+          : { role: "assistant", text: data.answer };
+      appendTo(id, reply);
     } catch {
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", text: "Could not reach the assistant. Check your connection and try again.", error: true },
-      ]);
+      appendTo(id, {
+        role: "assistant",
+        text: "Could not reach the assistant. Check your connection and try again.",
+        error: true,
+      });
     } finally {
       setLoading(false);
     }
   }
 
-  return (
-    <div className="flex flex-col" style={{ height: "calc(100vh - 7rem)" }}>
-      <div className="mb-5 shrink-0">
-        <h1 className="font-serif text-3xl font-normal text-[var(--color-fg)]">Ask HalalFlow</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-fg)]">
-          Islamic finance questions about your {d.fromCurrency}/{d.toCurrency} payment · General
-          education only
-        </p>
-      </div>
+  function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send(input);
+    }
+  }
 
-      {/* Chat area */}
-      <div className="flex-1 overflow-y-auto space-y-4 pb-4">
-        {messages.length === 0 && (
-          <div className="space-y-3 py-4">
-            <p className="text-xs font-medium text-[var(--color-muted-fg)]">Suggested questions</p>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {SUGGESTED.map((q) => (
-                <button
-                  key={q}
-                  onClick={() => send(q)}
-                  className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-4 text-left text-sm text-[var(--color-fg)] hover:bg-[var(--color-muted)] transition-colors"
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-[var(--color-muted-fg)] mt-4">
-              This assistant answers Islamic-finance education questions related to your payment. It does not give fatwas, financial advice, or execute any transactions.
+  const groups = groupByDay(chats);
+  const empty = !active;
+
+  return (
+    <div className="flex gap-4 lg:h-[calc(100dvh-4.75rem)]">
+      {/* History rail */}
+      {railOpen && (
+        <aside className="hidden md:flex w-[248px] shrink-0 flex-col rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden">
+          <div className="p-3 shrink-0">
+            <button
+              onClick={() => { setActiveId(null); setInput(""); inputRef.current?.focus(); }}
+              className="press flex w-full items-center gap-2 rounded-xl bg-[var(--color-primary)] px-3 py-2.5 text-[13px] font-semibold text-white transition-colors hover:opacity-90"
+            >
+              <Plus size={16} /> New conversation
+            </button>
+          </div>
+
+          <div className="slim-scroll flex-1 min-h-0 overflow-y-auto px-2 pb-3">
+            {!ready ? null : chats.length === 0 ? (
+              <p className="px-3 py-6 text-center text-[12px] leading-relaxed text-[var(--color-muted-fg)]">
+                Your past questions will appear here, grouped by day.
+              </p>
+            ) : (
+              groups.map((g) => (
+                <div key={g.label} className="mb-3">
+                  <p className="px-3 py-1.5 text-[11px] font-medium uppercase tracking-wider text-[var(--color-dim)]">
+                    {g.label}
+                  </p>
+                  <ul className="space-y-0.5">
+                    {g.items.map((c) => {
+                      const on = c.id === activeId;
+                      return (
+                        <li key={c.id} className="group relative">
+                          <button
+                            onClick={() => setActiveId(c.id)}
+                            className={`w-full truncate rounded-lg py-2 pl-3 pr-8 text-left text-[13px] transition-colors ${
+                              on
+                                ? "bg-[var(--color-muted)] font-medium text-[var(--color-fg)]"
+                                : "text-[var(--color-muted-fg)] hover:bg-[var(--color-muted)] hover:text-[var(--color-fg)]"
+                            }`}
+                          >
+                            {c.title}
+                          </button>
+                          <button
+                            onClick={() => removeChat(c.id)}
+                            aria-label={`Delete conversation: ${c.title}`}
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-1.5 text-[var(--color-dim)] opacity-0 transition-[opacity,color] hover:text-[var(--color-negative)] focus:opacity-100 group-hover:opacity-100"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))
+            )}
+          </div>
+        </aside>
+      )}
+
+      {/* Conversation */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="mb-3 flex shrink-0 items-center gap-3">
+          <button
+            onClick={() => setRailOpen((o) => !o)}
+            aria-label={railOpen ? "Hide history" : "Show history"}
+            aria-expanded={railOpen}
+            className="press hidden md:flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-muted-fg)] transition-colors hover:text-[var(--color-fg)]"
+          >
+            <PanelLeft size={16} />
+          </button>
+          <div className="min-w-0">
+            <h1 className="truncate font-serif text-[22px] font-normal text-[var(--color-fg)]">
+              {active ? active.title : "Ask HalalFlow"}
+            </h1>
+            <p className="text-[12px] text-[var(--color-muted-fg)]">
+              Islamic finance questions about your {d.fromCurrency}/{d.toCurrency} payment ·
+              general education, never a fatwa
             </p>
           </div>
-        )}
+        </div>
 
-        {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-            {m.role === "assistant" && (
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 mr-3 mt-0.5"
-                style={{ background: "var(--color-primary)" }}
+        <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)]">
+          {empty ? (
+            /* Centred first-run state */
+            <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">
+              <span
+                className="flex h-12 w-12 items-center justify-center rounded-2xl"
+                style={{ background: "linear-gradient(150deg,#4ADE80,var(--color-primary))" }}
               >
-                H
-              </div>
-            )}
-            <div
-              className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                m.role === "user"
-                  ? "text-white"
-                  : m.error
-                  ? "border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-muted-fg)] italic"
-                  : "border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-fg)]"
-              }`}
-              style={m.role === "user" ? { background: "var(--color-primary)" } : {}}
-            >
-              {m.text.split("\n").map((line, j) => (
-                <span key={j}>{line}{j < m.text.split("\n").length - 1 && <br />}</span>
-              ))}
-            </div>
-          </div>
-        ))}
-
-        {loading && (
-          <div className="flex justify-start">
-            <div
-              className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 mr-3"
-              style={{ background: "var(--color-primary)" }}
-            >
-              H
-            </div>
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3">
-              <div className="flex gap-1 items-center h-4">
-                {[0, 1, 2].map((i) => (
-                  <span
-                    key={i}
-                    className="h-1.5 w-1.5 rounded-full animate-bounce"
-                    style={{ background: "var(--color-muted-fg)", animationDelay: `${i * 150}ms` }}
-                  />
+                <Sparkles size={22} style={{ color: "#04120A" }} />
+              </span>
+              <h2 className="mt-4 font-serif text-2xl font-normal text-[var(--color-fg)]">
+                What would you like to know?
+              </h2>
+              <p className="mt-2 max-w-[46ch] text-[13px] leading-relaxed text-[var(--color-muted-fg)]">
+                Grounded in cited scholarly sources. Surfaces disagreement between schools rather
+                than resolving it.
+              </p>
+              <div className="mt-6 flex max-w-[560px] flex-wrap justify-center gap-2">
+                {SUGGESTED.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => send(s)}
+                    className="press rounded-full border border-[var(--color-border)] bg-[var(--color-muted)] px-3.5 py-2 text-[12.5px] text-[var(--color-muted-fg)] transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-fg)]"
+                  >
+                    {s}
+                  </button>
                 ))}
               </div>
             </div>
+          ) : (
+            <div className="slim-scroll flex-1 min-h-0 space-y-5 overflow-y-auto px-5 py-5">
+              {active.messages.map((m, i) =>
+                m.role === "user" ? (
+                  <div key={i} className="flex justify-end">
+                    <p className="max-w-[80%] rounded-2xl rounded-br-md bg-[var(--color-muted)] px-4 py-2.5 text-[14px] leading-relaxed text-[var(--color-fg)]">
+                      {m.text}
+                    </p>
+                  </div>
+                ) : (
+                  <div key={i} className="flex gap-3">
+                    <span
+                      className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                      style={{ background: "linear-gradient(150deg,#4ADE80,var(--color-primary))" }}
+                    >
+                      <Sparkles size={14} style={{ color: "#04120A" }} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      {m.error ? (
+                        <p className="text-[14px]" style={{ color: "var(--color-negative)" }}>
+                          {m.text}
+                        </p>
+                      ) : (
+                        <>
+                          <Markdown>{m.text}</Markdown>
+                          <p className="mt-3 text-[10.5px] text-[var(--color-dim)]">
+                            General education, not a fatwa. Consult a qualified scholar for a ruling
+                            on your situation.
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ),
+              )}
+
+              {loading && (
+                <div className="flex gap-3" aria-live="polite">
+                  <span
+                    className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                    style={{ background: "linear-gradient(150deg,#4ADE80,var(--color-primary))" }}
+                  >
+                    <Sparkles size={14} style={{ color: "#04120A" }} />
+                  </span>
+                  <div className="flex-1 space-y-2 pt-1.5">
+                    <div className="h-3 w-3/5 animate-pulse rounded bg-[var(--color-muted)]" />
+                    <div className="h-3 w-4/5 animate-pulse rounded bg-[var(--color-muted)]" />
+                    <div className="h-3 w-2/5 animate-pulse rounded bg-[var(--color-muted)]" />
+                  </div>
+                </div>
+              )}
+              <div ref={bottomRef} />
+            </div>
+          )}
+
+          {/* Composer */}
+          <div className="shrink-0 border-t border-[var(--color-border)] p-3">
+            <div className="flex items-end gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 focus-within:border-[var(--color-primary)] transition-colors">
+              <label htmlFor="ask-input" className="sr-only">Your question</label>
+              <textarea
+                id="ask-input"
+                ref={inputRef}
+                rows={1}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={onKeyDown}
+                placeholder="Ask about murabaha, wa'd, riba…"
+                className="slim-scroll max-h-40 flex-1 resize-none bg-transparent py-1.5 text-[14px] text-[var(--color-fg)] outline-none placeholder:text-[var(--color-dim)]"
+              />
+              <button
+                onClick={() => send(input)}
+                disabled={!input.trim() || loading}
+                aria-label="Send question"
+                className="press mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white transition-opacity disabled:opacity-30"
+                style={{ background: "var(--color-primary)" }}
+              >
+                <ArrowUp size={16} />
+              </button>
+            </div>
+            <p className="mt-2 px-1 text-[10.5px] text-[var(--color-dim)]">
+              Enter to send · Shift+Enter for a new line · history is saved on this device only
+            </p>
           </div>
-        )}
-
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Input */}
-      <div className="shrink-0 pt-3 border-t border-[var(--color-border)]">
-        <form
-          onSubmit={(e) => { e.preventDefault(); send(input); }}
-          className="flex gap-2"
-        >
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about Islamic finance options for your payment…"
-            disabled={loading}
-            className="flex-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 text-sm text-[var(--color-fg)] placeholder:text-[var(--color-muted-fg)] outline-none focus:border-[var(--color-primary)] transition-colors disabled:opacity-50"
-          />
-          <button
-            type="submit"
-            disabled={!input.trim() || loading}
-            className="flex h-11 w-11 items-center justify-center rounded-xl text-white transition-opacity disabled:opacity-40"
-            style={{ background: "var(--color-primary)" }}
-            aria-label="Send"
-          >
-            <Send size={16} />
-          </button>
-        </form>
-        <p className="mt-2 text-center text-xs text-[var(--color-muted-fg)]">
-          General education only · Not a fatwa · Not financial advice
-        </p>
+        </div>
       </div>
     </div>
   );

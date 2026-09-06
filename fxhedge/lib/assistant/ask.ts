@@ -70,11 +70,11 @@ export async function askAssistant(
       body,
     });
 
+  // Flash models return 429/503 under load often enough to hit several times in
+  // a row, so back off and try again rather than handing back a dead end.
   let res = await call();
-  // Flash models return 429/503 under load often enough to matter; one retry
-  // turns most of those into an answer instead of a dead end.
-  if (res.status === 429 || res.status === 503) {
-    await new Promise((r) => setTimeout(r, 1200));
+  for (let attempt = 0; attempt < 2 && (res.status === 429 || res.status === 503); attempt++) {
+    await new Promise((r) => setTimeout(r, 1200 * (attempt + 1)));
     res = await call();
   }
 

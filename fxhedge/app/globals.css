@@ -93,6 +93,102 @@ body {
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
+/* ─── Assistant prose ──────────────────────────────────────────────
+   Preflight strips heading sizes, list markers and margins, and the
+   `prose` classes this used to rely on need a plugin that isn't
+   installed — so the rhythm is defined here against the theme tokens. */
+.md-body {
+  font-size: 14.5px;
+  line-height: 1.68;
+  color: var(--color-fg);
+}
+.md-body > :first-child { margin-top: 0; }
+.md-body > :last-child { margin-bottom: 0; }
+
+.md-body p { margin: 0 0 0.9em; }
+
+.md-body h1,
+.md-body h2,
+.md-body h3,
+.md-body h4 {
+  font-weight: 650;
+  line-height: 1.3;
+  color: var(--color-fg);
+  margin: 1.5em 0 0.55em;
+  letter-spacing: -0.01em;
+}
+.md-body h1 { font-size: 1.32em; }
+.md-body h2 { font-size: 1.16em; }
+.md-body h3 { font-size: 1.04em; }
+.md-body h4 { font-size: 1em; }
+
+.md-body ul,
+.md-body ol {
+  margin: 0 0 0.9em;
+  padding-left: 1.35em;
+}
+.md-body ul { list-style: disc; }
+.md-body ol { list-style: decimal; }
+.md-body li { margin: 0.3em 0; padding-left: 0.15em; }
+.md-body li::marker { color: var(--color-muted-fg); }
+.md-body li > ul,
+.md-body li > ol { margin: 0.3em 0 0.2em; }
+
+.md-body strong { font-weight: 650; color: var(--color-fg); }
+.md-body em { font-style: italic; }
+
+.md-body a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.md-body blockquote {
+  margin: 1em 0;
+  padding: 0.15em 0 0.15em 1em;
+  border-left: 2px solid var(--color-primary);
+  color: var(--color-muted-fg);
+}
+
+.md-body code {
+  font-family: var(--font-mono);
+  font-size: 0.87em;
+  background: var(--color-muted);
+  border-radius: 4px;
+  padding: 0.12em 0.38em;
+}
+.md-body pre {
+  margin: 1em 0;
+  padding: 0.9em 1em;
+  overflow-x: auto;
+  border-radius: 10px;
+  background: var(--color-muted);
+  border: 1px solid var(--color-border);
+}
+.md-body pre code { background: none; padding: 0; font-size: 0.85em; }
+
+.md-body hr {
+  margin: 1.4em 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.md-body table {
+  width: 100%;
+  margin: 1em 0;
+  border-collapse: collapse;
+  font-size: 0.93em;
+  display: block;
+  overflow-x: auto;
+}
+.md-body th,
+.md-body td {
+  border: 1px solid var(--color-border);
+  padding: 0.45em 0.7em;
+  text-align: left;
+}
+.md-body th { background: var(--color-muted); font-weight: 600; }
+
 /* Slim themed scrollbar. Deliberately no `scrollbar-width`: it makes Chrome
    fall back to an overlay bar that stays invisible until you scroll, which
    hid the fact that these lists had more rows below the fold. */
