@@ -8,6 +8,11 @@ import { useAppData } from "@/hooks/use-app-data";
 import { useUser } from "@/hooks/use-user";
 import { VerdictStrip } from "@/components/dashboard/verdict-strip";
 import {
+  estimateCorrespondentFees,
+  PER_HOP_USD,
+  BENEFICIARY_USD,
+} from "@/lib/correspondent-fees";
+import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, ReferenceLine,
 } from "recharts";
@@ -339,6 +344,21 @@ export default function DashboardPage() {
                     )}
                   </div>
 
+                  {(() => {
+                    const est = estimateCorrespondentFees(p.provider_type);
+                    if (!est) return null;
+                    return (
+                      <p
+                        className="text-[11px] leading-relaxed"
+                        style={{ color: "var(--color-warning)" }}
+                      >
+                        Bank wire — your supplier may receive US${est.minUsd}–{est.maxUsd} less
+                        than shown. It passes through {est.hopsMin}–{est.hopsMax} correspondent
+                        banks, each deducting a fee the quote cannot see.
+                      </p>
+                    );
+                  })()}
+
                   {open && (
                     <p className="rounded-lg bg-[var(--color-muted)] px-3 py-2 text-[11px] leading-relaxed text-[var(--color-muted-fg)]">
                       {DESCRIPTIONS[p.name] ?? "Provider quote from Wise Comparison API."}
@@ -348,6 +368,13 @@ export default function DashboardPage() {
               );
             })}
           </ul>
+
+          <p className="mt-3 shrink-0 border-t border-[var(--color-border)] pt-3 text-[10.5px] leading-relaxed text-[var(--color-dim)]">
+            Correspondent estimates are a published range, not a quote —
+            US${PER_HOP_USD.min}–{PER_HOP_USD.max} per intermediary bank plus a
+            US${BENEFICIARY_USD.min}–{BENEFICIARY_USD.max} receiving fee. These are
+            not knowable before the transfer completes. Source: Airwallex.
+          </p>
         </section>
 
         {/* 2 — Best provider net + rate history */}
