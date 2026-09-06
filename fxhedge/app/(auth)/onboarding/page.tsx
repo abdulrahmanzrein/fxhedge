@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useInvoice, todayIsoDate } from "@/hooks/use-invoice";
 
 const CURRENCIES = ["USD", "CAD", "EUR", "GBP", "AUD", "SGD", "AED", "SAR"];
 const BUSINESS_TYPES = [
@@ -15,13 +16,66 @@ const BUSINESS_TYPES = [
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { setCurrent } = useInvoice();
+
+  const [businessName, setBusinessName] = useState("");
+  const [businessType, setBusinessType] = useState("");
+  const [homeCurrency, setHomeCurrency] = useState("CAD");
+  const [supplierCurrency, setSupplierCurrency] = useState("EUR");
+  const [invoiceAmount, setInvoiceAmount] = useState("");
+  const [targetMargin, setTargetMargin] = useState("");
+  const [daysUntilDue, setDaysUntilDue] = useState("");
+
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const sameCurrency = homeCurrency === supplierCurrency;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (sameCurrency) return;
     setLoading(true);
-    await new Promise(r => setTimeout(r, 600));
-    router.push("/dashboard");
+    setError(null);
+
+    const amount = Number(invoiceAmount);
+    const days = Number(daysUntilDue);
+
+    try {
+      const res = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          business_name: businessName,
+          business_type: businessType,
+          home_currency: homeCurrency,
+          supplier_currency: supplierCurrency,
+          invoice_amount: amount,
+          target_margin: Number(targetMargin),
+          days_until_due: days,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error ?? "Could not save your profile.");
+      }
+
+      // Seed the working invoice so the dashboard reflects these answers at once.
+      setCurrent({
+        id: "onboarding",
+        amount,
+        from: supplierCurrency,
+        to: homeCurrency,
+        days: Math.round(days),
+        invoicedOn: todayIsoDate(),
+        label: businessName.trim() ? `${businessName.trim()} invoice` : "First invoice",
+        savedAt: new Date().toISOString(),
+      });
+
+      router.push("/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -31,49 +85,119 @@ export default function OnboardingPage() {
       </Link>
       <div className="w-full max-w-md rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-8">
         <h1 className="text-xl font-semibold text-[var(--color-fg)] mb-1">Tell us about your business</h1>
-        <p className="text-sm text-[var(--color-muted-fg)] mb-6">Step 2 of 2 — business profile</p>
+        <p className="text-sm text-[var(--color-muted-fg)] mb-6">
+          Step 2 of 2 — this sets up your dashboard. You can change any of it later.
+        </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Field label="Business name">
-            <input id="onboarding-biz-name" type="text" required autoComplete="organization" placeholder="Aisha's Halal Imports" className={inputCls} />
+            <input
+              id="onboarding-biz-name"
+              type="text"
+              required
+              autoComplete="organization"
+              placeholder="Aisha's Halal Imports"
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
+              className={inputCls}
+            />
           </Field>
 
           <Field label="Business type">
-            <select id="onboarding-biz-type" required className={inputCls}>
+            <select
+              id="onboarding-biz-type"
+              required
+              value={businessType}
+              onChange={(e) => setBusinessType(e.target.value)}
+              className={inputCls}
+            >
               <option value="">Select a type…</option>
               {BUSINESS_TYPES.map(t => <option key={t}>{t}</option>)}
             </select>
           </Field>
 
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Home currency">
-              <select id="onboarding-home-currency" required className={inputCls}>
+            <Field label="You get paid in">
+              <select
+                id="onboarding-home-currency"
+                required
+                value={homeCurrency}
+                onChange={(e) => setHomeCurrency(e.target.value)}
+                className={inputCls}
+              >
                 {CURRENCIES.map(c => <option key={c}>{c}</option>)}
               </select>
             </Field>
-            <Field label="Supplier currency">
-              <select id="onboarding-supplier-currency" required className={inputCls}>
+            <Field label="You pay suppliers in">
+              <select
+                id="onboarding-supplier-currency"
+                required
+                value={supplierCurrency}
+                onChange={(e) => setSupplierCurrency(e.target.value)}
+                className={inputCls}
+              >
                 {CURRENCIES.map(c => <option key={c}>{c}</option>)}
               </select>
             </Field>
           </div>
 
-          <Field label="Invoice amount (supplier currency)">
-            <input id="onboarding-invoice" type="number" required min={1} placeholder="12000" className={inputCls} />
+          {sameCurrency && (
+            <p className="text-xs" style={{ color: "var(--color-negative)" }}>
+              Pick two different currencies — there is no FX risk if they match.
+            </p>
+          )}
+
+          <Field label={`Typical invoice amount (${supplierCurrency})`}>
+            <input
+              id="onboarding-invoice"
+              type="number"
+              required
+              min={1}
+              placeholder="12000"
+              value={invoiceAmount}
+              onChange={(e) => setInvoiceAmount(e.target.value)}
+              className={inputCls}
+            />
           </Field>
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Target margin (%)">
-              <input id="onboarding-margin" type="number" required min={0} max={100} placeholder="10" className={inputCls} />
+              <input
+                id="onboarding-margin"
+                type="number"
+                required
+                min={0}
+                max={100}
+                placeholder="10"
+                value={targetMargin}
+                onChange={(e) => setTargetMargin(e.target.value)}
+                className={inputCls}
+              />
             </Field>
             <Field label="Days until due">
-              <input id="onboarding-days" type="number" required min={1} placeholder="21" className={inputCls} />
+              <input
+                id="onboarding-days"
+                type="number"
+                required
+                min={0}
+                max={365}
+                placeholder="21"
+                value={daysUntilDue}
+                onChange={(e) => setDaysUntilDue(e.target.value)}
+                className={inputCls}
+              />
             </Field>
           </div>
 
+          {error && (
+            <p role="alert" className="text-xs" style={{ color: "var(--color-negative)" }}>
+              {error}
+            </p>
+          )}
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || sameCurrency}
             className="mt-2 w-full rounded-md bg-[var(--color-primary)] py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-[opacity,scale] duration-150 active:scale-[0.96] disabled:opacity-60"
           >
             {loading ? "Saving…" : "Go to dashboard →"}
