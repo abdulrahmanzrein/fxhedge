@@ -29,9 +29,9 @@ function subscribeNever(): () => void {
 const TAGLINE = "Trade honestly. See the cost before you pay it.";
 
 /**
- * Sourced passages for the flowing strip. Same English translations as
- * /reflect (the reflect screen's sourcing is the project standard):
- * Quran — Sahih International; hadith as cited. Never paraphrase scripture.
+ * Sourced passages for the flowing strip. Quran — Sahih International;
+ * hadith as cited. Never paraphrase scripture: quote a named translation
+ * or leave it out.
  */
 const VERSES = [
   {

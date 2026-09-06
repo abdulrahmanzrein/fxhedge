@@ -212,17 +212,29 @@ body {
 }
 .md-body th { background: var(--color-muted); font-weight: 600; }
 
-/* Slim themed scrollbar. Deliberately no `scrollbar-width`: it makes Chrome
-   fall back to an overlay bar that stays invisible until you scroll, which
-   hid the fact that these lists had more rows below the fold. */
-.slim-scroll { scrollbar-color: var(--color-border) transparent; }
-.slim-scroll::-webkit-scrollbar { width: 6px; }
+/* Slim themed scrollbar, permanently visible.
+   These lists show 2 of 11 rows, so the bar is the only thing telling you the
+   rest exist. Two failures were hiding it: macOS overlay scrollbars reserve no
+   width and stay invisible until you already scroll, and the thumb was
+   --color-border (#1F1F1F), which is invisible on a #101010 card.
+   `scrollbar-gutter: stable` forces the track to take real layout width, and
+   the thumb now uses a tone that reads against the card at rest. */
+/* No `scrollbar-width` or `scrollbar-color` here on purpose: setting either
+   standard property switches Chrome to the macOS overlay bar, which reserves
+   no width and stays invisible until you are already scrolling. The webkit
+   rules below only produce a real, always-present bar while both are unset. */
+.slim-scroll { scrollbar-gutter: stable; }
+.slim-scroll::-webkit-scrollbar { width: 10px; }
 .slim-scroll::-webkit-scrollbar-track { background: transparent; }
 .slim-scroll::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
+  background: var(--color-muted-fg);
+  border-radius: 5px;
+  /* Transparent border + content-box clip keeps the visible thumb slim while
+     the hit target stays the full 10px. */
+  border: 3px solid transparent;
+  background-clip: content-box;
 }
-.slim-scroll:hover::-webkit-scrollbar-thumb { background: var(--color-muted-fg); }
+.slim-scroll:hover::-webkit-scrollbar-thumb { background: var(--color-fg); }
 
 /* Advisor tile — decorative motes drifting up out of the green glow.
    CSS animation so it keeps running off the main thread while the dashboard

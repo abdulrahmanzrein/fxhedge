@@ -6,7 +6,6 @@ const PROTECTED_PREFIXES = [
   "/transfer",
   "/risk",
   "/sharia",
-  "/reflect",
   "/zakat",
 ];
 

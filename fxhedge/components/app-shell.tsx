@@ -8,7 +8,6 @@ import {
   ArrowLeftRight,
   TrendingUp,
   Shield,
-  Scale,
   Moon,
   Target,
   MessageCircle,
@@ -41,7 +40,6 @@ const NAV_GROUPS = [
       { href: "/sharia", label: "Sharia options", icon: Shield },
       { href: "/zakat", label: "Zakat calculator", icon: Moon },
       { href: "/ask", label: "Ask HalalFlow", icon: MessageCircle },
-      { href: "/reflect", label: "The weight of riba", icon: Scale },
     ],
   },
 ];
