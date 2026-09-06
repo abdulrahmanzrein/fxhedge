@@ -12,6 +12,8 @@ export interface AppData {
   fromCurrency: string;
   toCurrency: string;
   daysUntilDue: number;
+  /** Days elapsed since the invoice was issued — the drift baseline. */
+  daysSinceInvoiced: number;
   invoiceLabel: string;
   // FX
   ecbRateToday: number;
@@ -42,7 +44,7 @@ const FALLBACK_PROVIDERS: ProviderQuote[] = SAMPLE.providers.map((p) => ({
 }));
 
 function buildFallback(inv: {
-  amount: number; from: string; to: string; days: number; label: string;
+  amount: number; from: string; to: string; days: number; since: number; label: string;
 }): AppData {
   return {
     loading: false,
@@ -51,6 +53,7 @@ function buildFallback(inv: {
     fromCurrency: inv.from,
     toCurrency: inv.to,
     daysUntilDue: inv.days,
+    daysSinceInvoiced: inv.since,
     invoiceLabel: inv.label,
     ecbRateToday: SAMPLE.ecbRateToday,
     ecbRateInvoiceDay: SAMPLE.ecbRateInvoiceDay,
@@ -70,6 +73,14 @@ function buildFallback(inv: {
   };
 }
 
+/** Whole days between an ISO date and today, floored at 0. */
+function daysSince(isoDate: string): number {
+  const then = new Date(`${isoDate}T00:00:00Z`).getTime();
+  if (!Number.isFinite(then)) return 0;
+  const today = new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`).getTime();
+  return Math.max(0, Math.round((today - then) / 86_400_000));
+}
+
 function shortDay(iso: string) {
   const d = new Date(iso + "T00:00:00");
   return d.toLocaleDateString("en-CA", { month: "short", day: "numeric" });
@@ -84,6 +95,7 @@ export function useAppData(): AppData {
       from:   MOCK_PROFILE.supplier_currency,
       to:     MOCK_PROFILE.home_currency,
       days:   MOCK_PROFILE.days_until_due,
+      since:  MOCK_PROFILE.days_until_due,
       label:  "Sample",
     }),
     loading: true,
@@ -98,15 +110,17 @@ export function useAppData(): AppData {
     const to    = current.to;
     const days  = current.days;
     const label = current.label;
+    // Drift is measured from the issue date; the risk window looks forward to the due date.
+    const since = daysSince(current.invoicedOn);
 
     setData((prev) => ({ ...prev, loading: true, error: false }));
 
     async function load() {
       try {
         const [fxRes, provRes, riskRes, histRes] = await Promise.all([
-          fetch(`/api/fx?pair=${from}-${to}&days_ago=${days}`),
+          fetch(`/api/fx?pair=${from}-${to}&days_ago=${since}`),
           fetch(`/api/providers?from=${from}&to=${to}&amount=${inv}`),
-          fetch(`/api/risk?pair=${from}-${to}&days_ago=${days}&years=10`),
+          fetch(`/api/risk?pair=${from}-${to}&days_ago=${since}&window_days=${days}&years=10`),
           fetch(`/api/history?pair=${from}-${to}&years=1`),
         ]);
 
@@ -138,6 +152,7 @@ export function useAppData(): AppData {
           fromCurrency:  from,
           toCurrency:    to,
           daysUntilDue:  days,
+          daysSinceInvoiced: since,
           invoiceLabel:  label,
           ecbRateToday:      fx.rate,
           ecbRateInvoiceDay: fx.rate_invoice_day,
@@ -156,12 +171,12 @@ export function useAppData(): AppData {
           rateHistory,
         });
       } catch {
-        setData(buildFallback({ amount: inv, from, to, days, label }));
+        setData(buildFallback({ amount: inv, from, to, days, since, label }));
       }
     }
 
     load();
-  }, [ready, current.amount, current.from, current.to, current.days, current.label]);
+  }, [ready, current.amount, current.from, current.to, current.days, current.invoicedOn, current.label]);
 
   return data;
 }

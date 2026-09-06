@@ -149,8 +149,8 @@ export default function RiskPage() {
         <p className="mt-2.5 max-w-3xl text-sm leading-relaxed text-[var(--color-fg)]">{v.plain}</p>
         <p className="mt-2 max-w-3xl text-xs leading-relaxed text-[var(--color-muted-fg)]">
           {d.driftTodayPct === 0
-            ? "The rate has not moved since your invoice date."
-            : `The rate has moved ${Math.abs(d.driftTodayPct)}% ${d.driftTodayPct < 0 ? "in your favour" : "against you"} since your invoice date — about ${money(driftMoney)} on this bill.`}{" "}
+            ? `The rate has not moved in the ${d.daysSinceInvoiced} days since your invoice was issued.`
+            : `In the ${d.daysSinceInvoiced} days since your invoice was issued the rate has moved ${Math.abs(d.driftTodayPct)}% ${d.driftTodayPct < 0 ? "in your favour" : "against you"} — about ${money(driftMoney)} on this bill.`}{" "}
           The bigger question is the {swingPct}% swing that shows up in the roughest 1 in 20
           stretches, which is worth about {money(dearer - d.trueCostToday)} here.
         </p>
@@ -228,15 +228,15 @@ export default function RiskPage() {
           sub={`One ${d.fromCurrency} costs this many ${d.toCurrency}, before any provider adds a markup.`}
         />
         <Stat
-          label="Since you were invoiced"
+          label={`Since your invoice (${d.daysSinceInvoiced}d)`}
           value={`${d.driftTodayPct > 0 ? "+" : ""}${d.driftTodayPct}%`}
           tone={d.driftTodayPct < 0 ? "good" : d.driftTodayPct > 0 ? "bad" : "neutral"}
           sub={
             d.driftTodayPct === 0
-              ? "The rate is unchanged since your invoice date."
+              ? "The rate is unchanged since the day your invoice was issued."
               : d.driftTodayPct < 0
-              ? `The rate fell, so your bill is about ${money(driftMoney)} cheaper than on invoice day.`
-              : `The rate rose, so your bill is about ${money(driftMoney)} dearer than on invoice day.`
+              ? `The rate fell, so your bill is about ${money(driftMoney)} cheaper than on the day it was issued.`
+              : `The rate rose, so your bill is about ${money(driftMoney)} dearer than on the day it was issued.`
           }
         />
         <Stat

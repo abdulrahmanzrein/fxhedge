@@ -10,14 +10,25 @@ import {
 import { buildRiskResult } from "@/lib/risk";
 
 /**
- * GET /api/risk?pair=EUR-CAD&days_ago=21&years=10
- * Returns RiskResult (types/index.ts): real historical distribution
- * + drift + pay-now-vs-wait verdict. No direction prediction.
+ * GET /api/risk?pair=EUR-CAD&days_ago=21&window_days=21&years=10
+ *
+ * Two distinct periods, deliberately separate:
+ *   days_ago     — how long ago the invoice was issued; the drift baseline.
+ *   window_days  — how long until it is due; the forward exposure window the
+ *                  historical distribution is measured over.
+ * They only coincide by accident. Defaults to days_ago when omitted.
+ *
+ * Returns RiskResult (types/index.ts). No direction prediction.
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const pairParam = searchParams.get("pair") ?? "EUR-CAD";
   const daysAgo = Math.max(0, Math.min(3650, Number(searchParams.get("days_ago") ?? 21) || 0));
+  const windowParam = searchParams.get("window_days");
+  const windowDays = Math.max(
+    1,
+    Math.min(3650, (windowParam === null ? daysAgo : Number(windowParam)) || 21),
+  );
   const years = Math.max(1, Math.min(27, Number(searchParams.get("years") ?? 10) || 10));
 
   const pair = parsePair(pairParam);
@@ -48,7 +59,7 @@ export async function GET(request: NextRequest) {
       pair: `${pair.from}-${pair.to}`,
       invoiceDayRate,
       todayRate: latest.rate,
-      windowDays: Math.max(1, daysAgo),
+      windowDays,
       series,
     });
     return NextResponse.json(result, {
