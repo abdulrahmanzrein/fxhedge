@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { MOCK_PROFILE, currencySymbol } from "@/lib/fixtures";
 import { useAppData } from "@/hooks/use-app-data";
+import { useUser } from "@/hooks/use-user";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, ReferenceLine, PieChart, Pie, Cell,
@@ -80,6 +81,7 @@ function AnimatedBar({
 
 export default function DashboardPage() {
   const d = useAppData();
+  const user = useUser();
   const reduced = usePrefersReducedMotion();
   const { resolvedTheme } = useTheme();
   const [themeMounted, setThemeMounted] = useState(false);
@@ -145,11 +147,23 @@ export default function DashboardPage() {
     // Adjust the calc() offset to match your app-shell header height so it fits one screen.
     <div className="flex flex-col gap-4 lg:h-[calc(100dvh-2rem)]">
 
-      {/* Header */}
+      {/* Header — greeting + name, then invoice summary */}
       <header style={fade(0)}>
-        <h1 className="font-serif text-3xl md:text-4xl font-normal text-[var(--color-fg)]">Dashboard</h1>
+        <h1 className="font-serif text-3xl md:text-4xl font-normal text-[var(--color-fg)]">
+          Assalamu alaikum
+          {user.name && (
+            <>
+              <span className="text-[var(--color-muted-fg)]">,</span>{" "}
+              <span className="text-[var(--color-primary)]">{user.name}</span>
+            </>
+          )}
+        </h1>
         <p className="text-[var(--color-muted-fg)] mt-2 text-sm">
-          Your {currencySymbol(d.fromCurrency)}{d.invoiceAmount.toLocaleString()} supplier invoice, {d.daysUntilDue} days on terms.
+          Your{" "}
+          <span className="font-money tabular text-[var(--color-fg)]">
+            {currencySymbol(d.fromCurrency)}{d.invoiceAmount.toLocaleString()}
+          </span>{" "}
+          supplier invoice, <span className="tabular">{d.daysUntilDue}</span> days on terms.
         </p>
       </header>
 

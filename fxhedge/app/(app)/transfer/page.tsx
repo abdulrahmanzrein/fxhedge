@@ -1,12 +1,59 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useInvoice, type Invoice } from "@/hooks/use-invoice";
 import { currencySymbol } from "@/lib/fixtures";
 import { usePageFade } from "@/components/page-fade";
-import { ArrowRight, Clock, Trash2 } from "lucide-react";
+import { ArrowRight, Clock, Trash2, FileText, Upload, Sparkles } from "lucide-react";
 
 const CURRENCIES = ["EUR", "USD", "GBP", "CAD", "AUD", "SGD"];
+
+declare global { interface Window { pdfjsLib: any } }
+const PDFJS_CDN     = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+const PDFJS_WORKER  = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+function ensurePdfJs(): Promise<void> {
+  if (typeof window === "undefined") return Promise.reject(new Error("SSR"));
+  if (window.pdfjsLib) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = PDFJS_CDN; s.async = true;
+    s.onload = () => {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+      resolve();
+    };
+    s.onerror = () => reject(new Error("pdf.js failed to load"));
+    document.head.appendChild(s);
+  });
+}
+
+function parseInvoice(text: string): { amount?: number; currency?: string; label?: string } {
+  const currencyMap: Record<string, string> = { "€": "EUR", "$": "USD", "£": "GBP" };
+  // ISO currency codes
+  const isoMatch = text.match(/\b(EUR|USD|GBP|CAD|AUD|SGD)\b/i);
+  let currency = isoMatch ? isoMatch[1].toUpperCase() : undefined;
+
+  // Amount adjacent to a currency symbol or code, e.g. "€12,000.00" or "USD 12500"
+  const amountRe = /(?:€|\$|£|EUR|USD|GBP|CAD|AUD|SGD)\s*([\d]{1,3}(?:[,\s\.]\d{3})*(?:\.\d{1,2})?)|([\d]{1,3}(?:[,\s\.]\d{3})*(?:\.\d{1,2})?)\s*(?:€|\$|£|EUR|USD|GBP|CAD|AUD|SGD)/i;
+  const amountMatch = text.match(amountRe);
+  const rawAmount = amountMatch ? (amountMatch[1] || amountMatch[2]) : undefined;
+  const amount = rawAmount ? Math.round(parseFloat(rawAmount.replace(/[,\s]/g, ""))) : undefined;
+
+  // If no currency yet but we spotted a symbol on the way, pick from map
+  if (!currency) {
+    for (const sym of ["€", "$", "£"]) {
+      if (text.includes(sym)) { currency = currencyMap[sym]; break; }
+    }
+  }
+
+  // Label: try "Invoice", "Bill to", "From:" style prefixes
+  const supplierMatch =
+    text.match(/(?:Invoice(?:\s*#|:)?\s*)([A-Za-z0-9\- ]{3,40})/i) ||
+    text.match(/(?:Supplier|Vendor|Bill\s*to|From):\s*([^\n]{3,40})/i);
+  const label = supplierMatch ? supplierMatch[1].trim() : undefined;
+
+  return { amount, currency, label };
+}
 
 function fmtWhen(iso: string) {
   const d = new Date(iso);
@@ -28,6 +75,64 @@ export default function TransferPage() {
   const [amount, setAmount] = useState(12000);
   const [days,   setDays]   = useState(21);
   const [label,  setLabel]  = useState("");
+
+  // PDF drop / extract
+  const [dragActive, setDragActive] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const [extracted, setExtracted]   = useState<{ file: string; found: string[] } | null>(null);
+  const [extractError, setExtractError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFile(file: File) {
+    setExtractError(null);
+    setExtracted(null);
+    if (file.type !== "application/pdf") {
+      setExtractError("Please drop a PDF file.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setExtractError("PDF too large (max 10 MB).");
+      return;
+    }
+    setExtracting(true);
+    try {
+      await ensurePdfJs();
+      const buf = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+      let text = "";
+      const pages = Math.min(pdf.numPages, 3);
+      for (let i = 1; i <= pages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map((it: any) => it.str).join(" ") + " ";
+      }
+      const parsed = parseInvoice(text);
+      const found: string[] = [];
+      if (parsed.amount)   { setAmount(parsed.amount);         found.push("amount"); }
+      if (parsed.currency && CURRENCIES.includes(parsed.currency)) {
+        setFrom(parsed.currency);                              found.push("currency");
+      }
+      if (parsed.label)    { setLabel(parsed.label.slice(0, 60)); found.push("label"); }
+      if (found.length === 0) {
+        setExtractError("Couldn't detect invoice details. Please enter manually.");
+      } else {
+        setExtracted({ file: file.name, found });
+      }
+    } catch (e) {
+      setExtractError(e instanceof Error ? e.message : "Extraction failed.");
+    } finally {
+      setExtracting(false);
+    }
+  }
+
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragActive(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleFile(file);
+  }
+  function onDragOver(e: React.DragEvent) { e.preventDefault(); setDragActive(true); }
+  function onDragLeave(e: React.DragEvent) { e.preventDefault(); setDragActive(false); }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -70,9 +175,87 @@ export default function TransferPage() {
         {/* Form */}
         <form
           onSubmit={submit}
-          className="lg:col-span-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 flex flex-col gap-5 min-h-0 overflow-y-auto"
+          className="lg:col-span-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 flex flex-col gap-4 min-h-0 overflow-y-auto"
           style={fade(1)}
         >
+          {/* PDF drop zone */}
+          <div
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onClick={() => fileInputRef.current?.click()}
+            className="relative rounded-xl border-2 border-dashed px-6 py-8 cursor-pointer transition-[border-color,background-color]"
+            style={{
+              borderColor: dragActive
+                ? "var(--color-primary)"
+                : extracted
+                ? "rgba(34,197,94,0.5)"
+                : extractError
+                ? "rgba(248,113,113,0.5)"
+                : "var(--color-border)",
+              background: dragActive
+                ? "rgba(34,197,94,0.08)"
+                : extracted
+                ? "rgba(34,197,94,0.05)"
+                : "transparent",
+            }}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
+            />
+            <div className="flex flex-col items-center text-center gap-3">
+              <div
+                className="h-14 w-14 rounded-2xl flex items-center justify-center shrink-0"
+                style={{
+                  background: extracted ? "rgba(34,197,94,0.15)" : "var(--color-muted)",
+                  color: extracted ? "#16A34A" : "var(--color-muted-fg)",
+                }}
+              >
+                {extracting ? (
+                  <div className="h-6 w-6 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                ) : extracted ? (
+                  <Sparkles size={24} />
+                ) : (
+                  <Upload size={24} />
+                )}
+              </div>
+              <div className="min-w-0">
+                {extracting ? (
+                  <>
+                    <p className="text-base font-semibold text-[var(--color-fg)]">Extracting invoice details…</p>
+                    <p className="text-xs text-[var(--color-muted-fg)] mt-1">Reading PDF and looking for amount, currency, supplier</p>
+                  </>
+                ) : extracted ? (
+                  <>
+                    <p className="text-base font-semibold text-[var(--color-fg)] truncate flex items-center justify-center gap-1.5">
+                      <FileText size={15} className="shrink-0" />
+                      {extracted.file}
+                    </p>
+                    <p className="text-xs mt-1" style={{ color: "#16A34A" }}>
+                      Filled in {extracted.found.join(", ")}. Review below then submit.
+                    </p>
+                  </>
+                ) : extractError ? (
+                  <>
+                    <p className="text-base font-semibold text-[var(--color-fg)]">Drop an invoice PDF to auto fill</p>
+                    <p className="text-xs mt-1" style={{ color: "#f87171" }}>{extractError}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-base font-semibold text-[var(--color-fg)]">Drop an invoice PDF to auto fill</p>
+                    <p className="text-xs text-[var(--color-muted-fg)] mt-1">
+                      Or click to browse. We extract amount + currency locally, nothing uploaded.
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <Field label="From currency" htmlFor="from-cur">
               <select
@@ -137,12 +320,10 @@ export default function TransferPage() {
             <p className="text-xs" style={{ color: "#f87171" }}>Pick two different currencies.</p>
           )}
 
-          <div className="flex-1" />
-
           <button
             type="submit"
             disabled={from === to || amount <= 0}
-            className="flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold text-white transition-[opacity,scale] duration-150 active:scale-[0.96] hover:opacity-90 disabled:opacity-40 disabled:active:scale-100"
+            className="mt-1 flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold text-white transition-[opacity,scale] duration-150 active:scale-[0.96] hover:opacity-90 disabled:opacity-40 disabled:active:scale-100"
             style={{ background: "var(--color-primary)" }}
           >
             Analyze on dashboard <ArrowRight size={16} />
@@ -180,33 +361,30 @@ export default function TransferPage() {
               </p>
             </div>
           ) : (
-            <ul className="space-y-2 flex-1 min-h-0 overflow-y-auto">
+            <ul className="flex-1 min-h-0 overflow-y-auto -mr-2 pr-2 space-y-1.5">
               {recent.map((inv) => (
                 <li key={inv.id}>
-                  <div
-                    className="group flex items-center gap-1 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-colors"
-                  >
+                  <div className="group flex items-stretch rounded-lg border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-colors">
                     <button
                       type="button"
                       onClick={() => pickRecent(inv)}
-                      className="flex-1 min-w-0 text-left p-3 rounded-xl transition-[opacity,scale] duration-150 active:scale-[0.985]"
+                      className="flex-1 min-w-0 text-left px-3 py-2.5 rounded-l-lg active:scale-[0.99] transition-transform duration-150"
                     >
-                      <div className="flex items-center gap-2 mb-1">
-                        <span
-                          className="text-[10px] font-semibold tabular rounded-md px-1.5 py-0.5"
-                          style={{ background: "var(--color-muted)", color: "var(--color-muted-fg)" }}
-                        >
-                          {inv.from}→{inv.to}
-                        </span>
+                      <div className="flex items-center justify-between gap-2">
                         <span className="text-sm font-medium text-[var(--color-fg)] truncate">
                           {inv.label}
                         </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-[var(--color-muted-fg)]">
-                        <span className="font-money tabular">
+                        <span className="font-money tabular text-sm text-[var(--color-fg)] shrink-0">
                           {currencySymbol(inv.from)}{inv.amount.toLocaleString()}
                         </span>
-                        <span aria-hidden="true">·</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5 text-[11px] text-[var(--color-muted-fg)]">
+                        <span
+                          className="tabular rounded px-1 py-px font-semibold"
+                          style={{ background: "var(--color-muted)" }}
+                        >
+                          {inv.from}→{inv.to}
+                        </span>
                         <span className="tabular">{inv.days}d due</span>
                         <span aria-hidden="true">·</span>
                         <span>{fmtWhen(inv.savedAt)}</span>
@@ -215,10 +393,10 @@ export default function TransferPage() {
                     <button
                       type="button"
                       onClick={() => removeRecent(inv.id)}
-                      className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity mr-2 h-8 w-8 flex items-center justify-center rounded-lg hover:bg-[var(--color-muted)]"
+                      className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity w-9 flex items-center justify-center border-l border-[var(--color-border)] hover:bg-[var(--color-muted)] rounded-r-lg"
                       aria-label={`Remove ${inv.label}`}
                     >
-                      <Trash2 size={14} style={{ color: "var(--color-muted-fg)" }} />
+                      <Trash2 size={13} style={{ color: "var(--color-muted-fg)" }} />
                     </button>
                   </div>
                 </li>
