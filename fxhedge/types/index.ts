@@ -41,6 +41,10 @@ export interface ProviderQuote {
   received: number;             // 19195 — amount the supplier gets
   mid_market: boolean;          // true for the mid-market provider
   transfer_fee?: number;
+  /** Provider's FX markup over mid-market, in percent. 0 = true mid-market. */
+  markup_pct?: number;
+  /** When the provider's rate was collected — quotes are not all same-day. */
+  quoted_at?: string;
   logo?: string;
 }
 

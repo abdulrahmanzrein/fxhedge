@@ -51,6 +51,14 @@ const ADVISOR_MOTES = [
 /* Small helpers / hooks                                              */
 /* ------------------------------------------------------------------ */
 
+/** Whole days since a provider's rate was collected — quotes are not all same-day. */
+function quoteAgeDays(iso?: string): number {
+  if (!iso) return 0;
+  const t = new Date(iso).getTime();
+  if (!Number.isFinite(t)) return 0;
+  return Math.max(0, Math.floor((Date.now() - t) / 86_400_000));
+}
+
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
@@ -291,22 +299,38 @@ export default function DashboardPage() {
                           {money(gap)}
                         </span>{" "}
                         vs mid market
-                        {/* The stated fee and the rate markup are different things; the
-                            second is the one providers do not put on the invoice. */}
-                        {typeof p.transfer_fee === "number" && (
+                        {/* The stated fee and the rate markup are different charges. The
+                            markup is the one that never appears on the invoice, so it is
+                            shown from the provider's own quote rather than derived. */}
+                        {typeof p.markup_pct === "number" && (
                           <>
                             {" · "}
-                            <span className="tabular">{money(p.transfer_fee * d.ecbRateToday)}</span> stated fee
+                            <span
+                              className="tabular font-medium"
+                              style={{ color: p.markup_pct > 0 ? "var(--color-negative)" : "var(--color-primary)" }}
+                            >
+                              {p.markup_pct > 0 ? `${p.markup_pct}% rate markup` : "no rate markup"}
+                            </span>
+                          </>
+                        )}
+                        {typeof p.transfer_fee === "number" && (
+                          <>
                             {" + "}
                             <span className="tabular">
-                              {money(Math.max(0, gap - p.transfer_fee * d.ecbRateToday))}
-                            </span>{" "}
-                            hidden in the rate
+                              {p.transfer_fee > 0
+                                ? `${money(p.transfer_fee * d.ecbRateToday)} stated fee`
+                                : "no stated fee"}
+                            </span>
                           </>
                         )}
                       </>
                     ) : (
                       <span style={{ color: "var(--color-primary)" }}>At mid market. No hidden spread.</span>
+                    )}
+                    {quoteAgeDays(p.quoted_at) > 1 && (
+                      <span className="ml-1.5 text-[var(--color-warning)]">
+                        · rate quoted {quoteAgeDays(p.quoted_at)} days ago
+                      </span>
                     )}
                   </div>
 

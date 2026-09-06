@@ -20,8 +20,51 @@ describe("normalizeProviders", () => {
   it("maps Wise quotes to the ProviderQuote contract", () => {
     const out = normalizeProviders([wise]);
     expect(out).toEqual([
-      { name: "Wise", received: 19195, mid_market: true, transfer_fee: 52.67 },
+      {
+        name: "Wise",
+        received: 19195,
+        mid_market: true,
+        transfer_fee: 52.67,
+        markup_pct: 0,
+        quoted_at: undefined,
+        logo: undefined,
+      },
     ]);
+  });
+
+  it("captures the FX markup and quote date, which the fee alone hides", () => {
+    const bank = {
+      name: "Barclays",
+      alias: "barclays",
+      quotes: [
+        {
+          rate: 1.3379905096,
+          fee: 0,
+          receivedAmount: 60209.57,
+          isConsideredMidMarketRate: false,
+          markup: 1.05450105,
+          dateCollected: "2026-09-04T18:07:51Z",
+        },
+      ],
+      logos: {},
+    };
+    const [out] = normalizeProviders([bank]);
+    // A zero fee does not mean a free transfer — the cost is in the rate.
+    expect(out.transfer_fee).toBe(0);
+    expect(out.markup_pct).toBe(1.05);
+    expect(out.quoted_at).toBe("2026-09-04T18:07:51Z");
+  });
+
+  it("leaves markup undefined when the provider does not report one", () => {
+    const noMarkup = {
+      name: "Unknown",
+      alias: "unknown",
+      quotes: [{ rate: 1.6, fee: 0, receivedAmount: 19000 }],
+      logos: {},
+    };
+    const [out] = normalizeProviders([noMarkup]);
+    expect(out.markup_pct).toBeUndefined();
+    expect(out.quoted_at).toBeUndefined();
   });
 
   it("dedups by name keeping the best received per provider", () => {

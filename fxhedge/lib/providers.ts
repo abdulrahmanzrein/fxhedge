@@ -20,6 +20,7 @@ interface WiseQuote {
   receivedAmount?: number;
   isConsideredMidMarketRate?: boolean;
   markup?: number;
+  dateCollected?: string;
 }
 
 interface WiseProvider {
@@ -34,6 +35,8 @@ export interface NormalizedQuote {
   received: number;
   mid_market: boolean;
   transfer_fee?: number;
+  markup_pct?: number;
+  quoted_at?: string;
   logo?: string;
 }
 
@@ -56,6 +59,11 @@ export function normalizeProviders(raw: WiseProvider[]): NormalizedQuote[] {
         received,
         mid_market: q.isConsideredMidMarketRate === true,
         transfer_fee: typeof q.fee === "number" ? q.fee : undefined,
+        // Wise computes this against its own mid-market rate; it is the markup
+        // that never appears on an invoice, so it is worth surfacing verbatim.
+        markup_pct:
+          typeof q.markup === "number" ? Math.round(q.markup * 100) / 100 : undefined,
+        quoted_at: typeof q.dateCollected === "string" ? q.dateCollected : undefined,
         logo: p.logos?.png?.[0] ?? p.logos?.svg?.[0],
       };
       if (!best || candidate.received > best.received) best = candidate;
