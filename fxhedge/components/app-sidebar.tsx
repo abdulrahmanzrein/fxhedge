@@ -14,6 +14,7 @@ import {
   ScrollText,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { signOutAction } from "@/app/(auth)/actions";
 
 const NAV = [
   { href: "/dashboard", label: "Home", icon: Home },
@@ -70,6 +71,14 @@ export function AppSidebar() {
         </nav>
         <div className="border-t border-line px-5 py-4 text-xs text-faint">
           <p className="truncate text-muted">{email ?? "Signed in"}</p>
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              className="mt-1 text-xs text-faint transition-colors hover:text-negative"
+            >
+              Sign out
+            </button>
+          </form>
         </div>
       </aside>
 
