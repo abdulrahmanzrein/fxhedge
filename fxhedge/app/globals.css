@@ -42,6 +42,24 @@
   --color-warning-muted: #3C2B17;
 }
 
+@media print {
+  aside,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .zakat-summary {
+    border: 1px solid #333 !important;
+  }
+}
+
 *,
 *::before,
 *::after {
